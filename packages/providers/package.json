@@ -1,0 +1,15 @@
+{
+  "name": "@intelluxiq/providers",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
