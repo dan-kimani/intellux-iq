@@ -1,0 +1,7 @@
+target
+.tmp
+node_modules
+.next
+.turbo
+.git
+**/*.log

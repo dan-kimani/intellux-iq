@@ -1,0 +1,79 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "jsx-a11y",
+    "import",
+    "promise",
+    "node",
+    "nextjs"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "next": {
+      "rootDir": [
+        "apps/web"
+      ]
+    }
+  },
+  "ignorePatterns": [
+    "**/.next/**",
+    "**/.nsh/**",
+    "**/.turbo/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/target/**",
+    "**/next-env.d.ts"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "apps/web/src/components/ui/**"
+      ],
+      "rules": {
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "react/no-array-index-key": "off",
+        "react/no-danger": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "eslint/no-shadow": "off",
+        "jsx-a11y/prefer-tag-over-role": "off"
+      }
+    },
+    {
+      "files": [
+        "apps/desktop-ui/**"
+      ],
+      "rules": {
+        "react/no-unknown-property": "off",
+        "react/jsx-no-undef": "off",
+        "react/immutability": "off",
+        "jsx-a11y/prefer-tag-over-role": "off",
+        "jsx-a11y/role-has-required-aria-props": "off"
+      }
+    },
+    {
+      "files": [
+        "apps/web/src/app/layout.tsx"
+      ],
+      "rules": {
+        "import/no-unassigned-import": "off"
+      }
+    }
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off"
+  }
+}
