@@ -1,0 +1,6 @@
+[package]
+name = "intelluxiq-a11y"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false

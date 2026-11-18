@@ -1,0 +1,9 @@
+[package]
+name = "intelluxiq-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+intelluxiq-app = { path = "../../crates/app" }

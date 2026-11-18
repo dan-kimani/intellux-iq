@@ -1,0 +1,23 @@
+[package]
+name = "intelluxiq-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+intelluxiq-domain = { path = "../domain" }
+intelluxiq-feature-catalog = { path = "../features/catalog" }
+intelluxiq-feature-email = { path = "../features/email" }
+intelluxiq-feature-inbox = { path = "../features/inbox" }
+intelluxiq-feature-intelligence = { path = "../features/intelligence" }
+intelluxiq-feature-pipeline = { path = "../features/pipeline" }
+intelluxiq-feature-quotes = { path = "../features/quotes" }
+intelluxiq-feature-security = { path = "../features/security" }
+intelluxiq-feature-settings = { path = "../features/settings" }
+intelluxiq-feature-whatsapp = { path = "../features/whatsapp" }
+intelluxiq-store = { path = "../store" }
+intelluxiq-sync = { path = "../sync" }
+intelluxiq-ui = { path = "../ui" }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

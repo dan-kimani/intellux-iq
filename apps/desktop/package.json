@@ -1,0 +1,13 @@
+{
+  "name": "@intelluxiq/desktop",
+  "private": true,
+  "scripts": {
+    "dev": "bun ../../scripts/desktop.ts run",
+    "build": "bun ../../scripts/desktop.ts build",
+    "test": "bun ../../scripts/desktop.ts test",
+    "typecheck": "bun ../../scripts/desktop.ts cargo-check",
+    "check": "bun ../../scripts/desktop.ts check",
+    "fmt": "bun ../../scripts/desktop.ts fmt",
+    "clippy": "bun ../../scripts/desktop.ts clippy"
+  }
+}

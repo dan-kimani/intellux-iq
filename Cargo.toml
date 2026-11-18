@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = [
+  "apps/desktop",
+  "crates/app",
+  "crates/ui",
+  "crates/platform",
+  "crates/domain",
+  "crates/sync",
+  "crates/store",
+  "crates/contracts",
+  "crates/i18n",
+  "crates/a11y",
+  "crates/telemetry",
+  "crates/audio",
+  "crates/testkit",
+  "crates/features/inbox",
+  "crates/features/whatsapp",
+  "crates/features/email",
+  "crates/features/catalog",
+  "crates/features/quotes",
+  "crates/features/pipeline",
+  "crates/features/intelligence",
+  "crates/features/settings",
+  "crates/features/security",
+]
+default-members = ["apps/desktop"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
