@@ -1,0 +1,12 @@
+{
+  "name": "@intelluxiq/desktop-ui",
+  "private": true,
+  "scripts": {
+    "dev": "bun ../../scripts/desktop-ui.ts run",
+    "dev:web": "bun ../../scripts/desktop-ui.ts run:web",
+    "build": "bun ../../scripts/desktop-ui.ts build",
+    "check": "bun ../../scripts/desktop-ui.ts check",
+    "test": "bun ../../scripts/desktop-ui.ts test",
+    "package:web": "bun ../../scripts/desktop-ui.ts package:web"
+  }
+}

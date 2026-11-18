@@ -1,0 +1,20 @@
+{
+  "name": "IntelluxIQ",
+  "id": "app.intelluxiq.desktop",
+  "version": "0.1.0",
+  "build": 1,
+  "appearance": "dark",
+  "theme": "theme.json",
+  "window": {
+    "title": "IntelluxIQ",
+    "defaultSize": {
+      "width": 1440,
+      "height": 900
+    },
+    "minSize": {
+      "width": 1180,
+      "height": 720
+    },
+    "frame": "none"
+  }
+}
