@@ -1,0 +1,35 @@
+target/
+.tmp/
+node_modules/
+.next/
+.turbo/
+dist/
+*.tsbuildinfo
+coverage/
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+.tools/
+
+# Native Shell build output and generated editor data
+.nsh/
+
+# Local process/run state
+*.pid
+
+# Documentation and design references are kept out of this snapshot
+/docs/
+/.mocks/
+/.agents/
+/.claude/
+/skills-lock.json
+/logo.png
