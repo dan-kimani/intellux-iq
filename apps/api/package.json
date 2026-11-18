@@ -1,0 +1,22 @@
+{
+  "name": "@intelluxiq/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "test": "bun test --pass-with-no-tests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@intelluxiq/auth": "workspace:*",
+    "@intelluxiq/contracts": "workspace:*",
+    "@intelluxiq/db": "workspace:*",
+    "@intelluxiq/feature-identity": "workspace:*",
+    "hono": "^4.13.19"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@intelluxiq/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/egress.ts",
+    "dev:egress": "bun --watch src/egress.ts",
+    "dev:media": "bun --watch src/media.ts",
+    "dev:email": "bun --watch src/email.ts",
+    "start": "bun src/egress.ts",
+    "test": "bun test --pass-with-no-tests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@intelluxiq/jobs": "workspace:*",
+    "@intelluxiq/media": "workspace:*",
+    "@intelluxiq/providers": "workspace:*",
+    "@intelluxiq/telemetry": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}
