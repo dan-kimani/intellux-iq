@@ -1,0 +1,204 @@
+{
+  "app": {
+    "name": "IntelluxIQ",
+    "console": "Consola de administración"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "search": "Buscar",
+    "viewAll": "Ver todo"
+  },
+  "nav": {
+    "workspace": "Espacio de trabajo",
+    "overview": "Resumen",
+    "inbox": "Bandeja de entrada",
+    "contacts": "Contactos",
+    "quotations": "Cotizaciones",
+    "operations": "Operaciones",
+    "devices": "Dispositivos",
+    "channels": "Canales",
+    "templates": "Plantillas",
+    "audit": "Auditoría",
+    "system": "Sistema",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "pipeline": "Pipeline",
+    "intelligence": "Inteligencia"
+  },
+  "dashboard": {
+    "tagline": "Operaciones de ventas",
+    "workspace": "Acme Kenia",
+    "workspaceMeta": "Nairobi · Producción",
+    "environment": "Producción",
+    "live": "Espacio activo",
+    "date": "Martes, 17 de noviembre",
+    "title": "Resumen de operaciones",
+    "description": "Una vista en vivo de conversaciones, cotizaciones y dispositivos de tu espacio.",
+    "searchPlaceholder": "Buscar cualquier cosa... (contactos, negocios, cotizaciones, productos)",
+    "actions": {
+      "export": "Exportar",
+      "newQuote": "Nueva cotización"
+    },
+    "user": {
+      "name": "Yasir Noori",
+      "email": "yasir@acme.co.ke",
+      "profile": "Perfil",
+      "settings": "Configuración",
+      "signOut": "Cerrar sesión"
+    },
+    "metrics": {
+      "conversations": "Conversaciones activas",
+      "conversationsValue": "24",
+      "conversationsNote": "8,2% vs. la semana pasada",
+      "quotations": "Cotizaciones abiertas",
+      "quotationsValue": "KES 1,28 M",
+      "quotationsNote": "12,4% vs. la semana pasada",
+      "response": "Respuesta mediana",
+      "responseValue": "3m 12s",
+      "responseNote": "42s más rápido que la semana pasada",
+      "devices": "Dispositivos en línea",
+      "devicesValue": "18/20",
+      "devicesNote": "2 dispositivos requieren atención"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "conversations": "Conversaciones",
+      "quotations": "Cotizaciones",
+      "devices": "Dispositivos",
+      "pipeline": "Pipeline",
+      "intelligence": "Inteligencia"
+    },
+    "chart": {
+      "title": "Volumen de conversaciones",
+      "description": "WhatsApp y correo · últimos 7 días",
+      "whatsapp": "WhatsApp",
+      "email": "Correo"
+    },
+    "channels": {
+      "title": "Salud de canales",
+      "description": "Conexiones y entrega",
+      "whatsapp": "WhatsApp",
+      "whatsappDetail": "+254 712 ••• 442",
+      "whatsappMetric": "99,8% de entrega",
+      "email": "Correo",
+      "emailDetail": "sales@acme.co.ke",
+      "emailMetric": "2 buzones",
+      "devices": "Dispositivos",
+      "devicesDetail": "18 de 20 en línea",
+      "devicesMetric": "90% de cobertura",
+      "healthy": "Saludable",
+      "attention": "Atención",
+      "manage": "Gestionar canales"
+    },
+    "quotes": {
+      "title": "Cotizaciones recientes",
+      "description": "Actividad comercial más reciente",
+      "viewAll": "Ver todo",
+      "number": "Cotización",
+      "customer": "Cliente",
+      "value": "Valor",
+      "status": "Estado",
+      "updated": "Actualizada",
+      "statuses": {
+        "approved": "Aprobada",
+        "review": "En revisión",
+        "sent": "Enviada",
+        "draft": "Borrador"
+      }
+    },
+    "activity": {
+      "title": "Actividad del equipo",
+      "description": "Hoy",
+      "viewAll": "Ver todo"
+    },
+    "conversations": {
+      "title": "Conversaciones",
+      "description": "Hilos activos en todos los canales",
+      "contact": "Contacto",
+      "channel": "Canal",
+      "assignee": "Asignado a",
+      "waiting": "Esperando",
+      "status": "Estado",
+      "statuses": {
+        "open": "Abierta",
+        "waiting": "Esperando"
+      }
+    },
+    "devices": {
+      "title": "Dispositivos",
+      "description": "Aplicaciones de escritorio vinculadas",
+      "device": "Dispositivo",
+      "platform": "Plataforma",
+      "lastSeen": "Última conexión",
+      "status": "Estado",
+      "online": "En línea",
+      "offline": "Desconectado"
+    },
+    "footer": {
+      "synced": "Sincronizado hace 12 segundos",
+      "healthy": "Todos los sistemas operativos"
+    },
+    "help": "Ayuda",
+    "notifications": "Notificaciones",
+    "pipeline": {
+      "title": "Pipeline",
+      "description": "Oportunidades por etapa, valor y próxima acción.",
+      "stageLabel": "Etapa",
+      "opportunity": "Oportunidad",
+      "customer": "Cliente",
+      "value": "Valor",
+      "owner": "Responsable",
+      "lastActivity": "Última actividad",
+      "stages": {
+        "enquiry": "Consulta",
+        "qualified": "Calificada",
+        "quotation": "Cotización",
+        "negotiation": "Negociación",
+        "won": "Ganada",
+        "lost": "Perdida"
+      },
+      "open": "Oportunidades abiertas",
+      "viewAll": "Ver todo"
+    },
+    "intelligence": {
+      "title": "Inteligencia de ventas",
+      "description": "Señales deterministas y resultados, no conteos de actividad.",
+      "signalsTitle": "Cola de recuperación",
+      "signalsDescription": "Sin respuesta, clientes silenciosos, inactivas y vencidas.",
+      "outcomesTitle": "Modelo de resultados",
+      "outcomesDescription": "Lo que el equipo produjo realmente este mes.",
+      "severity": {
+        "urgent": "Urgente",
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "signals": {
+        "lead": "Consulta sin respuesta",
+        "silent": "Cliente dejó de responder",
+        "quote": "Cotización sin seguimiento",
+        "inactive": "Oportunidad inactiva",
+        "due": "Seguimiento vencido"
+      },
+      "outcomes": {
+        "enquiries": "Consultas",
+        "qualified": "Calificadas",
+        "quotes": "Cotizaciones emitidas",
+        "accepted": "Cotizaciones aceptadas",
+        "won": "Negocios ganados",
+        "revenue": "Ingresos",
+        "recovered": "Consultas recuperadas",
+        "followUps": "Seguimientos a tiempo"
+      },
+      "note": "La actividad es contexto. Los resultados determinan el rendimiento.",
+      "columns": {
+        "subject": "Sujeto",
+        "signal": "Señal",
+        "severity": "Severidad",
+        "owner": "Responsable",
+        "age": "Antigüedad"
+      }
+    }
+  }
+}

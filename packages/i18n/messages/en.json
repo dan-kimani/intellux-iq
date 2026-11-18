@@ -1,0 +1,204 @@
+{
+  "app": {
+    "name": "IntelluxIQ",
+    "console": "Manager console"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "viewAll": "View all"
+  },
+  "nav": {
+    "workspace": "Workspace",
+    "overview": "Overview",
+    "inbox": "Inbox",
+    "contacts": "Contacts",
+    "quotations": "Quotations",
+    "operations": "Operations",
+    "devices": "Devices",
+    "channels": "Channels",
+    "templates": "Templates",
+    "audit": "Audit",
+    "system": "System",
+    "settings": "Settings",
+    "help": "Help",
+    "pipeline": "Pipeline",
+    "intelligence": "Intelligence"
+  },
+  "dashboard": {
+    "tagline": "Sales operations",
+    "workspace": "Acme Kenya",
+    "workspaceMeta": "Nairobi · Production",
+    "environment": "Production",
+    "live": "Live workspace",
+    "date": "Tuesday, 17 November",
+    "title": "Operations overview",
+    "description": "A live view of conversations, quotations, and devices across your workspace.",
+    "searchPlaceholder": "Search anything... (contacts, deals, quotes, products)",
+    "actions": {
+      "export": "Export",
+      "newQuote": "New quotation"
+    },
+    "user": {
+      "name": "Yasir Noori",
+      "email": "yasir@acme.co.ke",
+      "profile": "Profile",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    },
+    "metrics": {
+      "conversations": "Active conversations",
+      "conversationsValue": "24",
+      "conversationsNote": "8.2% vs last week",
+      "quotations": "Open quotations",
+      "quotationsValue": "KES 1.28M",
+      "quotationsNote": "12.4% vs last week",
+      "response": "Median response",
+      "responseValue": "3m 12s",
+      "responseNote": "42s faster than last week",
+      "devices": "Devices online",
+      "devicesValue": "18/20",
+      "devicesNote": "2 devices need attention"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "conversations": "Conversations",
+      "quotations": "Quotations",
+      "devices": "Devices",
+      "pipeline": "Pipeline",
+      "intelligence": "Intelligence"
+    },
+    "chart": {
+      "title": "Conversation volume",
+      "description": "WhatsApp and email · last 7 days",
+      "whatsapp": "WhatsApp",
+      "email": "Email"
+    },
+    "channels": {
+      "title": "Channel health",
+      "description": "Connections and delivery",
+      "whatsapp": "WhatsApp",
+      "whatsappDetail": "+254 712 ••• 442",
+      "whatsappMetric": "99.8% delivery",
+      "email": "Email",
+      "emailDetail": "sales@acme.co.ke",
+      "emailMetric": "2 mailboxes",
+      "devices": "Devices",
+      "devicesDetail": "18 of 20 online",
+      "devicesMetric": "90% coverage",
+      "healthy": "Healthy",
+      "attention": "Attention",
+      "manage": "Manage channels"
+    },
+    "quotes": {
+      "title": "Recent quotations",
+      "description": "Latest commercial activity",
+      "viewAll": "View all",
+      "number": "Quote",
+      "customer": "Customer",
+      "value": "Value",
+      "status": "Status",
+      "updated": "Updated",
+      "statuses": {
+        "approved": "Approved",
+        "review": "In review",
+        "sent": "Sent",
+        "draft": "Draft"
+      }
+    },
+    "activity": {
+      "title": "Team activity",
+      "description": "Today",
+      "viewAll": "View all"
+    },
+    "conversations": {
+      "title": "Conversations",
+      "description": "Active threads across channels",
+      "contact": "Contact",
+      "channel": "Channel",
+      "assignee": "Assignee",
+      "waiting": "Waiting",
+      "status": "Status",
+      "statuses": {
+        "open": "Open",
+        "waiting": "Waiting"
+      }
+    },
+    "devices": {
+      "title": "Devices",
+      "description": "Linked desktop apps",
+      "device": "Device",
+      "platform": "Platform",
+      "lastSeen": "Last seen",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "footer": {
+      "synced": "Last synced 12 seconds ago",
+      "healthy": "All systems operational"
+    },
+    "help": "Help",
+    "notifications": "Notifications",
+    "pipeline": {
+      "title": "Pipeline",
+      "description": "Opportunities by stage, value, and next action.",
+      "stageLabel": "Stage",
+      "opportunity": "Opportunity",
+      "customer": "Customer",
+      "value": "Value",
+      "owner": "Owner",
+      "lastActivity": "Last activity",
+      "stages": {
+        "enquiry": "Enquiry",
+        "qualified": "Qualified",
+        "quotation": "Quotation",
+        "negotiation": "Negotiation",
+        "won": "Won",
+        "lost": "Lost"
+      },
+      "open": "Open opportunities",
+      "viewAll": "View all"
+    },
+    "intelligence": {
+      "title": "Sales intelligence",
+      "description": "Deterministic signals and outcomes, not activity counts.",
+      "signalsTitle": "Recovery queue",
+      "signalsDescription": "Unanswered, silent, inactive, and overdue.",
+      "outcomesTitle": "Outcome model",
+      "outcomesDescription": "What the team actually produced this month.",
+      "severity": {
+        "urgent": "Urgent",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "signals": {
+        "lead": "Unanswered lead",
+        "silent": "Customer went silent",
+        "quote": "Quote needs follow-up",
+        "inactive": "Opportunity inactive",
+        "due": "Follow-up overdue"
+      },
+      "outcomes": {
+        "enquiries": "Enquiries",
+        "qualified": "Qualified",
+        "quotes": "Quotes issued",
+        "accepted": "Quotes accepted",
+        "won": "Deals won",
+        "revenue": "Revenue",
+        "recovered": "Leads recovered",
+        "followUps": "Follow-ups on time"
+      },
+      "note": "Activity is context. Outcomes determine performance.",
+      "columns": {
+        "subject": "Subject",
+        "signal": "Signal",
+        "severity": "Severity",
+        "owner": "Owner",
+        "age": "Age"
+      }
+    }
+  }
+}
