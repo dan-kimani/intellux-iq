@@ -37,13 +37,29 @@ if (!nsh) {
   process.exit(1);
 }
 
+const hostTarget =
+  process.platform === "darwin" ? "macos" : process.platform === "win32" ? "windows" : "linux";
+
+const packageTarget = (target: string): string[] => [
+  "package",
+  app,
+  "--target",
+  target,
+  "--out",
+  join(app, ".nsh", "dist", target),
+];
+
 const commands: Record<string, string[]> = {
   run: ["run", app],
   "run:web": ["run", app, "--target", "web"],
   check: ["check", app],
   build: ["build", app],
   test: ["test", app],
-  "package:web": ["package", app, "--target", "web"],
+  package: packageTarget(hostTarget),
+  "package:linux": packageTarget("linux"),
+  "package:windows": packageTarget("windows"),
+  "package:macos": packageTarget("macos"),
+  "package:web": packageTarget("web"),
 };
 
 const command = process.argv[2] ?? "run";
