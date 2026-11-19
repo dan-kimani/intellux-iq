@@ -1,6 +1,9 @@
 import { signal } from "nsh";
+import { nextStage, stageLabel } from "../../domain/stages";
 import { currentUser } from "../../state";
-import { dealStages, deals, type Deal, type DealStage } from "./data";
+import { deals, type Deal, type DealStage } from "./data";
+
+export { stageLabel };
 
 export const dealRows = signal<Deal[]>(deals);
 export const dealDetail = signal<Deal | null>(null);
@@ -10,10 +13,6 @@ export const dealOwnerFilter = signal("All owners");
 export const dealSearch = signal("");
 export type PipelineScope = "all" | "my" | "team";
 export const pipelineScope = signal<PipelineScope>("all");
-
-export function stageLabel(stage: DealStage): string {
-  return dealStages.find((item) => item.id === stage)?.label ?? stage;
-}
 
 export function moveDealToStage(id: string, stage: DealStage): Deal | null {
   const source = dealRows().find((row) => row.id === id);
@@ -27,9 +26,8 @@ export function moveDealToStage(id: string, stage: DealStage): Deal | null {
 export function advanceDealRow(id: string): Deal | null {
   const deal = dealRows().find((row) => row.id === id);
   if (!deal) return null;
-  const index = dealStages.findIndex((stage) => stage.id === deal.stage);
-  const next = dealStages[Math.min(index + 1, dealStages.length - 1)];
-  return moveDealToStage(id, next.id);
+  const next = nextStage(deal.stage);
+  return next ? moveDealToStage(id, next) : null;
 }
 
 export function filteredDeals(): Deal[] {

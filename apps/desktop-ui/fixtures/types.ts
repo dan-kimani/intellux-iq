@@ -1,7 +1,9 @@
 import type { ImageAsset } from "nsh";
+import type { Stage } from "../domain/stages";
+
+export type { Stage };
 
 export type Channel = "whatsapp" | "email";
-export type Stage = "enquiry" | "qualified" | "quotation" | "negotiation" | "won" | "lost";
 export type AvatarTone = "violet" | "blue" | "green" | "amber" | "rose" | "slate";
 export type Presence = "online" | "idle" | "in_call" | "offline";
 export type DeliveryStatus = "queued" | "sending" | "sent" | "delivered" | "read" | "failed";
@@ -143,17 +145,4 @@ export interface Conversation {
   windowMinutes: number | null;
   metrics: ConversationMetrics;
   messages: Message[];
-}
-
-export const stageLabels: { id: Stage; label: string }[] = [
-  { id: "enquiry", label: "Enquiry" },
-  { id: "qualified", label: "Qualified" },
-  { id: "quotation", label: "Quotation" },
-  { id: "negotiation", label: "Negotiation" },
-  { id: "won", label: "Won" },
-  { id: "lost", label: "Lost" },
-];
-
-export function stageIndex(stage: Stage): number {
-  return stageLabels.findIndex((item) => item.id === stage);
 }

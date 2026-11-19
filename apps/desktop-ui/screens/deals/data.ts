@@ -1,4 +1,6 @@
-export type DealStage = "enquiry" | "qualified" | "quotation" | "negotiation" | "won";
+import { type DealStage, type Stage, openStages, stageLabel } from "../../domain/stages";
+
+export type { DealStage };
 
 export interface Deal {
   id: string;
@@ -7,7 +9,7 @@ export interface Deal {
   value: string;
   owner: string;
   age: string;
-  stage: DealStage;
+  stage: Stage;
   product: string;
   contact: string;
   email: string;
@@ -20,17 +22,19 @@ export interface Deal {
   notes: string;
 }
 
-export const dealStages: {
-  id: DealStage;
-  label: string;
-  tone: "chart-2" | "chart-1" | "chart-4" | "chart-5" | "chart-3";
-}[] = [
-  { id: "enquiry", label: "Enquiry", tone: "chart-2" },
-  { id: "qualified", label: "Qualified", tone: "chart-1" },
-  { id: "quotation", label: "Quotation", tone: "chart-4" },
-  { id: "negotiation", label: "Negotiation", tone: "chart-5" },
-  { id: "won", label: "Won", tone: "chart-3" },
-];
+type StageTone = "chart-2" | "chart-1" | "chart-4" | "chart-5" | "chart-3";
+
+const stageTones: Record<DealStage, StageTone> = {
+  enquiry: "chart-2",
+  qualified: "chart-1",
+  quotation: "chart-4",
+  negotiation: "chart-5",
+  won: "chart-3",
+};
+
+export const dealStages: { id: DealStage; label: string; tone: StageTone }[] = openStages.map(
+  (id) => ({ id, label: stageLabel(id), tone: stageTones[id] }),
+);
 
 export const deals: Deal[] = [
   {

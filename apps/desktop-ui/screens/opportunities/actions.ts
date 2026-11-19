@@ -10,6 +10,7 @@ import {
   unlinkOpportunity,
   updateOpportunityLink,
 } from "../../state/inbox";
+import { stageLabel, stageOrder } from "../../domain/stages";
 import type { Conversation, OpportunityLink } from "../../data";
 import type { QuoteRow } from "../quotes/data";
 import {
@@ -18,10 +19,9 @@ import {
   dealStageFilter,
   dealOwnerFilter,
   pipelineScope,
-  stageLabel,
 } from "../deals/state";
 import { dealDetail } from "../deals/state";
-import type { Deal, DealStage } from "../deals/data";
+import type { Deal } from "../deals/data";
 import {
   quoteBuilderOpen,
   quoteCustomerPrefill,
@@ -31,22 +31,20 @@ import {
   quoteTab,
 } from "../quotes/state";
 
-export const opportunityStages: OpportunityLink["stage"][] = [
-  "enquiry",
-  "qualified",
-  "quotation",
-  "negotiation",
-  "won",
-];
+export const opportunityStages: OpportunityLink["stage"][] = [...stageOrder];
 
-export function setOpportunityStage(id: string, stage: OpportunityLink["stage"]): void {
-  moveOpportunityToStage(id, stage);
+export function setOpportunityStage(
+  id: string,
+  stage: OpportunityLink["stage"],
+): OpportunityLink | null {
+  const moved = moveOpportunityToStage(id, stage);
+  if (!moved) return null;
   const deal = dealRows().find((row) => row.id === id);
-  if (!deal) return;
-  const next = stage as DealStage;
-  const updated: Deal = { ...deal, stage: next };
+  if (!deal) return moved;
+  const updated: Deal = { ...deal, stage: moved.stage, probability: moved.probability };
   dealRows.set(dealRows().map((row) => (row.id === id ? updated : row)));
   if (dealDetail()?.id === id) dealDetail.set(updated);
+  return moved;
 }
 
 export function setOpportunityOwner(id: string, owner: string): void {

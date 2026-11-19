@@ -1,7 +1,8 @@
 import { Text, token, View } from "nsh";
 import { ActionMenu } from "../../components/ActionMenu";
 import { Icon } from "../../components/ui";
-import { type OpportunityLink, stageLabels } from "../../data";
+import { type OpportunityLink } from "../../data";
+import { stageLabel } from "../../domain/stages";
 import { opportunityStages } from "../opportunities/actions";
 
 export function StageStep(props: { label: string; index: number; current: number }) {
@@ -78,8 +79,8 @@ export function StageMenu(props: {
       groups={[
         opportunityStages.map((stage) => ({
           id: `stage-${stage}`,
-          label: stageLabels.find((item) => item.id === stage)?.label ?? stage,
-          icon: stage === "won" ? "checkCheck" : "arrowUpRight",
+          label: stageLabel(stage),
+          icon: stage === "won" ? "checkCheck" : stage === "lost" ? "close" : "arrowUpRight",
           disabled: props.opportunity.stage === stage,
           onSelect: () => props.onChange(stage),
         })),

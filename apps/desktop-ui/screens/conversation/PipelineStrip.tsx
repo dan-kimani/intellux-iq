@@ -2,7 +2,8 @@ import { signal, Text, token, View } from "nsh";
 import { ActionMenu } from "../../components/ActionMenu";
 import { StageMenu, StageStep } from "./OpportunityParts";
 import { Badge, Button, Icon } from "../../components/ui";
-import { type Conversation, type OpportunityLink, stageIndex, stageLabels } from "../../data";
+import { stageIndex, stageLabel, stageLabels } from "../../domain/stages";
+import type { Conversation, OpportunityLink } from "../../data";
 import {
   editOpportunityOpen,
   editingOpportunityId,
@@ -55,9 +56,10 @@ export function PipelineStrip(props: { conversation: Conversation }) {
   }
 
   const changeStage = (stage: OpportunityLink["stage"]) => {
-    if (!selected()) return;
-    setOpportunityStage(selected()!.id, stage);
-    showToast(`Opportunity moved to ${stageLabels.find((item) => item.id === stage)?.label}.`);
+    const opportunity = selected();
+    if (!opportunity) return;
+    const moved = setOpportunityStage(opportunity.id, stage);
+    if (moved) showToast(`Opportunity moved to ${stageLabel(moved.stage)}.`);
   };
 
   return (

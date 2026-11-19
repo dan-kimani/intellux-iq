@@ -1,4 +1,5 @@
 import { deals } from "../screens/deals/data";
+import { stageProbability } from "../domain/stages";
 import type {
   AssignmentSource,
   Conversation,
@@ -8,7 +9,6 @@ import type {
   Message,
   OpportunityLink,
   Presence,
-  Stage,
 } from "./types";
 
 const contactIds: Record<string, string | null> = {
@@ -141,15 +141,6 @@ const opportunityNames: Record<string, string> = {
   "OPP-2025-0125": "Mwangi Hardware — accessory bundle",
 };
 
-const probabilities: Record<Stage, number> = {
-  enquiry: 20,
-  qualified: 40,
-  quotation: 65,
-  negotiation: 80,
-  won: 100,
-  lost: 0,
-};
-
 const emailSubjects: Record<string, string> = {
   james: "Re: Revised quotation QT-2025-0045",
   peter: "Catalogue and accessory list",
@@ -188,7 +179,7 @@ function linkedOpportunities(seed: ConversationSeed): OpportunityLink[] {
       matched?.name ?? opportunityNames[seed.opportunityId] ?? `${seed.company} — new opportunity`,
     stage: matched?.stage ?? seed.opportunityStage,
     value: matched?.value ?? seed.opportunityValue,
-    probability: matched?.probability ?? probabilities[seed.opportunityStage],
+    probability: matched?.probability ?? stageProbability(seed.opportunityStage),
     owner: matched?.owner ?? owner,
   };
   if (seed.id === "sarah") {
@@ -200,7 +191,7 @@ function linkedOpportunities(seed: ConversationSeed): OpportunityLink[] {
         name: accessory?.name ?? "Acme Kenya — accessory bundle",
         stage: accessory?.stage ?? "enquiry",
         value: accessory?.value ?? "$2,400",
-        probability: accessory?.probability ?? probabilities.enquiry,
+        probability: accessory?.probability ?? stageProbability("enquiry"),
         owner: accessory?.owner ?? owner,
       },
     ];

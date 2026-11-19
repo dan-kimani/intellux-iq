@@ -2,6 +2,7 @@ import { signal as createSignal, Text, token, View } from "nsh";
 import { Badge, Button, Icon, SectionTitle, withAlpha } from "../../components/ui";
 import { TextField } from "../../components/forms";
 import type { Conversation } from "../../data";
+import { stageLabel } from "../../domain/stages";
 import {
   advanceOpportunity,
   assignmentDialogOpen,
@@ -99,10 +100,9 @@ function SignalRow(props: {
             accessibilityLabel="Advance opportunity"
             onPress={() => {
               const opportunity = opportunitiesFor(props.conversation)[0];
-              if (opportunity) {
-                advanceOpportunity(opportunity.id);
-                showToast(`${opportunity.id} advanced.`);
-              }
+              if (!opportunity) return;
+              const moved = advanceOpportunity(opportunity.id);
+              if (moved) showToast(`${opportunity.id} advanced to ${stageLabel(moved.stage)}.`);
             }}
             class="h-6 items-center justify-center rounded border border-border px-2"
             hoverStyle={{ backgroundColor: token("accent") }}

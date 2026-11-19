@@ -1,4 +1,5 @@
 import { signal } from "nsh";
+import { nextStage, stageProbability } from "../domain/stages";
 import {
   type Conversation,
   type ConversationAssignment,
@@ -84,8 +85,16 @@ export function opportunitiesFor(conversation: Conversation): OpportunityLink[] 
     .filter((row): row is OpportunityLink => Boolean(row));
 }
 
-export function canEditOpportunity(opportunity: OpportunityLink): boolean {
-  return currentMember.role === "manager" || opportunity.owner === currentMember.name;
+export type OpportunityActor = {
+  name: string;
+  role: "sales" | "manager" | "admin";
+};
+
+export function canEditOpportunity(
+  opportunity: OpportunityLink,
+  actor: OpportunityActor = currentMember,
+): boolean {
+  return actor.role === "manager" || actor.role === "admin" || opportunity.owner === actor.name;
 }
 
 export function updateOpportunityLink(id: string, patch: Partial<OpportunityLink>): void {
@@ -94,29 +103,37 @@ export function updateOpportunityLink(id: string, patch: Partial<OpportunityLink
   );
 }
 
-export function moveOpportunityToStage(id: string, stage: OpportunityLink["stage"]): void {
-  const probability =
-    stage === "won"
-      ? 100
-      : stage === "lost"
-        ? 0
-        : stage === "negotiation"
-          ? 80
-          : stage === "quotation"
-            ? 65
-            : stage === "qualified"
-              ? 40
-              : 20;
-  updateOpportunityLink(id, { stage, probability });
+/**
+ * Moves an opportunity to a new stage and returns the updated row, or null when
+ * there is nothing to do (unknown id, same stage, or the actor lacks permission).
+ * Moving a stage resets probability to that stage's default.
+ */
+export function moveOpportunityToStage(
+  id: string,
+  stage: OpportunityLink["stage"],
+  actor: OpportunityActor = currentMember,
+): OpportunityLink | null {
+  const opportunity = opportunityLinks().find((row) => row.id === id);
+  if (!opportunity || opportunity.stage === stage || !canEditOpportunity(opportunity, actor)) {
+    return null;
+  }
+  const updated: OpportunityLink = {
+    ...opportunity,
+    stage,
+    probability: stageProbability(stage),
+  };
+  opportunityLinks.set(opportunityLinks().map((row) => (row.id === id ? updated : row)));
+  return updated;
 }
 
-export function advanceOpportunity(id: string): void {
-  const order = ["enquiry", "qualified", "quotation", "negotiation", "won"] as const;
+export function advanceOpportunity(
+  id: string,
+  actor: OpportunityActor = currentMember,
+): OpportunityLink | null {
   const opportunity = opportunityLinks().find((row) => row.id === id);
-  if (!opportunity) return;
-  const index = order.indexOf(opportunity.stage as (typeof order)[number]);
-  if (index < 0 || index === order.length - 1) return;
-  moveOpportunityToStage(id, order[index + 1]);
+  if (!opportunity) return null;
+  const next = nextStage(opportunity.stage);
+  return next ? moveOpportunityToStage(id, next, actor) : null;
 }
 
 export function linkOpportunity(conversation: Conversation, opportunity: OpportunityLink): void {
