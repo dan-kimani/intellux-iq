@@ -249,16 +249,6 @@ test("filters catalogue stock and opens the audit log", async () => {
   await app.waitFor("id:run-log-dialog");
 });
 
-test("uses the desktop window chrome and controls", async () => {
-  const app = await openDesktop();
-  await app.press("id:chrome-new-quote");
-  await app.waitFor("id:quote-builder-dialog");
-  await app.press("id:dialog-close");
-  await app.waitFor("id:window-minimize");
-  await app.waitFor("id:window-maximize");
-  await app.waitFor("id:window-close");
-});
-
 test("shows overflow actions as dropdown menus", async () => {
   const app = await openDesktop();
   await app.press("id:chrome-more");

@@ -16,6 +16,7 @@
       "width": 1180,
       "height": 720
     },
-    "frame": "none"
+    "frame": "none",
+    "transparent": true
   }
 }

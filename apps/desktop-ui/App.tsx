@@ -1,4 +1,5 @@
 import { effect, mount, reduceMotion, setColorScheme, signal, Text, View } from "nsh";
+import { isAvailable } from "nsh/desktop";
 import { AssignmentDialog } from "./components/AssignmentDialog";
 import { ChannelConnectDialog } from "./components/ChannelConnectDialog";
 import { ChannelRail } from "./components/ChannelRail";
@@ -17,7 +18,8 @@ import { TagDialog } from "./components/TagDialog";
 import { InboxList } from "./components/InboxList";
 import { Sidebar } from "./components/Sidebar";
 import { ShortcutHost } from "./components/ShortcutHost";
-import { WindowChrome, WindowResizeHandles } from "./components/WindowChrome";
+import { WindowChrome, windowMode } from "./components/WindowChrome";
+import { WindowResizeHandles } from "./components/WindowResizeHandles";
 
 import type { Conversation } from "./data";
 import { AnalyticsScreen } from "./screens/Analytics";
@@ -147,7 +149,10 @@ function Workspace() {
 function App() {
   return (
     <View
-      class="relative h-full w-full flex-col overflow-hidden bg-background"
+      testID="app-frame"
+      class={`relative h-full w-full flex-col overflow-hidden bg-background ${
+        isAvailable && windowMode() === "normal" ? "rounded-lg border border-border" : ""
+      }`}
       style={{ width: "100%", height: "100%" }}
     >
       <WindowChrome />

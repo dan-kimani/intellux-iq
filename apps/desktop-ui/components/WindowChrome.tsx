@@ -1,5 +1,5 @@
-import { colorScheme, setColorScheme, Text, token, View } from "nsh";
-import { currentWindow, isAvailable } from "nsh/desktop";
+import { colorScheme, setColorScheme, signal, Text, token, View } from "nsh";
+import { currentWindow, isAvailable, type WindowMode } from "nsh/desktop";
 import { Input as NativeInput } from "nsh/base";
 import userPhoto from "../assets/images/user.jpg";
 import {
@@ -17,7 +17,7 @@ import { newDealOpen } from "../screens/deals/state";
 import { quoteBuilderOpen } from "../screens/quotes/state";
 import { onboardingOpen } from "../screens/settings/state";
 import { shortcutLabel } from "../screens/settings/shortcuts";
-import { Avatar, Icon, IconButton, Kbd, Logo, type IconName } from "./ui";
+import { Avatar, Icon, IconButton, Kbd, Lockup, type IconName } from "./ui";
 import { WindowMoreMenu } from "./WindowMoreMenu";
 import { NotificationsMenu } from "./NotificationsMenu";
 
@@ -26,24 +26,39 @@ function showWindowNotice(message: string) {
   showToast(message);
 }
 
-function TrafficButton(props: { kind: "minimize" | "maximize" | "close"; onPress: () => void }) {
-  const symbol = props.kind === "minimize" ? "−" : props.kind === "maximize" ? "□" : "×";
+/** The main window's mode, shared with the app frame that rounds its corners. */
+export const windowMode = signal<WindowMode>("normal");
+
+function TrafficButton(props: {
+  kind: "minimize" | "maximize" | "close";
+  restore?: () => boolean;
+  onPress: () => void;
+}) {
+  const restore = () => props.restore?.() ?? false;
+  const symbol = () =>
+    props.kind === "minimize" ? "−" : props.kind === "maximize" ? (restore() ? "⧉" : "□") : "×";
+  const label = () =>
+    props.kind === "close"
+      ? "Close window"
+      : props.kind === "minimize"
+        ? "Minimize window"
+        : restore()
+          ? "Restore window"
+          : "Maximize window";
+  const tip = () =>
+    props.kind === "close"
+      ? "Close"
+      : props.kind === "minimize"
+        ? "Minimize"
+        : restore()
+          ? "Restore"
+          : "Maximize";
   return (
     <View
       role="button"
-      accessibilityLabel={
-        props.kind === "close"
-          ? "Close window"
-          : props.kind === "minimize"
-            ? "Minimize window"
-            : "Maximize window"
-      }
+      accessibilityLabel={label()}
       testID={`window-${props.kind}`}
-      tooltip={
-        <Text class="text-xs text-foreground">
-          {props.kind === "close" ? "Close" : props.kind === "minimize" ? "Minimize" : "Maximize"}
-        </Text>
-      }
+      tooltip={<Text class="text-xs text-foreground">{tip()}</Text>}
       onPress={props.onPress}
       class="h-8 w-8 items-center justify-center rounded-md"
       hoverStyle={{ backgroundColor: token(props.kind === "close" ? "destructive" : "accent") }}
@@ -53,7 +68,7 @@ function TrafficButton(props: { kind: "minimize" | "maximize" | "close"; onPress
         class="text-[14px] leading-none"
         style={{ color: token(props.kind === "close" ? "foreground" : "muted-foreground") }}
       >
-        {symbol}
+        {symbol()}
       </Text>
     </View>
   );
@@ -86,6 +101,11 @@ function QuickAction(props: {
 
 export function WindowChrome() {
   const windowRef = isAvailable ? currentWindow() : null;
+  if (windowRef) {
+    const current = windowRef.state()?.mode ?? "normal";
+    if (windowMode() !== current) windowMode.set(current);
+    windowRef.on("modeChange", ({ mode }) => windowMode.set(mode));
+  }
   const act = (kind: "minimize" | "maximize" | "close") => {
     if (!windowRef) {
       showWindowNotice(
@@ -95,7 +115,7 @@ export function WindowChrome() {
     }
     if (kind === "close") windowRef.close();
     else if (kind === "minimize") windowRef.minimize();
-    else if (windowRef.state()?.mode === "maximized") windowRef.restore();
+    else if (windowRef.state()?.mode === "maximized") windowRef.setMode("normal");
     else windowRef.setMode("maximized");
   };
   return (
@@ -104,8 +124,7 @@ export function WindowChrome() {
       desktop={{ windowDrag: true }}
     >
       <View class="flex-row items-center gap-2 pr-1">
-        <Logo size={24} />
-        <Text class="text-[13px] font-semibold tracking-tight text-foreground">IntelluxIQ</Text>
+        <Lockup height={24} scheme={colorScheme()} />
         <View class="rounded border border-border px-1 py-0.5">
           <Text class="text-[8px] font-semibold text-muted-foreground">2.0</Text>
         </View>
@@ -220,20 +239,13 @@ export function WindowChrome() {
       </View>
       <View class="ml-1 flex-row items-center gap-0.5 border-l border-border pl-1.5">
         <TrafficButton kind="minimize" onPress={() => act("minimize")} />
-        <TrafficButton kind="maximize" onPress={() => act("maximize")} />
+        <TrafficButton
+          kind="maximize"
+          restore={() => windowMode() === "maximized"}
+          onPress={() => act("maximize")}
+        />
         <TrafficButton kind="close" onPress={() => act("close")} />
       </View>
     </View>
-  );
-}
-
-export function WindowResizeHandles() {
-  return (
-    <>
-      <View class="absolute left-0 top-0 bottom-0 w-1" desktop={{ windowResize: "left" }} />
-      <View class="absolute right-0 top-0 bottom-0 w-1" desktop={{ windowResize: "right" }} />
-      <View class="absolute left-0 right-0 top-0 h-1" desktop={{ windowResize: "top" }} />
-      <View class="absolute left-0 right-0 bottom-0 h-1" desktop={{ windowResize: "bottom" }} />
-    </>
   );
 }
