@@ -239,17 +239,21 @@ function normalizedMessages(seed: ConversationSeed): Message[] {
     }
     return message;
   });
-  if (seed.id === "david") {
-    return messages.map((message) =>
-      message.kind === "text" && message.from === "me"
-        ? { ...message, read: false, status: "failed" as const }
-        : message,
-    );
-  }
+  const withState =
+    seed.id === "david"
+      ? messages.map((message) =>
+          message.kind === "text" && message.from === "me"
+            ? { ...message, read: false, status: "failed" as const }
+            : message,
+        )
+      : messages;
   if (seed.id === "mary") {
-    messages.push({ kind: "audio", from: "them", duration: "0:19", time: "2:58 PM" });
+    withState.push({ kind: "audio", from: "them", duration: "0:19", time: "2:58 PM" });
   }
-  return messages;
+  return withState.map((message, index) => ({
+    ...message,
+    id: message.id ?? `${seed.id}-m${index + 1}`,
+  }));
 }
 
 export function normalizeConversation(seed: ConversationSeed): Conversation {

@@ -1,3 +1,4 @@
+import type { JSX } from "nsh";
 import { Text, token, View } from "nsh";
 import { Icon, withAlpha } from "../../components/ui";
 import type { DeliveryStatus } from "../../data";
@@ -19,7 +20,12 @@ function statusIcon(status: DeliveryStatus): "send" | "check" | "checkCheck" | "
   return "checkCheck";
 }
 
-export function BubbleMeta(props: { time: string; outgoing?: boolean; status?: DeliveryStatus }) {
+export function BubbleMeta(props: {
+  time: string;
+  outgoing?: boolean;
+  status?: DeliveryStatus;
+  actions?: JSX.Element;
+}) {
   const status = props.status ?? "sent";
   return (
     <View class="flex-row items-center justify-end gap-1">
@@ -50,6 +56,9 @@ export function BubbleMeta(props: { time: string; outgoing?: boolean; status?: D
           size={11}
           tone={status === "failed" ? "warning" : "bubble-out-foreground"}
         />
+      </If>
+      <If when={props.actions}>
+        <View class="-my-1 -mr-1">{props.actions}</View>
       </If>
     </View>
   );

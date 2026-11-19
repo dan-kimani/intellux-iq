@@ -1,11 +1,20 @@
 import { TextView } from "nsh/base";
 import { whatsappToHtml } from "./whatsappHtml";
 
-export function WhatsAppTranscript(props: { text: string; outgoing?: boolean }) {
+/**
+ * The message text is not selectable: a selectable native text view swallows the
+ * secondary click with its own menu, and the message actions menu (which has
+ * Copy) is the one the thread exposes instead.
+ */
+export function WhatsAppTranscript(props: {
+  text: string;
+  outgoing?: boolean;
+  onContextMenu?: () => void;
+}) {
   return (
     <TextView
       html={whatsappToHtml(props.text)}
-      selectable
+      onContextMenu={() => props.onContextMenu?.()}
       class={`text-[13px] leading-5 ${
         props.outgoing ? "text-bubble-out-foreground" : "text-bubble-in-foreground"
       }`}

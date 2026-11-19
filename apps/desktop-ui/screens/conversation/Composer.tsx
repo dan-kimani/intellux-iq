@@ -2,6 +2,14 @@ import { effect, keymap, signal, Text, token, View } from "nsh";
 import { Badge, Button, Icon } from "../../components/ui";
 import { AttachmentDialog } from "./AttachmentDialog";
 import { ComposerInputBar } from "./ComposerInputBar";
+import { ComposerReplyBanners } from "./ComposerReplyBanners";
+import {
+  clearReply,
+  editingMessage,
+  replyTarget,
+  sentReplyTo,
+  updateMessageOverride,
+} from "./message-actions";
 import { ComposerReadOnly } from "./ComposerReadOnly";
 import { SlashCommandMenu } from "./SlashCommandMenu";
 import { TemplatePicker } from "./TemplatePicker";
@@ -20,6 +28,7 @@ import {
   selectedConversation,
   sentKind,
   sentMessage,
+  sentRevision,
   sentTemplate,
   setDraftFor,
   showToast,
@@ -34,10 +43,28 @@ export function Composer(props: { onSent?: () => void }) {
   const conversation = selectedConversation();
   const draft = () => draftFor(conversation.id);
   const setDraft = (value: string) => setDraftFor(conversation.id, value);
+  const replying = () => {
+    const target = replyTarget();
+    return target?.conversationId === conversation.id ? target : null;
+  };
+  const editing = () => {
+    const target = editingMessage();
+    return target?.conversationId === conversation.id ? target : null;
+  };
   const noteMode = signal(false);
   const windowClosed = () =>
     conversation.channel === "whatsapp" && (conversation.windowMinutes ?? 0) <= 0;
   const writable = () => canWriteConversation(conversation);
+  effect(() => {
+    const target = replyTarget();
+    if (target && target.conversationId !== conversation.id) clearReply();
+  });
+  effect(() => {
+    const target = editingMessage();
+    if (!target || target.conversationId === conversation.id) return;
+    editingMessage.set(null);
+    setDraftFor(target.conversationId, "");
+  });
   effect(() => {
     const prefill = composerPrefill();
     if (!prefill) return;
@@ -49,11 +76,25 @@ export function Composer(props: { onSent?: () => void }) {
     if (!writable()) return;
     const text = draft().trim();
     if (!text) return;
+    const reply = replying();
+    const edit = editing();
+    if (edit) {
+      updateMessageOverride(edit.messageId, { text });
+      editingMessage.set(null);
+      setDraft("");
+      clearReply();
+      showToast("Message edited.");
+      props.onSent?.();
+      return;
+    }
     if (noteMode()) {
       sentKind.set("note");
       sentTemplate.set(null);
+      sentReplyTo.set(null);
       sentMessage.set(text);
+      sentRevision.set(sentRevision() + 1);
       setDraft("");
+      clearReply();
       showToast("Internal note added. Team-visible only.");
       props.onSent?.();
       return;
@@ -67,7 +108,10 @@ export function Composer(props: { onSent?: () => void }) {
     }
     sentKind.set("message");
     sentTemplate.set(appliedTemplate());
+    sentReplyTo.set(reply ? { from: reply.from, text: reply.text } : null);
     sentMessage.set(text);
+    sentRevision.set(sentRevision() + 1);
+    clearReply();
     enqueueMessage(text);
     setDraft("");
     composerAttachment.set(null);
@@ -82,10 +126,6 @@ export function Composer(props: { onSent?: () => void }) {
     props.onSent?.();
   };
 
-  effect(() => {
-    const dispose = keymap.bind("mod+enter", send, { when: "always" });
-    return () => dispose();
-  });
   if (!writable()) return <ComposerReadOnly conversation={conversation} />;
 
   const owner = () => assignmentFor(conversation);
@@ -172,6 +212,7 @@ export function Composer(props: { onSent?: () => void }) {
           }}
         />
       </If>
+      <ComposerReplyBanners conversationId={conversation.id} />
       <ComposerInputBar
         channel={conversation.channel}
         draft={draft}
@@ -212,7 +253,11 @@ export function Composer(props: { onSent?: () => void }) {
             </Text>
           </View>
         </View>
-        <Text class="text-[9.5px] text-muted-foreground">⌘↵ to send</Text>
+        <Text class="text-[9.5px] text-muted-foreground">
+          {conversation.channel === "whatsapp"
+            ? `Enter to send · ${keymap.label("mod+enter")} new line`
+            : `${keymap.label("mod+enter")} to send`}
+        </Text>
       </View>
       <If when={attachmentOpen()}>
         <AttachmentDialog />

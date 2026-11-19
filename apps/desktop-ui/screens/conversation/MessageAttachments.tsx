@@ -1,3 +1,4 @@
+import type { JSX } from "nsh";
 import { Image, Text, token, View } from "nsh";
 import { Icon, IconButton, withAlpha } from "../../components/ui";
 import { FileThumb } from "../../files/FileThumb";
@@ -10,12 +11,15 @@ import { statusFor } from "./message-status";
 type ImageMessage = Extract<Message, { kind: "image" }>;
 type FileMessage = Extract<Message, { kind: "file" }>;
 
-export function ImageBubble(props: { message: ImageMessage }) {
+export function ImageBubble(props: { message: ImageMessage; actions?: JSX.Element }) {
   const m = props.message;
   const outgoing = m.from === "me";
   const file = () => imageAttachment(m.fileName ?? "WhatsApp image", m.size ?? "1.4 MB", m.image);
   return (
-    <View class="max-w-97.5 gap-1" style={{ alignSelf: outgoing ? "flex-end" : "flex-start" }}>
+    <View
+      class="relative max-w-97.5 gap-1"
+      style={{ alignSelf: outgoing ? "flex-end" : "flex-start" }}
+    >
       <View class="relative overflow-hidden rounded-3xl border border-border bg-card shadow-md">
         <View
           role="button"
@@ -36,13 +40,26 @@ export function ImageBubble(props: { message: ImageMessage }) {
           >
             <Icon name="expand" size={11} tone="foreground" />
           </View>
-          <View
-            class="absolute bottom-2 right-2 rounded px-1.5 py-0.5"
-            style={{ backgroundColor: withAlpha(token("background"), "cc"), pointerEvents: "none" }}
-          >
-            <Text class="text-[9px]" style={{ color: token("foreground") }}>
-              {m.time}
-            </Text>
+          <View class="absolute bottom-2 right-2 flex-row items-center gap-1">
+            <View
+              class="rounded px-1.5 py-0.5"
+              style={{
+                backgroundColor: withAlpha(token("background"), "cc"),
+                pointerEvents: "none",
+              }}
+            >
+              <Text class="text-[9px]" style={{ color: token("foreground") }}>
+                {m.time}
+              </Text>
+            </View>
+            <If when={props.actions}>
+              <View
+                class="rounded-full"
+                style={{ backgroundColor: withAlpha(token("background"), "cc") }}
+              >
+                {props.actions}
+              </View>
+            </If>
           </View>
         </View>
       </View>
@@ -53,7 +70,7 @@ export function ImageBubble(props: { message: ImageMessage }) {
   );
 }
 
-export function FileBubble(props: { message: FileMessage }) {
+export function FileBubble(props: { message: FileMessage; actions?: JSX.Element }) {
   const m = props.message;
   const outgoing = m.from === "me";
   const file = () => attachmentFile(m.fileName, m.size);
@@ -101,7 +118,7 @@ export function FileBubble(props: { message: FileMessage }) {
           onPress={() => requestFileDownload(file())}
         />
       </View>
-      <BubbleMeta time={m.time} outgoing={outgoing} status={statusFor(m)} />
+      <BubbleMeta time={m.time} outgoing={outgoing} status={statusFor(m)} actions={props.actions} />
     </View>
   );
 }

@@ -68,15 +68,28 @@ test("switches the contact panel to intelligence", async () => {
   expect(app.texts()).toContain("OPEN SIGNALS");
 });
 
-test("keeps drafts per conversation and sends with mod+enter", async () => {
+test("keeps drafts per conversation", async () => {
   const app = await openDesktop();
   await app.press("id:conversation-david");
   await app.type("id:composer-input", "Draft for David");
   await app.press("id:conversation-sarah");
   await app.press("id:conversation-david");
   expect(app.value("id:composer-input")).toBe("Draft for David");
-  await app.keyboard.press("mod+Enter");
+});
+
+test("sends on Enter in a WhatsApp conversation", async () => {
+  const app = await openDesktop();
+  await app.type("id:composer-input", "Sending with Enter.");
+  await app.keyboard.press("Enter");
   await app.waitFor("text:Message queued through cloud egress.");
+});
+
+test("uses mod+enter for a new line in a WhatsApp draft", async () => {
+  const app = await openDesktop();
+  await app.type("id:composer-input", "First line");
+  await app.keyboard.press("mod+Enter");
+  await app.type("id:composer-input", "Second line");
+  expect(app.value("id:composer-input")).toBe("First line\nSecond line");
 });
 
 test("sends a message through the cloud egress path", async () => {

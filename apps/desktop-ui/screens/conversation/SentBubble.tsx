@@ -8,9 +8,13 @@ import {
   sentKind,
   sentMessage,
   sentOutboxId,
+  sentRevision,
   sentTemplate,
 } from "../../state";
 import { WhatsAppTranscript } from "./WhatsAppTranscript";
+import { ReplyQuote } from "./ReplyQuote";
+import { sentReplyTo } from "./message-actions";
+import { Reveal } from "../../components/motion";
 
 function sentStatus(): DeliveryStatus {
   const item = outbox().find((row) => row.id === sentOutboxId());
@@ -47,6 +51,9 @@ function SentBody() {
         borderBottomRightRadius: 3,
       }}
     >
+      <If when={sentReplyTo()}>
+        <ReplyQuote replyTo={sentReplyTo()!} outgoing />
+      </If>
       <If when={template}>
         <View class="flex-row items-center gap-1">
           <Icon name="fileText" size={9} tone="bubble-out-foreground" />
@@ -80,7 +87,13 @@ export function SentBubble() {
   return (
     <View class="px-5 pb-4" android={{ accessibilityLiveRegion: "polite" }}>
       <If when={sentMessage()}>
-        <SentBody />
+        <Each of={sentRevision() ? [sentRevision()] : []}>
+          {() => (
+            <Reveal from="bottom" class="w-full">
+              <SentBody />
+            </Reveal>
+          )}
+        </Each>
       </If>
     </View>
   );

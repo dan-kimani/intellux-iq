@@ -1,10 +1,11 @@
-import { effect, type InputRef, signal, Text, token, View } from "nsh";
+import { effect, type InputRef, keymap, signal, Text, token, View } from "nsh";
 import { Input as NativeInput } from "nsh/base";
 import type { Channel } from "../../data";
 import { Icon, IconButton } from "../../components/ui";
 import { WhatsAppAttachMenu } from "./WhatsAppAttachMenu";
 import { WhatsAppEmojiButton, WhatsAppFormatMenu } from "./WhatsAppComposerTools";
 import { applyWhatsAppFormat, type TextSelection, type WhatsAppFormat } from "./whatsappFormat";
+import { composerFocusRequest } from "./message-actions";
 
 function insertAtSelection(text: string, selection: TextSelection, value: string) {
   const start = Math.max(0, Math.min(selection.start, text.length));
@@ -37,6 +38,29 @@ export function ComposerInputBar(props: {
 
   effect(() => {
     if (!props.draft()) inputHeight.set(20);
+  });
+
+  effect(() => {
+    if (!composerFocusRequest()) return;
+    setTimeout(() => inputRef?.focus(), 0);
+  });
+
+  effect(() => {
+    if (!focused()) return;
+    const dispose = keymap.bind(
+      "mod+enter",
+      () => {
+        if (props.channel === "whatsapp") {
+          const result = insertAtSelection(props.draft(), selection(), "\n");
+          props.setDraft(result.text);
+          focusAt(result.caret, result.caret);
+        } else {
+          props.onSend();
+        }
+      },
+      { when: "always" },
+    );
+    return () => dispose();
   });
 
   const focusAt = (start: number, end: number) => {
@@ -97,7 +121,10 @@ export function ComposerInputBar(props: {
               value={props.draft()}
               multiline
               maxLength={4096}
-              submitBehavior="newline"
+              submitBehavior={props.channel === "whatsapp" ? "submit" : "newline"}
+              onSubmit={() => {
+                if (props.channel === "whatsapp") props.onSend();
+              }}
               onChange={({ value }) => props.setDraft(value)}
               onFocus={() => focused.set(true)}
               onBlur={() => focused.set(false)}
@@ -107,15 +134,6 @@ export function ComposerInputBar(props: {
               onContentSizeChange={({ size }) =>
                 inputHeight.set(Math.min(120, Math.max(20, size.height)))
               }
-              onKeyDown={(event) => {
-                if (
-                  event.key === "Enter" &&
-                  (event.modifiers.platform || event.modifiers.control) &&
-                  !event.modifiers.shift
-                ) {
-                  props.onSend();
-                }
-              }}
               placeholder={
                 props.noteMode ? "Write an internal note — team-visible" : "Type a message…"
               }

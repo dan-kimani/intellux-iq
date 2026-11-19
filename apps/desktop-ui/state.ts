@@ -106,6 +106,7 @@ export const searchQuery = signal("");
 export const inboxUnreadOnly = signal(false);
 export const inboxSort = signal("Recent");
 export const sentMessage = signal<string | null>(null);
+export const sentRevision = signal(0);
 export const toastMessage = signal<string | null>(null);
 
 let toastTimer: number | undefined;

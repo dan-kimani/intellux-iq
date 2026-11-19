@@ -1,4 +1,4 @@
-import { mount, setColorScheme, Text, View } from "nsh";
+import { effect, mount, reduceMotion, setColorScheme, signal, Text, View } from "nsh";
 import { AssignmentDialog } from "./components/AssignmentDialog";
 import { ChannelConnectDialog } from "./components/ChannelConnectDialog";
 import { ChannelRail } from "./components/ChannelRail";
@@ -79,11 +79,31 @@ function InboxWorkspace() {
 }
 
 function Toast() {
+  const entered = signal(false);
+  effect(() => {
+    if (!toastMessage()) {
+      entered.set(false);
+      return;
+    }
+    entered.set(false);
+    const timer = setTimeout(() => entered.set(true), 16);
+    return () => clearTimeout(timer);
+  });
   return (
     <If when={toastMessage()}>
       <View
         class="absolute bottom-6 flex-row items-center gap-2 rounded-lg border border-border bg-popover px-3.5 py-2.5 shadow-lg"
-        style={{ left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}
+        style={{
+          left: "50%",
+          opacity: entered() ? 1 : 0,
+          transform: entered()
+            ? "translateX(-50%) translateY(0px)"
+            : "translateX(-50%) translateY(6px)",
+          pointerEvents: "none",
+          transitionProperty: "opacity, transform",
+          transitionDuration: reduceMotion() ? 0 : 160,
+          transitionTimingFunction: "ease-out",
+        }}
         android={{ accessibilityLiveRegion: "polite" }}
       >
         <View class="rounded-full bg-success" style={{ width: 6, height: 6 }} />
