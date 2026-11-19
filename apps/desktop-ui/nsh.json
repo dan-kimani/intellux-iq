@@ -5,6 +5,7 @@
   "build": 1,
   "appearance": "dark",
   "theme": "theme.json",
+  "icon": "assets/icon.png",
   "window": {
     "title": "IntelluxIQ",
     "defaultSize": {

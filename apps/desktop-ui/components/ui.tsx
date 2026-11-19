@@ -1,10 +1,10 @@
 import type { ImageAsset, JSX, Tokens } from "nsh";
 import { Image, Text, token, View } from "nsh";
 import type { AvatarTone } from "../data";
-import { Icon, icons, type IconName, Logo } from "./icon";
+import { Icon, icons, type IconName, Lockup, Logo } from "./icon";
 import { withAlpha } from "./theme";
 
-export { Icon, icons, type IconName, Logo, withAlpha };
+export { Icon, icons, type IconName, Lockup, Logo, withAlpha };
 
 const toneToken: Record<AvatarTone, keyof Tokens> = {
   violet: "chart-1",
