@@ -50,6 +50,25 @@ test("navigates the command palette with the keyboard", async () => {
   await app.press("id:dialog-close");
 });
 
+test("opens common profile actions from the sidebar", async () => {
+  const app = await openDesktop();
+  await app.press("id:profile-menu-trigger");
+  await app.waitFor("id:profile-menu");
+  expect(app.texts()).toContain("Account overview");
+  expect(app.texts()).toContain("Workspace settings");
+  expect(app.texts()).toContain("Security & sessions");
+  expect(app.texts()).toContain("Sign out");
+  await app.press("id:profile-action-theme");
+  await app.waitFor("text:Switch to dark theme");
+  await app.press("id:profile-action-account-overview");
+  await app.waitFor("id:account-dialog");
+  await app.press("id:dialog-close");
+  await app.press("id:profile-menu-trigger");
+  await app.waitFor("id:profile-menu");
+  await app.press("id:profile-action-workspace-settings");
+  await app.waitFor("id:screen-settings");
+});
+
 test("locks and unlocks the desktop", async () => {
   const app = await openDesktop();
   await app.press("id:account-menu");

@@ -2,6 +2,7 @@ import { reduceMotion, Scroll, Text, token, View } from "nsh";
 import userPhoto from "../assets/images/user.jpg";
 import { accountOpen, activeNav, activeNavChild, sidebarCollapsed } from "../state";
 import { Avatar, Icon, IconButton, withAlpha } from "./ui";
+import { ProfileMenu } from "./ProfileMenu";
 import { SidebarNav } from "./SidebarNav";
 
 function WorkspaceMark(props: { size?: number }) {
@@ -151,18 +152,20 @@ export function Sidebar() {
               </Text>
               <Text class="text-[10px] leading-none text-muted-foreground">Sales Manager</Text>
             </View>
-            <IconButton
-              icon="settings"
-              label="Open settings"
-              size={28}
-              active={activeNav() === "Settings"}
-              testID="nav-settings"
-              onPress={() => {
-                activeNav.set("Settings");
-                activeNavChild.set(null);
-              }}
-            />
-            <Icon name="chevronDown" size={12} tone="muted-foreground" />
+            <View class="flex-row items-center gap-0.5">
+              <IconButton
+                icon="settings"
+                label="Open settings"
+                size={28}
+                active={activeNav() === "Settings"}
+                testID="nav-settings"
+                onPress={() => {
+                  activeNav.set("Settings");
+                  activeNavChild.set(null);
+                }}
+              />
+              <ProfileMenu />
+            </View>
           </If>
           <If when={collapsed()}>
             <IconButton
