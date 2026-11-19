@@ -14,13 +14,13 @@ import {
   LogOut,
   type LucideIcon,
   MonitorSmartphone,
-  Orbit,
   ScrollText,
   Settings,
   Sparkles,
   UserRound,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -104,13 +104,39 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip="IntelluxIQ">
-              <Link href="/" className="gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-white">
-                  <Orbit className="size-4" />
+              <Link href="/" className="gap-3" aria-label="IntelluxIQ">
+                <span className="group-data-[collapsible=icon]:hidden">
+                  <Image
+                    src="/brand/lockup-light.png"
+                    alt=""
+                    width={198}
+                    height={32}
+                    priority
+                    className="h-8 w-auto dark:hidden"
+                  />
+                  <Image
+                    src="/brand/lockup-dark.png"
+                    alt=""
+                    width={198}
+                    height={32}
+                    className="hidden h-8 w-auto dark:block"
+                  />
                 </span>
-                <span className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="truncate text-sm font-semibold">IntelluxIQ</span>
-                  <span className="truncate text-xs text-muted-foreground">{copy.tagline}</span>
+                <span className="hidden group-data-[collapsible=icon]:block">
+                  <Image
+                    src="/brand/mark-light.png"
+                    alt=""
+                    width={32}
+                    height={25}
+                    className="dark:hidden"
+                  />
+                  <Image
+                    src="/brand/mark-dark.png"
+                    alt=""
+                    width={32}
+                    height={25}
+                    className="hidden dark:block"
+                  />
                 </span>
               </Link>
             </SidebarMenuButton>
