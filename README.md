@@ -71,8 +71,27 @@ No Node runtime is used in production. Next.js and Hono run on Bun.
 - Deterministic sales intelligence (lead recovery, pipeline conversion, outcome
   metrics) ships before AI; AI remains an optional stub.
 - The desktop has no SMTP/IMAP implementation, sockets, or credentials. Email
-  protocol work lives only in cloud ingress/egress workers; the desktop composes
+  protocol work lives only in the cloud API and workers; the desktop composes
   drafts and receives history through sync events.
+- Email account setup is web-console only. OAuth tokens and app passwords stay
+  in the cloud vault; the desktop receives account status through sync and never
+  prompts for provider credentials. Folder and label discovery is also
+  cloud-only: Gmail labels, Microsoft Graph folders, Zoho folders/labels, and
+  IMAP trees are normalized server-side. See
+  [ADR 0007](docs/adr/0007-email-folder-discovery.md) and
+  [ADR 0008](docs/adr/0008-email-provider-onboarding.md).
+- Messaging onboarding is provider-native and web-console only: WhatsApp
+  Embedded Signup v4, Facebook Pages, Instagram Login (with Page fallback), and
+  gated TikTok Business Messaging. Meta/TikTok callbacks are app-level and are
+  mapped to the tenant by asset ID; desktops receive channel-account status
+  through sync and never load Meta/TikTok SDKs. WhatsApp is modelled as a
+  connection → WABA → phone-number hierarchy; templates, tokens, permissions,
+  webhooks, and account status are WABA-scoped, while registration, quality,
+  throughput, and calling are number-scoped. Meta messaging/calling charges stay
+  customer-owned and are never combined with IntelluxIQ subscription or usage
+  invoices. See [ADR 0009](docs/adr/0009-messaging-channel-onboarding.md),
+  [ADR 0010](docs/adr/0010-whatsapp-account-hierarchy-and-billing.md), and
+  `spec.md` Appendix D.
 
 ## Web UI
 

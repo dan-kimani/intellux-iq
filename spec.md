@@ -4,11 +4,11 @@
 
 **Status:** Draft for engineering review
 
-**Date:** 2026-11-17
+**Date:** 2026-11-20
 
 **Architecture:** Multi-tenant cloud control plane + offline-capable (local-cache) desktop CRM
 
-**Target Domain:** High-volume multi-agent WhatsApp, email, and voice sales intelligence
+**Target Domain:** High-volume multi-agent WhatsApp, Messenger, Instagram, TikTok, email, and voice sales intelligence
 
 ## Contents
 
@@ -18,7 +18,7 @@
 2. WhatsApp templates
 3. WhatsApp media limits and conversion
 4. Quoting math, including the Brand and Template Studio
-5. Email completeness
+5. Email completeness and mailbox discovery
 6. Sales intelligence and AI
 7. Data Model and Schema
 8. Protocol and events
@@ -29,15 +29,15 @@
 13. Audio Handling
 14. Web Console, Accessibility, Internationalization, and Modularity
 
-- Appendices A–C: WhatsApp error codes, quoting examples, email statuses
+- Appendices A–D: WhatsApp error codes, quoting examples, email statuses, messaging onboarding
 
 ## Executive Summary & Product Vision
 
 ### The problem
 
-When retail, manufacturing, wholesale, and high-ticket B2B/B2C businesses scale beyond a handful of salespeople handling hundreds of daily inquiries across WhatsApp, email, and phone, the standard workflow breaks:
+When retail, manufacturing, wholesale, and high-ticket B2B/B2C businesses scale beyond a handful of salespeople handling hundreds of daily inquiries across WhatsApp, social messaging, email, and phone, the standard workflow breaks:
 
-1. **Response collisions and channel fragmentation.** Multiple reps reply to the same lead while email and phone history sit disconnected from WhatsApp.
+1. **Response collisions and channel fragmentation.** Multiple reps reply to the same lead while email, social, and phone history sit disconnected from each other.
 2. **Product lookup and quoting friction.** Reps hunt through drives, phones, and spreadsheets for photos, videos, current prices, and branded quote templates; buyers move to faster competitors.
 3. **Zero manager visibility.** Managers cannot see why quoted deals fail across chat, email, and voice, or which reps are bottlenecked.
 4. **Per-seat SaaS bloat and browser lag.** Web CRMs charge per seat and degrade once an agent manages hundreds of threads, high-resolution media, and live audio.
@@ -55,7 +55,7 @@ This gives the customer the responsiveness of a native app and the offline toler
 
 ### Scope and non-goals (2.0.0)
 
-**In scope:** cloud control plane and egress, org-wide event sync, WhatsApp messaging/templates/media, email outbound/inbound, catalog and media sync, branded PDF quotations, quoting math, user/device/session management, idle lock and local wipe, deterministic sales intelligence (opportunities, lead recovery, pipeline/outcome metrics), and an AI stub.
+**In scope:** cloud control plane and egress, org-wide event sync, WhatsApp messaging/templates/media, Messenger/Instagram/TikTok social messaging where provider access is approved, email outbound/inbound, catalog and media sync, branded PDF quotations, quoting math, user/device/session management, idle lock and local wipe, deterministic sales intelligence (opportunities, lead recovery, pipeline/outcome metrics), and an AI stub.
 
 **Deferred:** native voice and video (Phase 3), real AI transcription/autopsy (post-2.0), a web CRM inbox, and the `meet.intelluxiq.app` video-demo product. Voice remains in the architecture as a cloud-signaling/desktop-media module; it is not part of the 2.0.0 core.
 
@@ -72,9 +72,9 @@ Because ingress/egress and shared state live in the cloud, no desktop—includin
 ### 1.2 Topology
 
 ```text
-+---------------------------- Providers ----------------------------+
-| WhatsApp Cloud API | Email (SMTP/IMAP/API) | Voice (AT/Twilio)   |
-+-----------------------------+------------------------------------+
++--------------------------- Providers ---------------------------+
+| WhatsApp | Messenger | Instagram | TikTok | Email | Voice      |
++-----------------------------------------------------------------+
                               | webhooks / API
                               v
 +--------------------------- Cloud Control Plane -------------------+
@@ -100,12 +100,12 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 | Public API/BFF      | Hono on Bun for web API activities: auth/session, orgs/users/roles, devices/sessions, subscription/billing, channels, templates, audit, support, signed media URLs. |
 | Identity & devices  | OIDC/MFA, link codes, device certificates, sessions, revocation, remote wipe, posture.                                                                              |
 | Subscription        | Plans, entitlements, usage metering, invoices, payment methods, device caps, grace.                                                                                 |
-| Channel connections | WhatsApp WABA/numbers, email accounts, voice trunks; encrypted secrets; health.                                                                                     |
-| Ingress             | Provider webhooks; signature verification; tenant mapping; dedupe; raw event store.                                                                                 |
-| Egress              | Bun provider gateway: outbound job queue; WhatsApp/email/voice adapters; retries, rate limits, idempotency, status callbacks.                                       |
+| Channel connections | WhatsApp connection → WABA → phone hierarchy, Messenger Pages, Instagram accounts, TikTok Business accounts, email accounts, voice trunks; encrypted secrets; health. |
+| Ingress             | App-level Meta/TikTok webhooks; signature verification; asset-to-tenant mapping; dedupe; raw event store.                                                           |
+| Egress              | Bun provider gateway: outbound job queue; WhatsApp/Meta/TikTok/email/voice adapters; retries, rate limits, idempotency, status callbacks.                            |
 | Event log & sync    | Bun sync plane: per-org monotonic sequence; commands; events; per-device cursors; snapshots; tombstones.                                                            |
 | Coordination        | Conversation routing/assignment, opportunity ownership/stage, presence, typing, quote sequences, approvals, SLA timers.                                             |
-| Media               | Object storage; BLAKE3; thumbnails; WhatsApp/email variants; signed URLs; quotas.                                                                                   |
+| Media               | Object storage; BLAKE3; thumbnails; WhatsApp/Meta/TikTok/email variants; signed URLs; quotas.                                                                       |
 | Sales intelligence  | Deterministic signals, recovery queue, pipeline, outcome metrics; no AI dependency.                                                                                 |
 | Audit/observability | Immutable audit, metrics, tracing, tenant health.                                                                                                                   |
 
@@ -116,7 +116,7 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 | gpui client     | Conversations, pipeline, lead recovery, composer, catalog drawer, quote builder, brand studio, settings. |
 | Local SQLite    | Encrypted cache of contacts, conversations, opportunities, signals, catalog/quotes; FTS5; outbox; cursors; blocks. |
 | Sync client     | Commands to cloud; events from cloud; resume cursor; conflict handling.                           |
-| Media cache     | Thumbnails, originals, WhatsApp/email variants; LRU/quota.                                        |
+| Media cache     | Thumbnails, originals, WhatsApp/Meta/TikTok/email variants; LRU/quota.                            |
 | Quote compiler  | Typst PDF generation; local preview.                                                              |
 | Audio service   | Capture/playback, Opus/AAC/MP3 decode, resampling, device hot-plug; call audio in Phase 3.        |
 | Local security  | Argon2id unlock password, wrapped DEK, idle timer, failed-attempt counter.                        |
@@ -144,7 +144,7 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 | Subscription, entitlements, usage      | Cloud                                         |
 | Channel connections and secrets        | Cloud                                         |
 | Inbound provider events                | Cloud                                         |
-| Outbound WhatsApp/email/voice          | Cloud egress                                  |
+| Outbound WhatsApp/social/email/voice   | Cloud egress                                  |
 | WhatsApp templates, 24h window, opt-in | Cloud policy                                  |
 | Conversation assignment/routing        | Cloud routing or manager                      |
 | Opportunity owner/stage/value          | Cloud: owner or manager/admin                  |
@@ -180,7 +180,7 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 | Action                      | Offline/cloud-down behavior                                     | Reconnect                           |
 | --------------------------- | --------------------------------------------------------------- | ----------------------------------- |
 | Read threads/catalog/search | Local SQLite/FTS5                                               | No change                           |
-| Compose/send WhatsApp/email | Queue in outbox; status `queued`                                | Cloud egress sends; idempotent      |
+| Compose/send any channel | Queue in outbox; status `queued`                                    | Cloud egress sends; idempotent      |
 | Create quote/PDF            | Local Typst; consume reserved quote number block                | Report block usage; sync quote      |
 | Conversation edit           | Read-only unless assigned to the actor; drafts local            | Reassignment conflict; send blocked |
 | Opportunity stage/quotes    | Owner/manager only; online stage change                         | Conflict if stale; quote sync       |
@@ -205,19 +205,43 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 
 **Ingress:**
 
-- Endpoints: `/v1/webhooks/whatsapp/{org}/{channel}`, `/v1/webhooks/email/{org}/{account}`, `/v1/webhooks/voice/{provider}/{org}`.
-- Authenticity: Meta `X-Hub-Signature-256` HMAC; Twilio `X-Twilio-Signature`; Africa's Talking shared secret plus IP allowlist (verify current docs); email provider signature/shared secret.
-- Tenant mapping: resolve `org_id` from `phone_number_id`/`waba_id`, email account, or voice number; reject unknown mappings.
-- Dedupe: `webhook_events` unique on `(org_id, provider, external_id, event_type)`; store raw payload; normalize; enqueue.
-- Status callbacks are normalized into `message.status_updated`, `email.status_updated`, `call.updated`.
+- Endpoints: `GET|POST /v1/webhooks/meta` for WhatsApp, Messenger, and Instagram; `POST /v1/webhooks/tiktok`; `/v1/webhooks/email/{org}/{account}`; `/v1/webhooks/voice/{provider}/{org}`. Meta/TikTok callbacks are app-level, not per-org.
+- Authenticity: Meta `X-Hub-Signature-256` HMAC; TikTok `TikTok-Signature` HMAC-SHA256; Twilio `X-Twilio-Signature`; Africa's Talking shared secret plus IP allowlist (verify current docs); email provider signature/shared secret. Verify against the raw body.
+- Tenant mapping: resolve `org_id` from the WhatsApp phone number ID or WABA ID through the explicit WhatsApp hierarchy (§1.10.1, §7.1), Page ID, Instagram account ID, TikTok open ID, email account, or voice number; reject unknown or ambiguous assets. The client never supplies the tenant. A WABA is never treated as a sendable asset.
+- WhatsApp uses the `account_update` webhook for lifecycle changes, including restrictions, revocation, and disconnection; presence of a token alone is not complete onboarding. Phone-number events resolve through `whatsapp_phone_numbers`; WABA-level events resolve through `whatsapp_business_accounts`.
+- Dedupe: `webhook_events` unique on `(org_id, provider, external_id, event_type)`; store raw payload; normalize; enqueue. Meta/TikTok retries and out-of-order delivery are expected.
+- Return HTTP 200 within five seconds; process asynchronously. Status callbacks are normalized into `message.status_updated`, `email.status_updated`, `call.updated`.
 
 **Egress:**
 
 - `outbound_jobs` queue per tenant/channel; idempotency key; retries with jitter; dead-letter after max attempts.
-- Provider adapters: WhatsApp (text/template/media/interactive), email (SMTP/API), voice (signaling/tokens).
+- Provider adapters: WhatsApp Cloud API, Messenger Send API, Instagram Messaging, TikTok Business Messaging, email (SMTP/API), voice (signaling/tokens). Provider policy/window checks run before enqueue.
 - Per-tenant and per-channel rate limits; backoff on 429/131056; provider error mapping to user-visible codes.
 - Cloud uploads media to the provider and caches `media_id` per number/expiry; desktop never calls providers.
 - Success/failure metrics per provider, channel, and tenant; alert on error-rate spikes.
+
+Messaging onboarding, token exchange, and app-level callback routing are normative in Appendix D. Direct Embedded Signup v4 is the default WhatsApp path. A BSP/Solution Partner is an optional adapter for unusual onboarding or commercial/billing arrangements; no BSP-specific field, service, or token is required by the core WhatsApp hierarchy, and one BSP must never be the only path.
+
+### 1.10.1 WhatsApp account hierarchy
+
+WhatsApp is not a flat channel account. The cloud models three tenant-scoped levels:
+
+```text
+Organisation
+  └── WhatsApp channel connection       (onboarding, Meta business portfolio, lifecycle)
+        └── WABA                         (token, permissions, templates, webhook, account status)
+              ├── Phone number 1  ──1:1── channel_accounts (send target)
+              ├── Phone number 2  ──1:1── channel_accounts
+              └── Phone number 3  ──1:1── channel_accounts
+                    (registration, verification, quality, throughput, calling)
+```
+
+- The **connection** records how the customer onboarded, the Meta business portfolio ID, granted permissions, onboarding completion/failure, and revocation/disconnection. It is the lifecycle and audit anchor, not a sendable asset.
+- The **WABA** is the unit for templates, token reference, permissions, webhook subscription, account/review status, and the Meta billing relationship. One connection may contain more than one WABA.
+- The **phone number** is the unit for registration, verification, quality, messaging limit, throughput, calling capability, and the send target. One WABA may contain several numbers.
+- `channel_accounts` is a cross-channel routing projection, one row per WhatsApp phone number. It is not the WhatsApp account model and never stores WABA IDs, token references, or number registration state. See §7.1 and Appendix D.7.
+
+Tokens live only in the cloud vault and are referenced by a `token_ref`; they never appear in an event, log, or desktop cache. Meta messaging/calling charges are customer-owned and never mixed into an IntelluxIQ invoice; see §9.5 and §12.6.
 
 ### 1.11 Manager console scope
 
@@ -231,20 +255,20 @@ The web console (Next.js) and public API/BFF (Hono) are separate from the Bun sy
 | Sessions        | Active sessions per user/device, last refresh, revoke session, terminate device.                                                           |
 | Security        | Idle-timeout default/max, password requirement, per-user pin, force lock, 3-attempt local wipe, audit.                                     |
 | Subscription    | Plan, usage, device/channel counts, invoices, payment method, upgrade/cancel, grace state.                                                 |
-| Channels        | WhatsApp Embedded Signup/numbers, templates, email accounts/OAuth, voice numbers; health and quality.                                      |
+| Channels        | WhatsApp connection/WABA/phone hierarchy with Embedded Signup v4, Messenger Pages, Instagram professional accounts, TikTok Business Messaging (provider-gated), templates, email accounts (provider auth, folder preview, owner/default), voice numbers; health and quality. |
 | Audit           | User add/remove, role changes, device link/unlink/terminate/wipe, session revoke, billing, exports, support access.                        |
 | Pipeline        | Read-only opportunity funnel, stage conversion, aging, win/loss, and revenue outcomes.                                                     |
 | Intelligence    | Lead-recovery queue, conversation health, follow-up compliance, team outcomes, and signal drill-down.                                      |
 | Support         | Time-bound support access with customer consent and full audit; diagnostics bundle.                                                        |
 
-No inbox, composer, catalog editor, or quote builder in 2.0. Manager pipeline/intelligence dashboards are read-only views; sales work remains desktop-first. Moving catalog/brand admin to the web is an open decision (§10.2).
+No inbox, composer, catalog editor, or quote builder in 2.0. Manager pipeline/intelligence dashboards are read-only views; sales work remains desktop-first. Moving catalog/brand admin to the web is an open decision (§10.2). Email account setup is a settings surface, not an inbox; a sales user sees only their own accounts there.
 
 ### 1.12 Users, sessions, and termination
 
 **Users and roles**
 
 - The manager account manages users in `app.intelluxiq.com`; the desktop has no user admin.
-- Roles: `owner`, `admin`, `manager`, `sales`, `finance`, `viewer`. A `sales` user can read all CRM data in the org but can send only in conversations assigned to them; opportunity stage/value/quotes require ownership or manager/admin rights. `finance` and `viewer` are console roles in 2.0 and do not link CRM desktops.
+- Roles: `owner`, `admin`, `manager`, `sales`, `finance`, `viewer`. A `sales` user can read all CRM data in the org but can send only in conversations assigned to them; opportunity stage/value/quotes require ownership or manager/admin rights. A `sales` user can reach only the web email-account setup page for an account they own, not manager/admin console pages. `finance` and `viewer` are console roles in 2.0 and do not link CRM desktops.
 - Managers can add/invite and remove/deactivate `sales` users; owners/admins can manage managers.
 - Removing a user: revoke sessions, terminate all their devices, unassign their conversations (return to the assignment queue), reassign or queue their opportunities, retain audit/data per org policy.
 - Invitations are email-based, expire, and are audit-logged.
@@ -338,7 +362,7 @@ No inbox, composer, catalog editor, or quote builder in 2.0. Manager pipeline/in
 **Sync and egress**
 
 - Bun/TypeScript services for the event log/WSS, provider ingress/egress, media/audio workers, and WebSocket fan-out; Hono authorizes and enqueues, but does not duplicate their business rules.
-- Durable Postgres `outbound_jobs` queue; provider adapters for WhatsApp, email, and voice; FFmpeg child processes for media/audio; OpenTelemetry across the Hono/Bun-service boundary.
+- Durable Postgres `outbound_jobs` queue; provider adapters for WhatsApp, Meta social messaging, TikTok, email, and voice; FFmpeg child processes for media/audio; OpenTelemetry across the Hono/Bun-service boundary.
 - No tenant data in shared caches without a tenant key; every table carries `org_id`.
 
 **Desktop**
@@ -395,7 +419,7 @@ The catalog is the product data every sales desktop needs for search, dispatch, 
 
 **Contact resolution**
 
-- Customers are unified by E.164 phone and/or email. WhatsApp, email, and calls appear on one timeline with channel badges.
+- Customers are unified by E.164 phone and/or email. WhatsApp, Messenger, Instagram, TikTok, email, and calls appear on one timeline with channel badges.
 - A customer with both phone and email is linked to one contact; merge conflicts are resolved by the manager. A contact can have many conversations across channels and many opportunities over time; conversations are never globally limited to one open per contact. External conversations are unique per channel account/provider thread key, and identities are unique per org by kind/value.
 
 **Routing**
@@ -431,7 +455,7 @@ The catalog is the product data every sales desktop needs for search, dispatch, 
 
 ### 2.1 Scope
 
-Every outbound WhatsApp message outside the 24-hour customer service window must use an approved template. Templates are owned by the WABA, with language and category scope; a template can be used by numbers in that WABA (some templates may be number-scoped). The cloud is the source of truth; the desktop provides the template picker and preview.
+Every outbound WhatsApp message outside the 24-hour customer service window must use an approved template. Templates are owned by the WABA and are WABA-scoped in 2.0: a template can be used by every phone number in that WABA. Number-scoped templates are not implemented. The cloud is the source of truth; the desktop provides the template picker and preview. A WABA must first complete the WhatsApp Embedded Signup v4 onboarding in Appendix D and be represented by an explicit `whatsapp_business_accounts` row (§7.1).
 
 ### 2.2 Template model
 
@@ -439,8 +463,7 @@ Every outbound WhatsApp message outside the 24-hour customer service window must
 | -------------------------- | ---------- | ---------------------------------------------------------------- |
 | `template_id`              | UUID       | Local ID                                                         |
 | `org_id`                   | UUID       | Tenant                                                           |
-| `waba_id`                  | text       | WhatsApp Business Account                                        |
-| `phone_number_id`          | text       | Optional number scope                                            |
+| `waba_id`                  | UUID       | Internal WABA ID; Meta WABA ID is on `whatsapp_business_accounts` |
 | `meta_template_id`         | text       | Meta ID                                                          |
 | `name`                     | text       | Lowercase, underscores, unique per WABA/language                 |
 | `language`                 | BCP-47     | e.g., `en`, `sw`                                                 |
@@ -479,14 +502,14 @@ Every outbound WhatsApp message outside the 24-hour customer service window must
 
 - Inside the 24-hour window: free-form allowed; templates optional.
 - Outside the window: only `APPROVED` templates; marketing requires opt-in; utility/authentication per Meta policy.
-- Cloud checks: template status, language, variable count/types, opt-in, window, number quality/limit, rate limit, media limits.
+- Cloud checks: template status, language, variable count/types, number-scoped opt-in, window, number quality/limit, rate limit, media limits.
 - Render preview locally; send command with `template_id`, `version`, `language`, `parameters`, `media_id`/URL; cloud egress uploads/uses media and sends.
 - Store rendered text, template version, parameters, and Meta message ID for audit.
-- On failure, map Meta error codes to actionable messages (§Appendix A).
+- On failure, map Meta error codes to actionable messages (Appendix A).
 
 ### 2.6 Management UI
 
-- List/filter by WABA, number, category, status, language.
+- List/filter by WABA, category, status, language. Templates are WABA-scoped; the send target is chosen by the conversation.
 - Create/edit wizard with component builder, variable samples, live preview.
 - Submit, sync status, view rejection reason, duplicate, add localization, test send (to an approved test number).
 - Permissions: manager/admin can create/submit; reps can use approved templates only.
@@ -509,7 +532,7 @@ Every outbound WhatsApp message outside the 24-hour customer service window must
 | Control | Behavior                                                                                                                                |
 | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Window  | `thread.wa_window_expires_at` set on inbound customer message; free-form only before expiry; UI shows countdown.                        |
-| Opt-in  | `wa_opt_ins` records phone, category, source, timestamp, evidence; STOP/START keywords update status; marketing blocked without opt-in. |
+| Opt-in  | `wa_opt_ins` records the sending WhatsApp number, phone, category, source, timestamp, evidence; STOP/START keywords update status per number; marketing is blocked without opt-in for that number. |
 | Quality | Per-number `quality_rating` (green/yellow/red), `messaging_limit`, `throughput`; sync from Meta; throttle and alert.                    |
 | Limits  | Per-number rate limits; backoff on 429/131056; no retry storms.                                                                         |
 
@@ -519,20 +542,22 @@ Every outbound WhatsApp message outside the 24-hour customer service window must
 CREATE TABLE wa_templates (
   template_id UUID NOT NULL,
   org_id UUID NOT NULL,
-  waba_id TEXT NOT NULL,
-  phone_number_id TEXT,
+  waba_id UUID NOT NULL,
   meta_template_id TEXT,
   name TEXT NOT NULL,
   language TEXT NOT NULL,
   category TEXT NOT NULL,
   status TEXT NOT NULL,
+  version INT NOT NULL DEFAULT 1,
   components JSONB NOT NULL,
   quality_score TEXT,
   rejection_reason TEXT,
   created_at TIMESTAMPTZ NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (org_id, template_id),
-  UNIQUE (org_id, waba_id, name, language)
+  UNIQUE (org_id, waba_id, name, language),
+  FOREIGN KEY (org_id, waba_id)
+    REFERENCES whatsapp_business_accounts (org_id, waba_id)
 );
 CREATE TABLE wa_template_versions (
   org_id UUID NOT NULL,
@@ -556,15 +581,20 @@ CREATE TABLE wa_template_status_events (
 );
 CREATE TABLE wa_opt_ins (
   org_id UUID NOT NULL,
+  wa_phone_number_id UUID NOT NULL,
   phone_e164 TEXT NOT NULL,
   category TEXT NOT NULL,
   status TEXT NOT NULL, -- opted_in | opted_out
   source TEXT NOT NULL,
   evidence JSONB,
   captured_at TIMESTAMPTZ NOT NULL,
-  PRIMARY KEY (org_id, phone_e164, category)
+  PRIMARY KEY (org_id, wa_phone_number_id, phone_e164, category),
+  FOREIGN KEY (org_id, wa_phone_number_id)
+    REFERENCES whatsapp_phone_numbers (org_id, wa_phone_number_id)
 );
 ```
+
+The `whatsapp_business_accounts` and `whatsapp_phone_numbers` parent tables are defined in §7.1; apply them before these foreign keys in a migration.
 
 ## 3. WhatsApp media limits and conversion
 
@@ -608,7 +638,7 @@ Before send, the desktop validates format, size, dimensions, duration, and codec
 ### 3.5 Cloud egress validation
 
 - Revalidate every upload; transcode if the desktop variant is invalid.
-- Virus scan; cache variants; upload to Meta; store `media_id` per `phone_number_id` with `expires_at` (30 days); refresh on expiry; dedupe by BLAKE3 + number.
+- Virus scan; cache variants; upload to Meta; store `media_id` per `wa_phone_number_id` with `expires_at` (30 days); refresh on expiry; dedupe by BLAKE3 + number.
 - Never trust the desktop as the final gate.
 
 ### 3.6 Data model
@@ -629,14 +659,18 @@ CREATE TABLE media_variants (
 );
 CREATE TABLE wa_media_cache (
   org_id UUID NOT NULL,
-  phone_number_id TEXT NOT NULL,
+  wa_phone_number_id UUID NOT NULL,
   blake3_hash TEXT NOT NULL,
   media_id TEXT NOT NULL,
   uploaded_at TIMESTAMPTZ NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
-  PRIMARY KEY (org_id, phone_number_id, blake3_hash)
+  PRIMARY KEY (org_id, wa_phone_number_id, blake3_hash),
+  FOREIGN KEY (org_id, wa_phone_number_id)
+    REFERENCES whatsapp_phone_numbers (org_id, wa_phone_number_id)
 );
 ```
+
+The `whatsapp_phone_numbers` parent table is defined in §7.1; apply it before this foreign key in a migration.
 
 ## 4. Quoting math
 
@@ -871,20 +905,216 @@ The Brand & Template Studio lets managers define the company's quotation look, l
 - Custom Typst is treated as untrusted code: virtual filesystem, no network, font allowlist, time/memory caps, and no absolute paths. Manager-authored templates are versioned and audited.
 - `quote_templates` stores layout, colors, fonts, logo/stamp hashes, company/tax/payment fields, column config, and `custom_typst_source`; the cloud keeps the authoritative version.
 
-## 5. Email completeness
+## 5. Email completeness and mailbox discovery
 
-**Cloud-only boundary.** SMTP/IMAP clients, OAuth refresh, MIME construction and parsing, Sent-folder APPEND, IDLE, credential storage, address validation, and deliverability live only in cloud ingress/egress workers. The desktop has no SMTP/IMAP libraries, sockets, ports, or credentials; it composes drafts, sends commands, and receives email history through sync events.
+**Cloud-only boundary.** SMTP/IMAP clients, provider folder discovery, OAuth refresh, MIME construction and parsing, Sent-folder APPEND, IDLE, credential storage, address validation, and deliverability live only in the cloud API and workers. The desktop has no SMTP/IMAP libraries, sockets, ports, or credentials; it composes drafts, sends commands, and receives email history through sync events.
 
 ### 5.1 Accounts and OAuth
 
 | Capability                | Requirement                                                                                                        |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Multiple accounts per org | `email_accounts`; one default; per-rep aliases/signatures.                                                         |
-| Provider types            | Cloud direct SMTP/IMAP; Gmail API; Microsoft Graph; inbound webhook (Postmark/SendGrid/Cloudflare).                |
-| OAuth2                    | Google/Microsoft scopes, consent, token refresh, revocation; app verification/admin consent handled before launch. |
+| Provider types            | Cloud direct SMTP/IMAP; Gmail API; Microsoft Graph; Zoho Mail API; inbound webhook (Postmark/SendGrid/Cloudflare). |
+| Folder discovery          | Cloud-only, account-scoped, and API-first; see §5.4. Desktop receives the normalized tree through sync.             |
+| Account identity          | Provider account ID plus email; duplicate or mismatched identities must reconnect, not create a second account.     |
+| Setup ownership           | Managers/admins manage org accounts; a mailbox owner can connect or reauthenticate their own account.              |
+| Reauthentication          | Preserve account, folder, and message identity; resume sync without re-linking the device.                         |
+| OAuth2                    | Google/Microsoft/Zoho scopes, consent, token refresh, revocation; app verification/admin consent before launch.     |
+| Auth modes                | OAuth2, provider app password, mailbox password, or API key; the mode is stored and the secret stays in the vault.  |
 | Secrets                   | Cloud vault only; desktop never sees SMTP/IMAP/OAuth credentials.                                                  |
 | Deliverability            | Per-tenant SPF/DKIM/DMARC guidance; provider API recommended for reputation; direct SMTP supported.                |
-| Health                    | Connection status, last sync, auth errors, rate limits surfaced in console.                                        |
+| Health                    | Connection status, last sync, auth errors, rate limits, folder discovery state surfaced in console.                |
+
+#### 5.1.1 Provider authentication
+
+| Provider | Authentication | Console action | Provider app prerequisites | Secret and reauthentication |
+| --- | --- | --- | --- | --- |
+| Gmail | OAuth 2.0 authorization code with PKCE | Continue with Google | Google Cloud project, OAuth client, consent screen, Gmail API, restricted-scope verification; Workspace admin may need to allow the app; test users during pilot | Refresh token in vault; re-run Google consent after revocation, scope change, or password reset |
+| Microsoft 365 / Outlook.com | OAuth 2.0 against Microsoft Graph | Continue with Microsoft | Entra multi-tenant app registration, fixed redirect URI, delegated mail permissions, tenant admin consent where required, publisher verification if required | Refresh token in vault; re-run Microsoft consent |
+| Zoho Mail | OAuth 2.0 | Continue with Zoho | Zoho API Console app registered in the mailbox's data centre, fixed redirect, folder/label/message scopes | Refresh token in vault; re-run Zoho consent |
+| Yahoo Mail | App password for 2.0; optional OAuth2/XOAUTH2 after approval | Use Yahoo app password | Yahoo account with an app password; OAuth app registration only if Yahoo access is approved | App password in vault; replace the password or re-consent |
+| iCloud Mail | Apple app-specific password | Use iCloud app-specific password | Apple ID with two-factor authentication | App-specific password in vault; create a new one and replace |
+| cPanel-hosted | IMAP/SMTP mailbox password or host app password | Connect IMAP/SMTP | Mailbox hostname, TLS certificate, mailbox username; no cPanel control-panel login | Mailbox/app password in vault; replace the password |
+| Generic IMAP | Password or provider-supported OAuth | Connect IMAP/SMTP | Host, port, TLS, username; no app registration | Password or refresh token in vault; replace credentials |
+| Postmark / SendGrid | API key | Add sending provider | Provider account, verified sending domain, inbound webhook; no mailbox tree | API key in vault; rotate the key |
+| SMTP-only | SMTP username/password | Add sending account | SMTP host, port, TLS; no receive-side mailbox | Password in vault; replace credentials |
+
+Provider scopes and discovery behavior are defined in §5.4. Gmail, Microsoft, and
+Zoho use OAuth; Yahoo, iCloud, cPanel, and generic IMAP use IMAP/SMTP where no
+approved mailbox API is available. API-first does not mean "OAuth everywhere."
+Gmail setup uses per-mailbox OAuth; service-account/domain-wide delegation and
+delegated-mailbox merging are not part of 2.0.
+
+#### 5.1.2 Setup flow
+
+The web console is the only place an email account is connected. The desktop
+never presents an OAuth window, password prompt, or provider SDK.
+
+1. **Choose provider.** Show the provider name, authentication mode, prerequisites, and what data the connection can read and send. Do not show a password field for OAuth providers.
+2. **Authenticate.**
+   - OAuth: the web API creates a single-use setup session, PKCE verifier, and state bound to `org_id`, user, provider, and return path; redirect to the provider; validate and exchange the code server-side.
+   - App password: collect the provider-specific fields over HTTPS, test IMAP/SMTP authentication without sending a message, then encrypt the secret in the vault. Never echo the secret back.
+3. **Verify identity.** Resolve the provider account ID, email, and tenant where applicable. Reject a mismatch between the mailbox the user selected and the mailbox the provider returned. Detect duplicates by provider account ID and email and offer reconnect instead of a second account.
+4. **Create the account.** Persist the account in `discovering` state with `auth_method`, `provider_preset`, `api_base_url`, capabilities, and the secret reference. Do not expose the secret in the response; the owner is assigned in step 6.
+5. **Discover and preview.** Run folder discovery; show the normalized tree, provider folders/labels, counts, detected roles, and capability flags. IMAP/cPanel roles may be overridden; Gmail/Graph/Zoho roles are provider-derived.
+6. **Configure.** Choose the account owner, default-account flag, from name, reply-to, signature, and any role overrides. Reject duplicate canonical roles such as two `sent` mappings. Setting a new default unsets the previous one atomically.
+7. **Activate.** Move the account to `ready`, publish the account and folder events, and let linked desktops switch to it. A failed discovery leaves the account in `error` with retry, not a false `ready`.
+8. **Reconnect later.** Reauthentication starts from the account detail page, keeps the same `account_id`, and resumes folder/message sync. A successful reconnect emits `email.account_updated` without duplicating folders or messages.
+
+The web API exposes provider catalog, OAuth start/callback, credential connect,
+verify/discover, activate/update, reauthorize, refresh-folders, and disconnect
+operations. These are account-management endpoints, not desktop commands.
+
+#### 5.1.3 Account states
+
+Setup sessions are short-lived and are not synced as accounts. The account state
+machine starts after provider identity verification:
+
+| State | Meaning | Desktop behavior |
+| --- | --- | --- |
+| `discovering` | Account exists; initial folder discovery is running or awaiting activation. | Account visible as "Setting up"; folder tree may be partial; no compose/send. |
+| `ready` | Credentials valid, folder discovery succeeded, and sync is active. | Normal account; folders, views, read, and send per capabilities. |
+| `reauth_required` | OAuth revoked/expired or an app password is invalid. | Cached mail remains readable; sync/send paused; "Reconnect in web console" banner. |
+| `error` | Retryable setup, TLS, discovery, or provider failure. | Cached mail readable if it exists; health banner; retry from console. |
+| `disabled` | Manager/admin paused the account. | Cached mail readable if allowed; sync/send paused; no auth prompt. |
+| `disconnected` | Soft-deleted account; provider token revoked where possible. | Hidden from the account switcher and compose; cached messages remain searchable per retention; no writes. |
+
+Allowed transitions: `discovering` → `ready` / `error`; `ready` → `reauth_required` / `disabled` / `disconnected`; `reauth_required` → `discovering` / `ready`; `error` → `discovering` / `disabled` / `disconnected`; `disabled` → `discovering` / `disconnected`; `disconnected` is terminal for that account. A reconnect must reuse the account row and identity; it must not create a parallel account.
+
+An account that never reaches `ready` is soft-deleted by the setup cleanup after 24 hours unless a manager retries it. Disconnecting the current default requires another default or leaves the org with no default; it never silently promotes a different mailbox.
+
+#### 5.1.4 Permissions and ownership
+
+| Action | owner/admin/manager | sales | finance/viewer |
+| --- | --- | --- | --- |
+| Connect a shared/org mailbox | Yes | No | No |
+| Connect or reauthenticate own mailbox | Yes | Yes | No |
+| Assign account owner or default | Yes | No | No |
+| Disconnect own mailbox | Yes | Yes | No |
+| Disable an account | Yes | No | No |
+| Disconnect another user's or shared account | Yes | No | No |
+| View account health and folder capabilities | All | Own | No |
+| Complete OAuth consent for a mailbox | Mailbox owner; a manager may send a one-time setup link | Mailbox owner | No |
+
+The mailbox owner must complete OAuth consent because a manager cannot consent
+to another person's provider account. A manager may create a one-time setup link
+for the owner; the link is bound to the org, intended user, provider, and expiry.
+A sales-created account is owned by that user; the sales user cannot reassign
+ownership or set the org default.
+Ownership transfer by a manager changes the owner without changing credentials
+or account IDs. Sales users can reach the email-account setup surface, not the
+inbox, in the web console.
+
+#### 5.1.5 Credentials and OAuth security
+
+- Client IDs and client secrets are cloud application configuration in the
+  secret manager, not tenant data. Per-account refresh tokens and app passwords
+  are encrypted in the vault and referenced only by `secret_ref`.
+- OAuth uses a fixed registered HTTPS redirect URI, a single-use state nonce,
+  PKCE, and a short TTL. State is bound to the org, user, provider, callback, and
+  setup session. Reject missing, expired, replayed, or mismatched state.
+- Authorization codes are exchanged server-side. No access token, refresh token,
+  authorization code, client secret, or app password is returned to the browser,
+  written to localStorage, placed in a URL after callback, or sent to the
+  desktop.
+- Access tokens live only in worker memory. Refresh runs under a per-account
+  lock; a successful refresh updates `last_verified_at`; if the provider rotates
+  the refresh token, the new secret replaces the old one atomically; `invalid_grant`,
+  revoked access, or missing scopes move the account to `reauth_required`.
+- Scope minimization is mandatory. Gmail read scopes require Google restricted
+  scope verification; Microsoft requires the delegated permissions in §5.4.1
+  and tenant admin consent where policy requires it; Zoho scopes are limited to
+  the account's data centre and required mail operations.
+- App passwords are one-time secrets: the console may replace them, never
+  display them again. Password forms disable autocomplete where appropriate,
+  clear the field after submit, and never log the value.
+- TLS certificate validation is mandatory. Do not offer an "ignore certificate"
+  switch; cPanel users must use a hostname covered by the server certificate.
+- Setup attempts, OAuth starts, reconnect attempts, and credential replacement
+  are rate-limited and audited. Audit records contain the actor, account,
+  provider, action, and outcome; never the secret. `status_detail` is a bounded
+  code/UI message, not a raw provider response or mailbox content.
+- Disconnect revokes the provider token where the provider supports revocation,
+  stops sync and send jobs, and soft-deletes the account. Revocation failure is
+  recorded but does not block the local disconnect.
+- Duplicate detection uses provider account ID first and email second. A
+  provider identity mismatch or duplicate account is an error with a reconnect
+  path, not an automatic merge.
+
+#### 5.1.6 Web-console setup UI
+
+- **Channels → Email accounts** lists provider, email, owner, default state,
+  status, last sync, folder count, and capabilities. Connected accounts have
+  Reconnect, Refresh folders, Change owner, Set default, Disable, and Disconnect
+  actions as permitted.
+- **Connect email account** opens a provider picker with the auth mode and
+  prerequisites visible before the user commits. Gmail, Microsoft, and Zoho show
+  an OAuth button; Yahoo and iCloud show app-password instructions; cPanel and
+  generic IMAP show host/port/TLS/username/password fields.
+- The Apple entry is labeled **iCloud Mail**, with help text that Apple Mail's
+  local "On My Mac" folders are not server data. Yahoo help links to its app
+  password page. cPanel help says to use the mailbox password, not the cPanel
+  control-panel login.
+- After authentication, the preview shows the folder tree and detected roles.
+  Generic IMAP/cPanel setup may correct Sent, Drafts, Archive, Junk, or Trash
+  roles; the correction is stored with `role_source=manual` and preserved on
+  later discovery. Duplicate role assignments are rejected.
+- The account detail page shows auth method, owner, default, capabilities,
+  discovery status, folder tree, last successful sync, and a redacted health
+  message. It never shows a token or an app password.
+- Sales users see **My email accounts** only. Managers/admins see all accounts.
+  A manager can generate a one-time owner-consent link for a personal mailbox.
+- Postmark and SendGrid appear under **Sending providers**, not mailbox
+  accounts; they have no folder tree.
+- A `reauth_required` or `error` account gets a persistent banner and a single
+  Reconnect action. A successful reconnect clears the banner through sync.
+
+#### 5.1.7 Desktop sync contract
+
+- The sync snapshot contains account metadata: email, provider, display name,
+  owner, default flag, capabilities, status, status detail, and last verified
+  time. It contains no credentials.
+- `email.account_updated` carries a created or changed account (including status,
+  status detail, owner, default, signature, capabilities, and `last_verified_at`).
+  `email.account_removed` marks a soft-disconnected account. Both are org-scoped
+  and fan out to every linked device.
+- The desktop never displays provider authentication UI. A `reauth_required` or
+  `error` account shows a banner and an "Open web console" action; the console
+  opens the correct account/setup page. It never renders an OAuth callback.
+- `discovering` shows a setup state with a skeleton and no send action. `ready`
+  enables the account. A successful reconnect preserves the same account ID,
+  folder IDs, compose drafts, and cached messages.
+- While `reauth_required` or `disabled`, the account stays visible and cached
+  reads remain available; `disconnected` hides it from the switcher but cached
+  messages remain searchable per retention. In all three states the desktop
+  disables sync and send actions and does not enqueue new provider work.
+  Existing queued sends fail with an actionable auth error rather than retrying
+  forever.
+- Default-account changes and owner changes arrive as account events, so the
+  account switcher and composer update without a device re-link.
+- Folder events continue independently (§5.4.10); an account update does not
+  force the desktop to discard its folder cache.
+
+#### 5.1.8 Acceptance tests
+
+- Gmail, Microsoft, and Zoho happy-path OAuth; missing/replayed state; PKCE
+  mismatch; denied consent; admin-consent failure; missing scope; duplicate
+  account; provider identity mismatch.
+- Yahoo and iCloud app-password setup, invalid password, expired password, and
+  re-entry without secret disclosure.
+- cPanel/generic IMAP valid and invalid TLS, IMAP/SMTP split failures, and no
+  "ignore certificate" path.
+- Sales user can connect/reconnect only their own account; manager can assign
+  owner/default and generate a one-time consent link; finance/viewer cannot.
+- Reauthentication preserves account, folder, and message identity; desktop
+  banner clears through `email.account_updated`; owner/default changes sync; no
+  duplicate account/device re-link.
+- Disconnect revokes or reports revocation, hides the account from compose, and
+  retains cached mail per policy.
+- No secret appears in API responses, logs, browser storage, desktop cache, or
+  event payloads.
+- `discovering`/`error` states are visible and retryable; a failed discovery
+  never marks the account `ready`.
 
 ### 5.2 Outbound
 
@@ -921,49 +1151,248 @@ The Brand & Template Studio lets managers define the company's quotation look, l
 | Shared mailbox | Multiple users can access; assignment/collision handled by cloud assignment.                                     |
 | Flags          | Read/unread, replied, forwarded; cloud IMAP sync where possible.                                                  |
 
-### 5.4 Data model
+### 5.4 Folder and label discovery
+
+**Boundary.** Folder discovery is cloud-only. The web API owns account connection, OAuth callbacks, the credential vault, and the discovery job; the worker performs provider I/O. The desktop receives a normalized folder tree and message-to-folder memberships through sync events. It never calls Gmail, Graph, Zoho, IMAP, or SMTP, and it never receives provider credentials.
+
+**Terms.**
+
+- **Account** — one connected mailbox. Folder structure is account-scoped; two accounts may both have `INBOX` or `Customers`.
+- **Folder/label node** — a provider mailbox, label, search folder, or virtual container. Its local identity is `folder_id`; `provider_folder_id` is opaque.
+- **View** — a computed query over synced messages, not a provider folder. `Priority`, `Needs reply`, `Waiting`, Gmail Archive, and Gmail All Mail are views.
+- **Full structure** — every accessible node, including nested and hidden nodes, with selectability and best-effort counts. It does not include message bodies.
+
+Discovery is **read-only in 2.0**: the cloud does not create, rename, delete, or move provider folders or labels. Provider writes are a separate command/scope review.
+
+#### 5.4.1 Provider matrix
+
+| Provider | Adapter | Discovery source | Authentication | Incremental state |
+| --- | --- | --- | --- | --- |
+| Gmail | `gmail` | Gmail API `users.labels.list`; `users.getProfile`; `users.history.list` | Google OAuth 2.0. Use `gmail.readonly` for discovery and `gmail.send` for send; add `gmail.modify` only when label/message writes are enabled. | Account-level `historyId`; if it expires, full resync. |
+| Microsoft 365 / Outlook.com | `microsoft` | Microsoft Graph `/me/mailFolders` plus `childFolders`; `includeHiddenFolders=true` | Microsoft OAuth 2.0 with `Mail.ReadBasic` (discovery), `Mail.ReadWrite` for moves, `Mail.Send`, `offline_access`. | Per-folder Graph delta with `deltaLink`. |
+| Zoho Mail | `zoho` | `GET /api/accounts/{accountId}/folders` and `/labels` on the account's regional host | Zoho OAuth 2.0 with `ZohoMail.accounts.READ`, `ZohoMail.folders.READ`, `ZohoMail.tags.READ`, `ZohoMail.messages.READ`, and `ZohoMail.messages.CREATE` for send. | No documented folder delta; poll and reconcile, dedupe messages by provider ID. |
+| Yahoo Mail | `smtp_imap` | IMAP `LIST` and `STATUS` | Yahoo app password; OAuth2/XOAUTH2 only after provider approval and account support. | Per-folder `UIDVALIDITY` and `last_uid`. |
+| iCloud Mail (Apple Mail client) | `smtp_imap` | IMAP `LIST` and `STATUS` | Apple app-specific password. | Per-folder `UIDVALIDITY` and `last_uid`. |
+| cPanel-hosted mail | `smtp_imap` | IMAP `LIST` and `STATUS` | Mailbox password or host-provided app password; TLS required. | Per-folder `UIDVALIDITY` and `last_uid`. |
+| Generic IMAP | `smtp_imap` | IMAP `LIST` and `STATUS` | Account-configured password or OAuth mechanism. | Per-folder `UIDVALIDITY` and `last_uid`. |
+| SMTP-only | `smtp_imap` | None | Account-configured SMTP credentials. | No receive-side tree. |
+| Postmark / SendGrid | `postmark` / `sendgrid` | None | Provider API key. | No mailbox tree; inbound webhook and outbound send only. |
+
+#### 5.4.2 Gmail
+
+- Use the Gmail API for Gmail accounts. Do not use Gmail IMAP as the discovery source: IMAP exposes only labels explicitly enabled under “Show in IMAP” and loses Gmail's label semantics.
+- `users.labels.list` returns `id`, `name`, `type` (`system` or `user`), `labelListVisibility`, `messageListVisibility`, `messagesTotal`, and `messagesUnread`. Store every returned label, including labels whose visibility is hidden, with `visible=false`.
+- Gmail labels are flat. `name` uses `/` for nesting; the API has no parent ID. Split on `/` to build the tree. If a child label exists without its parent, create a non-selectable virtual parent.
+- Map system labels to canonical roles: `INBOX` → `inbox`, `SENT` → `sent`, `DRAFT` → `drafts`, `SPAM` → `junk`, `TRASH` → `trash`, `IMPORTANT` → `important`, `STARRED` → `starred`, and `CATEGORY_*` → `category`. `UNREAD` is a filter, not a folder, and is not rendered as a node; use its presence to update `email_messages.is_read`.
+- Gmail has no All Mail label. `All Mail` is a view over the local message index. `Archive` is a view of received messages not in `INBOX`, `SPAM`, `TRASH`, `DRAFT`, or `SENT`; it is not a Gmail label.
+- Message placement comes from `labelIds`; a message can be in several nodes. Moving a message is adding/removing labels, never moving a folder row.
+- Use `users.getProfile().historyId` plus `users.history.list` for incremental changes, including `labelsAdded`/`labelsRemoved`. If the history ID is outside the provider's validity window, run a full message resync rather than deleting local data.
+- Label definitions can change outside the history stream. Refresh `labels.list` on connect, periodically, and when an unknown label ID appears.
+- Counts from label metadata are provider counts. They may be stale; show the last successful discovery time.
+
+#### 5.4.3 Microsoft 365 and Outlook.com
+
+- Use Microsoft Graph. `GET /me/mailFolders` returns only root-level folders; recurse through `childFolders` and follow `@odata.nextLink` pagination. Pass `includeHiddenFolders=true` so hidden folders are not silently lost.
+- Store `id`, `displayName`, `parentFolderId`, `childFolderCount`, `totalItemCount`, `unreadItemCount`, `isHidden`, and `wellKnownName` where present.
+- Default folders use well-known names: `inbox`, `sentitems`, `drafts`, `outbox`, `deleteditems`, `junkemail`, and `archive`. Do not identify a folder by its display name; localized names differ.
+- `microsoft.graph.mailSearchFolder` nodes are search folders. Store them with `kind=search`; they are not ordinary move targets.
+- Focused Inbox is the `inferenceClassification` (`focused` or `other`) message property, not a folder. Outlook categories are message properties, not folders. Neither belongs in the folder tree; they may become views later.
+- Use per-folder delta with the stored `deltaLink`. A missing or expired delta triggers a full folder and message resync.
+- Shared mailboxes are separate account connections or delegated `/users/{id}` mailbox connections; do not merge their folders into the signed-in user's tree.
+
+#### 5.4.4 Zoho Mail
+
+- Use the Zoho Mail API. The API host is data-centre-specific: `.com` for the US, `.eu` for Europe, `.in` for India, `.com.au` for Australia, `.jp` for Japan, `.zohocloud.ca` for Canada, `.com.cn` for China, `.ae` for the UAE, and `.sa` for Saudi Arabia. Store the resolved base URI with the account.
+- `GET /api/accounts/{accountId}/folders` returns folder `path`, `folderName`, `folderId`, `folderType`, `isArchived`, and `imapAccess`. Build the tree from `path`; `previousFolderId` is not a parent ID.
+- Treat `folderType` as a hint, not as identity. Do not trust it for custom folders; create a folder through the default-name/path mapping only when the role is unambiguous.
+- `GET /api/accounts/{accountId}/labels` returns flat labels with `labelId`, `displayName`, and `color`. Zoho labels are separate from folders and may be applied many-to-many; store them with `kind=label`.
+- Do not display `Templates` or `Snoozed` as mail folders by default; they are non-mail or synthetic views. Store them as hidden/custom nodes if the account returns them.
+- Folder counts are best-effort. If the folder API does not return counts, leave `provider_total`/`provider_unread` null and update them from message sync rather than displaying zero.
+- Zoho has no documented folder-level delta in this scope. Poll the folder and label lists, reconcile by provider ID, and use message deduplication for incremental content sync.
+- The IMAP adapter may be used as a fallback when the Mail API is unavailable, but it is not authoritative for Zoho labels.
+
+#### 5.4.5 Yahoo, iCloud, cPanel, and generic IMAP
+
+- **Yahoo Mail.** Use IMAP `imap.mail.yahoo.com:993` with TLS and SMTP `smtp.mail.yahoo.com:465` with TLS as provider defaults. The 2.0 path is a Yahoo app password; use OAuth2/XOAUTH2 only after provider approval and account support are verified. No public REST mailbox-folder API is in scope. Discover folders through `LIST`; do not hardcode Yahoo's localized folder names.
+- **iCloud Mail / Apple Mail.** “Apple Mail” is a client, not a provider. The connectable provider is iCloud Mail, or whichever IMAP provider Apple Mail is configured against. For iCloud, use IMAP `imap.mail.me.com:993` and SMTP `smtp.mail.me.com:587`, with an app-specific password. Discover folders through `LIST`. Apple Mail's local “On My Mac” folders are not server data and cannot be pulled.
+- **cPanel-hosted mail.** cPanel is a hosting control panel, not a mailbox API. Each domain's mail server is addressed by its host (usually `mail.<domain>` or the server hostname that matches the TLS certificate). Use IMAP/SMTP and `LIST`; cPanel account APIs manage accounts and forwarders, not mailbox folder contents. Do not assume `INBOX.Sent`, `INBOX.Drafts`, or a `.` delimiter; read the server's `LIST` result. SPECIAL-USE may be configured by the host; use it when present.
+- **Generic IMAP.** Use `LIST "" "*"`, not `LSUB`. Read the hierarchy delimiter, decode modified UTF-7 mailbox names, and preserve the server-provided mailbox identity. Handle `\Noselect` containers, `\HasChildren`/`\HasNoChildren`, and SPECIAL-USE flags (`\All`, `\Archive`, `\Drafts`, `\Flagged`, `\Junk`, `\Sent`, `\Trash`) where advertised. Use `STATUS (MESSAGES UNSEEN UIDNEXT UIDVALIDITY)` for counts and cursors. Use `NAMESPACE` when the server exposes shared or other-user namespaces, and keep each namespace's tree account-scoped. If the server has no SPECIAL-USE, use the provider preset's unambiguous aliases; never guess from localized display names.
+- `email_accounts.provider_preset` is a connection and alias hint (`yahoo`, `icloud`, `cpanel`, `custom`), not an identity. Observed `LIST`/API data always wins over a preset's suggested roles.
+- For all IMAP providers, a folder rename may appear as a removal plus an addition. Preserve the old `UIDVALIDITY` data until the replacement is reconciled, and do not hard-delete messages solely because a folder name changed.
+- SMTP-only accounts have no receive-side tree. Mark the account send-only and expose Sent/Outbox only; do not synthesize Inbox or Priority.
+
+#### 5.4.6 HTTP senders
+
+Postmark and SendGrid are outbound/inbound webhook providers, not mailbox providers. They have no folder tree. Inbound messages enter the conversation stream and the email cache; the desktop must not show an account folder tree for them.
+
+#### 5.4.7 Canonical mapping
+
+| Canonical role | Gmail | Microsoft Graph | Zoho Mail | IMAP |
+| --- | --- | --- | --- | --- |
+| `inbox` | system label `INBOX` | well-known `inbox` | folder type/path `Inbox` | `INBOX` (case-insensitive) |
+| `sent` | system label `SENT` | well-known `sentitems` | folder type/path `Sent` | `\Sent`, else preset alias |
+| `drafts` | system label `DRAFT` | well-known `drafts` | folder type/path `Drafts` | `\Drafts`, else preset alias |
+| `outbox` | not a label | well-known `outbox` | folder type/path `Outbox` | provider folder if present; otherwise local outbox |
+| `archive` | view, not a label | well-known `archive` | folder type/path `Archive` | `\Archive`, else preset alias |
+| `junk` | system label `SPAM` | well-known `junkemail` | folder type/path `Spam` | `\Junk`, else preset alias |
+| `trash` | system label `TRASH` | well-known `deleteditems` | folder type/path `Trash` | `\Trash`, else preset alias |
+| `all` | synthetic All Mail view | no direct folder; synthetic view | no direct folder; synthetic view | `\All` when advertised |
+| `important` | system label `IMPORTANT` | message `importance` property, not a folder | label if present | no standard folder |
+| `starred` | system label `STARRED` | message `flag` property, not a folder | label if present | `\Flagged` when advertised |
+| `category` | system labels `CATEGORY_*` | message `categories` property, not a folder | label if present | no standard folder |
+| user label | user label node | no folder; categories are message properties (optional view) | label node | keyword/label mapping if supported |
+| custom folder | user label with no role | custom `mailFolder` | custom folder | any other selectable mailbox |
+
+`role=important`, `role=starred`, and `role=category` nodes are labels or views, not physical folders. A node may have `kind=label` and a role; `kind` describes how it behaves, not where it is displayed.
+
+#### 5.4.8 Normalized tree rules
+
+- Every node has one parent or is a root. Validate that the parent exists in the same account, and reject cycles. If a provider returns an orphan or an invalid parent, attach it at the root, keep it visible, and raise an account-health warning; do not discard it.
+- Use provider IDs for identity. Display names are labels, not keys. Account-scoped uniqueness is `(org_id, account_id, provider_folder_id)`; a synthetic parent may have a null provider ID.
+- `kind` is `mailbox`, `label`, `virtual`, or `search`. `role` is `inbox`, `sent`, `drafts`, `outbox`, `archive`, `junk`, `trash`, `all`, `important`, `starred`, `category`, `label`, `folder`, or `unknown`; the last two cover a user label or custom folder with no system meaning. `role_source` is `provider`, `preset`, or `manual`; a manual role override survives later discovery and is the only role that may be edited from setup.
+- `selectable` is false for `\Noselect` containers, synthetic parents, and any node that cannot receive a move. `visible` reflects provider navigation visibility; a hidden node is still stored and can be shown in “More”.
+- Preserve provider order where supplied; otherwise order system roles first, then visible user folders/labels, then hidden nodes.
+- Store provider-specific metadata in `attributes` (Gmail visibility/color, Graph `wellKnownName`/`isHidden`/`childFolderCount`, Zoho `folderType`/`imapAccess`/`isArchived`, IMAP SPECIAL-USE flags/subscription state).
+- Counts are nullable. A provider that does not return counts must not be represented as zero.
+- The desktop builds the visual tree from the flat normalized rows; it does not infer parents from display names except for a provider adapter that has no parent field. That inference happens server-side and is validated.
+
+#### 5.4.9 Membership and views
+
+- `email_message_folders` is the source of truth for placement. A message may belong to zero or more nodes. Zero memberships is valid for a Gmail archived message; it remains reachable through the synthetic All Mail view and any search result.
+- Inbound and outbound events carry folder memberships. A label/folder move emits `email.message_folders_updated`; the desktop does not infer membership from the message subject or the currently selected view.
+- `Priority` is deterministic: unread, directly addressed, linked VIP/open opportunity, quote activity, awaiting response, and recency. It is not a provider folder and must not be used as a move target.
+- `Needs reply` and `Waiting` are thread-state views derived from the last message direction. `Starred`/`Important` may be views backed by a provider label or property.
+- Gmail Archive, Gmail All Mail, Zoho Snoozed, and Outlook Focused Inbox are views unless the provider explicitly returns a folder. Do not create a folder row merely to make a view selectable.
+
+#### 5.4.10 Sync lifecycle and events
+
+1. The web API completes connection/OAuth and stores the credential in the cloud vault.
+2. It enqueues a discovery job with a per-account lock. The worker calls the adapter and receives a flat normalized node list.
+3. The worker validates the tree, writes the new `sync_revision` in one transaction, and tombstones nodes missing from a complete response. A partial failure leaves the previous revision intact.
+4. The worker appends folder upserts/removals, the completed revision, and any membership changes to the org event log.
+5. The desktop applies events idempotently to its SQLite cache; full snapshots seed the tree. Every linked device receives the same org-scoped metadata.
+6. Discovery repeats on connect, on auth recovery, on a schedule (default six hours), and when a provider cursor references an unknown folder or label. Counts may refresh independently.
+
+Account lifecycle events are defined in §5.1.7. Folder/membership event types are:
+
+- `email.folders_synced` — an account completed a full reconciliation. Payload: `account_id`, `revision`, and node count. A desktop that sees a revision gap requests a new snapshot.
+- `email.folder_updated` — one normalized node was created or changed; the payload carries the complete node and its revision.
+- `email.folder_removed` — one node was tombstoned; its messages remain in whichever other memberships survive.
+- `email.message_folders_updated` — a message's folder/label membership changed without a new message; payload carries `account_id`, `message_id`, and the complete `folder_ids` set.
+
+Initial folder metadata is part of the sync snapshot. Live events must stay within the 1 MB frame limit; a full tree is never broadcast as one live event.
+
+#### 5.4.11 Acceptance tests
+
+- Gmail: nested labels with a missing parent, hidden labels, all system roles, counts, All Mail/Archive views, and `historyId` expiry.
+- Graph: hidden and search folders, nested children, pagination, well-known names, delta resume, and no Focused/category folder nodes.
+- Zoho: regional base URI, path-based hierarchy, labels separate from folders, misleading `folderType`, and polling reconciliation.
+- IMAP: `/` and `.` delimiters, modified UTF-7 names, `\Noselect`, missing SPECIAL-USE, UIDVALIDITY reset, and account isolation.
+- Lifecycle: partial failure does not delete the previous tree; folder rename does not delete messages; deleted label memberships are removed; SMTP-only has no Inbox.
+- Security: no credentials or provider payloads reach the desktop; every query is tenant-scoped; the desktop makes no provider calls.
+- Events: folder and membership updates are idempotent, ordered per account revision, and recover from a missed event through a snapshot.
+
+Provider references are maintained at the end of this section.
+
+### 5.5 Data model
 
 ```sql
 CREATE TABLE email_accounts (
   account_id UUID NOT NULL,
   org_id UUID NOT NULL,
-  provider TEXT NOT NULL, -- smtp_imap | gmail | microsoft | postmark | sendgrid
+  provider TEXT NOT NULL, -- smtp_imap | gmail | microsoft | zoho | postmark | sendgrid
+  provider_preset TEXT, -- yahoo | icloud | cpanel | custom | null
+  auth_method TEXT NOT NULL, -- oauth2 | app_password | password | api_key
+  provider_account_id TEXT,
+  provider_tenant_id TEXT,
   email TEXT NOT NULL,
   display_name TEXT,
   from_name TEXT,
   reply_to TEXT,
   signature_html TEXT,
   is_default BOOLEAN NOT NULL DEFAULT FALSE,
-  status TEXT NOT NULL,
+  status TEXT NOT NULL, -- discovering | ready | reauth_required | error | disabled | disconnected
+  status_detail TEXT,
   smtp_host TEXT, smtp_port INT, smtp_security TEXT,
   imap_host TEXT, imap_port INT, imap_security TEXT,
+  api_base_url TEXT,
   username TEXT,
   secret_ref TEXT,
   oauth_scopes TEXT[],
+  capabilities JSONB NOT NULL DEFAULT '{}'::jsonb,
   owner_user_id UUID,
+  last_verified_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ,
   PRIMARY KEY (org_id, account_id),
   FOREIGN KEY (org_id, owner_user_id) REFERENCES memberships (org_id, user_id),
-  UNIQUE (org_id, email)
+  UNIQUE (org_id, email),
+  UNIQUE (org_id, provider, provider_account_id)
+);
+CREATE UNIQUE INDEX email_accounts_one_default
+  ON email_accounts (org_id)
+  WHERE is_default AND deleted_at IS NULL;
+CREATE TABLE email_folders (
+  folder_id UUID NOT NULL,
+  org_id UUID NOT NULL,
+  account_id UUID NOT NULL,
+  provider_folder_id TEXT,
+  parent_folder_id UUID,
+  name TEXT NOT NULL,
+  path TEXT NOT NULL,
+  kind TEXT NOT NULL, -- mailbox | label | virtual | search
+  role TEXT NOT NULL, -- inbox | sent | drafts | outbox | archive | junk | trash |
+                     -- all | important | starred | category | label | folder | unknown
+  role_source TEXT NOT NULL DEFAULT 'provider', -- provider | preset | manual
+  selectable BOOLEAN NOT NULL DEFAULT TRUE,
+  visible BOOLEAN NOT NULL DEFAULT TRUE,
+  provider_total BIGINT,
+  provider_unread BIGINT,
+  sort_order INT NOT NULL DEFAULT 0,
+  attributes JSONB,
+  sync_revision BIGINT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ,
+  PRIMARY KEY (org_id, folder_id),
+  UNIQUE (org_id, account_id, folder_id),
+  UNIQUE (org_id, account_id, provider_folder_id),
+  FOREIGN KEY (org_id, account_id) REFERENCES email_accounts (org_id, account_id),
+  FOREIGN KEY (org_id, account_id, parent_folder_id)
+    REFERENCES email_folders (org_id, account_id, folder_id)
+    ON DELETE RESTRICT
+);
+CREATE TABLE email_account_sync_state (
+  org_id UUID NOT NULL,
+  account_id UUID NOT NULL,
+  provider_cursor TEXT,
+  folder_revision BIGINT NOT NULL DEFAULT 0,
+  last_full_discovery_at TIMESTAMPTZ,
+  last_message_sync_at TIMESTAMPTZ,
+  status TEXT NOT NULL,
+  PRIMARY KEY (org_id, account_id),
+  FOREIGN KEY (org_id, account_id) REFERENCES email_accounts (org_id, account_id)
 );
 CREATE TABLE email_sync_state (
   org_id UUID NOT NULL,
   account_id UUID NOT NULL,
-  folder TEXT NOT NULL,
+  folder_id UUID NOT NULL,
   uidvalidity BIGINT,
   last_uid BIGINT,
+  delta_link TEXT,
   last_sync_at TIMESTAMPTZ,
   status TEXT NOT NULL,
-  PRIMARY KEY (org_id, account_id, folder),
-  FOREIGN KEY (org_id, account_id) REFERENCES email_accounts (org_id, account_id)
+  PRIMARY KEY (org_id, account_id, folder_id),
+  FOREIGN KEY (org_id, account_id) REFERENCES email_accounts (org_id, account_id),
+  FOREIGN KEY (org_id, account_id, folder_id)
+    REFERENCES email_folders (org_id, account_id, folder_id)
+    ON DELETE RESTRICT
 );
 CREATE TABLE email_messages (
   message_id UUID NOT NULL,
   org_id UUID NOT NULL,
   account_id UUID NOT NULL,
   thread_id UUID,
-  folder TEXT NOT NULL DEFAULT 'INBOX',
   direction TEXT NOT NULL, -- inbound | outbound
   from_json JSONB NOT NULL,
   to_json JSONB NOT NULL,
@@ -988,10 +1417,24 @@ CREATE TABLE email_messages (
   sent_at TIMESTAMPTZ,
   received_at TIMESTAMPTZ,
   PRIMARY KEY (org_id, message_id),
+  UNIQUE (org_id, account_id, message_id),
   FOREIGN KEY (org_id, message_id) REFERENCES messages (org_id, message_id),
   FOREIGN KEY (org_id, account_id) REFERENCES email_accounts (org_id, account_id),
   FOREIGN KEY (org_id, thread_id) REFERENCES threads (org_id, thread_id),
   UNIQUE (org_id, message_id_header)
+);
+CREATE TABLE email_message_folders (
+  org_id UUID NOT NULL,
+  account_id UUID NOT NULL,
+  message_id UUID NOT NULL,
+  folder_id UUID NOT NULL,
+  PRIMARY KEY (org_id, account_id, message_id, folder_id),
+  FOREIGN KEY (org_id, account_id, message_id)
+    REFERENCES email_messages (org_id, account_id, message_id)
+    ON DELETE RESTRICT,
+  FOREIGN KEY (org_id, account_id, folder_id)
+    REFERENCES email_folders (org_id, account_id, folder_id)
+    ON DELETE RESTRICT
 );
 CREATE TABLE email_attachments (
   attachment_id UUID NOT NULL,
@@ -1043,38 +1486,77 @@ CREATE TABLE email_suppressions (
 );
 ```
 
-### 5.5 Error handling
+`email_accounts.status` uses the state machine in §5.1.3; a disconnected account keeps its row and `deleted_at` for retention. `email_accounts.capabilities` records the adapter's send/receive/folder/label/delta abilities for the desktop and health UI. The initial keys are `send`, `receive`, `folders`, `labels`, `delta`, `shared_mailboxes`, and `server_counts`; unknown keys are ignored by older clients. `email_account_sync_state.provider_cursor` holds Gmail's account-level `historyId`; `email_sync_state` holds IMAP UID state or a Graph `deltaLink` per folder. `provider_account_id` is the provider's stable identity (OAuth subject/account ID, Graph user ID, Zoho account ID, or the IMAP email/host identity); `provider_tenant_id` is populated for Microsoft where available.
 
-| Error                 | User action                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| `AUTH_FAILED`         | Re-enter credentials or re-consent OAuth in console.         |
-| `OAUTH_EXPIRED`       | Refresh token; if revoked, reconnect account.                |
-| `CONNECTION_FAILED`   | Retry with backoff; show account health.                     |
-| `RATE_LIMITED`        | Queue and backoff; surface provider limit.                   |
-| `MESSAGE_TOO_LARGE`   | Compress attachments or send a link.                         |
-| `INVALID_RECIPIENT`   | Validate address; block header injection.                    |
-| `BOUNCE_HARD`         | Suppress; show bounce diagnostic.                            |
-| `BOUNCE_SOFT`         | Retry; escalate after threshold.                             |
-| `TLS_ERROR`           | Fall back only if allowed; never send plaintext credentials. |
-| `TIMEOUT`             | Retry idempotently; dead-letter.                             |
-| `ATTACHMENT_REJECTED` | Virus/size/type rejection; show reason.                      |
+The 2.0 migration backfills `provider_account_id` (provider profile identity, or the mailbox address for IMAP), sets `role_source='provider'`, and maps existing folder strings into `email_folders` and `email_message_folders` per account, maps known system names to canonical roles, rekeys `email_sync_state` by `folder_id`, and preserves `UIDVALIDITY`/`last_uid`. Only after the backfill and orphan audit may the legacy `folder` column be dropped. `is_spam`, `is_archived`, and `is_deleted` remain denormalized flags updated in the same transaction as membership changes.
 
-### 5.6 UI
+### 5.6 Error handling
 
-- Account switcher; Inbox, Sent, Drafts, Archive, Junk (minimal folder model).
+| Error                    | User action                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `AUTH_FAILED`            | Re-enter credentials or re-consent OAuth in console.              |
+| `OAUTH_EXPIRED`          | Refresh token; if revoked, reconnect account.                     |
+| `CONNECTION_FAILED`      | Retry with backoff; show account health.                          |
+| `RATE_LIMITED`           | Queue and backoff; surface provider limit.                        |
+| `FOLDER_DISCOVERY_FAILED`| Keep the last successful tree; retry; show stale health.          |
+| `FOLDER_TREE_INVALID`    | Attach the orphan at root; keep it visible; raise a health warning. |
+| `FOLDER_CURSOR_EXPIRED`  | Full folder and message resync; never tombstone from a gap.       |
+| `FOLDER_UNSUPPORTED`     | Show the account as send-only or folderless; do not synthesize.   |
+| `OAUTH_DENIED`           | Explain the missing consent; retry the provider authorization.    |
+| `OAUTH_STATE_INVALID`    | Restart setup from the provider picker; never retry a stale callback. |
+| `OAUTH_SCOPE_MISSING`    | Re-consent with the required read/send scopes; do not enable partial sync. |
+| `DUPLICATE_ACCOUNT`      | Offer reconnect of the existing account; do not create a duplicate. |
+| `PROVIDER_IDENTITY_MISMATCH` | Reject the connection; verify the selected mailbox and provider account. |
+| `IMAP_AUTH_FAILED` / `SMTP_AUTH_FAILED` | Re-enter the mailbox/app password; check the provider preset. |
+| `TLS_CERT_INVALID`       | Use the server hostname that matches the valid certificate; never bypass TLS. |
+| `FOLDER_ROLE_CONFLICT`   | Ask for one mapping per canonical role; reject the save.          |
+| `ACCOUNT_REAUTH_REQUIRED`| Keep cached mail readable; reconnect in the web console.          |
+| `MESSAGE_TOO_LARGE`      | Compress attachments or send a link.                              |
+| `INVALID_RECIPIENT`      | Validate address; block header injection.                         |
+| `BOUNCE_HARD`            | Suppress; show bounce diagnostic.                                 |
+| `BOUNCE_SOFT`            | Retry; escalate after threshold.                                  |
+| `TLS_ERROR`              | Fall back only if allowed; never send plaintext credentials.      |
+| `TIMEOUT`                | Retry idempotently; dead-letter.                                  |
+| `ATTACHMENT_REJECTED`    | Virus/size/type rejection; show reason.                           |
+
+### 5.7 UI
+
+- **Web console.** Channels → Email accounts shows provider, address, owner, default state, status, last sync, folder count, and capabilities. The setup wizard handles the provider picker, OAuth redirect or app-password form, discovery preview, role corrections, owner/default/signature, and activation. Managers/admins manage all accounts; sales users see only My email accounts. Postmark/SendGrid live under Sending providers.
+- **Desktop.** Account switcher; the account-scoped folder/label tree arrives from sync. The desktop does not discover folders or present provider authentication.
+- Canonical folders first; provider labels/folders under “More”; hidden nodes are not shown by default. `Priority`, `Needs reply`, `Waiting`, Gmail Archive, and Gmail All Mail are views, not folders.
+- Account states are visible: `discovering` is a setup state; `reauth_required` and `error` show a banner with “Open web console”; `disabled` stops sync/send; `disconnected` is hidden from the switcher while cached messages follow retention.
+- A successful web-console reconnect clears the desktop banner through `email.account_updated`; no device re-link is required. Default/owner changes update the switcher and composer from the same event.
 - Conversation view; collapsed quoted text; attachment list; inline image preview.
 - Reply/reply-all/forward; signature; template; schedule send.
 - Status chips: queued/sending/sent/delivered/failed/bounced.
-- Search across subject/body/participants (FTS5).
-- Account health banner in settings.
+- Search across subject/body/participants (FTS5), scoped to the selected account and view.
+- Folder counts are best-effort and show the last successful discovery time; a missing count is not rendered as zero.
+- Send-only accounts show Sent/Outbox and a send-only notice; they do not show an empty Inbox or Priority.
+- Account health banner in settings; folder discovery or reauthentication failures appear there without hiding cached mail.
 
-### 5.7 Limits
+### 5.8 Limits
 
+- Email accounts per org: plan cap (default five in 2.0); one default account.
+- Setup, reauthentication, and one-time consent-link attempts are rate-limited. OAuth state and one-time consent links expire after ten minutes and are single-use.
 - Attachment size: provider/account limit (default 25 MB).
 - Recipients per message: configurable (default 50).
 - Daily send limit per account; rate limit per tenant.
 - Inbound MIME size limit (default 50 MB); reject oversized with notification.
+- Folder discovery: cap at 10,000 nodes and 32 levels per account; paginate provider responses; surface truncation as a health warning rather than silently dropping nodes.
+- Folder/label metadata refresh: on connect, on auth recovery, every six hours, and when a provider cursor references an unknown node. Counts may be stale between refreshes.
+- Folder events: a full tree is never sent in one live event; initial state belongs in snapshots and live events stay under the 1 MB WebSocket frame limit.
 - Retention per org policy.
+
+**Provider references (non-normative).** The mapping above is based on:
+
+- Gmail labels: [manage labels](https://developers.google.com/workspace/gmail/api/guides/labels), [users.labels](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.labels), [labels.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.labels/list), [history.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.history/list), and [Gmail IMAP/SMTP](https://developers.google.com/workspace/gmail/imap/imap-smtp).
+- Google auth: [OAuth 2.0 web-server flow](https://developers.google.com/identity/protocols/oauth2/web-server), [Gmail scopes](https://developers.google.com/workspace/gmail/api/auth/scopes), and [restricted-scope verification](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification).
+- Microsoft Graph: [mailFolder](https://learn.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0), [list mailFolders](https://learn.microsoft.com/en-us/graph/api/user-list-mailfolders?view=graph-rest-1.0), [delta query](https://learn.microsoft.com/en-us/graph/delta-query-overview), [OAuth authorization-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow), and [Graph permissions](https://learn.microsoft.com/en-us/graph/permissions-reference).
+- Zoho Mail: [get all folders](https://www.zoho.com/mail/help/api/get-all-folder-details.html), [get all labels](https://www.zoho.com/mail/help/api/get-all-label-details.html), [API data centres](https://www.zoho.com/mail/help/api/getting-started-with-api.html), and [OAuth 2.0](https://www.zoho.com/mail/help/api/using-oauth-2.html).
+- Yahoo: [IMAP server settings](https://help.yahoo.com/kb/SLN4075.html) and [sender authentication/OAuth](https://senders.yahooinc.com/developer/documentation/).
+- iCloud: [iCloud Mail server settings](https://support.apple.com/en-us/102525) and [app-specific passwords](https://support.apple.com/en-us/102654).
+- cPanel: [mail server configuration](https://docs.cpanel.net/whm/service-configuration/mailserver-configuration/) and [manage email accounts](https://docs.cpanel.net/cpanel/email/manage-email-accounts/).
+- Generic IMAP: [RFC 3501](https://datatracker.ietf.org/doc/html/rfc3501) and [RFC 6154 SPECIAL-USE](https://datatracker.ietf.org/doc/html/rfc6154).
 
 ## 6. Sales Intelligence and AI
 
@@ -1307,7 +1789,7 @@ CREATE TABLE sales_metrics_daily (
 
 ### 7.1 Cloud (Postgres, RLS by `org_id`)
 
-The core CRM entities are defined below. `contacts`, `threads` (conversations), `opportunities`, and `messages` are central; the remaining core entities follow the same `org_id`, UUID-ID, and tombstone conventions and are summarized after the DDL. The DDL is ordered for readability; apply it in dependency order (`orgs` → `users` → memberships/devices → `channel_accounts` → `contacts` → `threads`/`messages` → the rest).
+The core CRM entities are defined below. `contacts`, `threads` (conversations), `opportunities`, and `messages` are central; the remaining core entities follow the same `org_id`, UUID-ID, and tombstone conventions and are summarized after the DDL. The DDL is ordered for readability; apply it in dependency order (`orgs` → `users` → memberships/devices → `channel_accounts` → `whatsapp_connections` → `whatsapp_business_accounts` → `whatsapp_phone_numbers` → contacts → threads/messages → the rest).
 
 **Tenant-key rule (normative).** Every tenant-scoped table carries `org_id` and exposes a unique key `(org_id, <entity>_id)` — normally its primary key. Every FK from a tenant-scoped child to a tenant-scoped parent is composite: `(org_id, parent_id) REFERENCES parent (org_id, parent_id)`. This blocks cross-tenant references at the database layer, independently of RLS. The only global tables are `orgs`, `users`, and `plans`; a tenant reference to a user is `(org_id, user_id) → memberships(org_id, user_id)`, never `users(user_id)`. FKs are `ON DELETE RESTRICT` by default; tenant rows use soft deletes. Application code may assume `org_id` is present on every relation.
 
@@ -1331,12 +1813,12 @@ quote_versions            (org_id, quote_id, version)                  (org_id, 
 quote_tax_lines           (org_id, quote_id, version, tax_code, tax_bps) (org_id, quote_id, version) -> quote_versions
 fx_rates                  (org_id, base_currency, quote_currency, fetched_at) —
 approvals                 (org_id, approval_id)                        (org_id, requested_by) -> memberships; (org_id, approved_by) -> memberships
-wa_templates              (org_id, template_id)                        —
+wa_templates              (org_id, template_id)                        (org_id, waba_id) -> whatsapp_business_accounts
 wa_template_versions      (org_id, template_id, version)               (org_id, template_id) -> wa_templates
 wa_template_status_events (org_id, id)                                 (org_id, template_id) -> wa_templates
-wa_opt_ins                (org_id, phone_e164, category)               —
+wa_opt_ins                (org_id, wa_phone_number_id, phone_e164, category) (org_id, wa_phone_number_id) -> whatsapp_phone_numbers
 media_variants            (org_id, variant_id)                         —
-wa_media_cache            (org_id, phone_number_id, blake3_hash)       —
+wa_media_cache            (org_id, wa_phone_number_id, blake3_hash)    (org_id, wa_phone_number_id) -> whatsapp_phone_numbers
 call_logs                 (org_id, call_id)                            (org_id, thread_id) -> threads; (org_id, contact_id) -> contacts; (org_id, user_id) -> memberships
 deal_autopsies            (org_id, autopsy_id)                         (org_id, thread_id) -> threads
 thread_tags               (org_id, thread_id, tag)                     (org_id, thread_id) -> threads
@@ -1354,8 +1836,14 @@ usage_events              (org_id, usage_id)                           —
 invoices                  (org_id, invoice_id)                         —
 payment_methods           (org_id, payment_method_id)                  —
 channel_accounts          (org_id, channel_account_id)                 —
+whatsapp_connections      (org_id, connection_id)                     (org_id, created_by) -> memberships
+whatsapp_business_accounts (org_id, waba_id)                          (org_id, connection_id) -> whatsapp_connections
+whatsapp_phone_numbers    (org_id, wa_phone_number_id)                (org_id, waba_id) -> whatsapp_business_accounts; (org_id, channel_account_id) -> channel_accounts
 email_accounts            (org_id, account_id)                         (org_id, owner_user_id) -> memberships
-email_sync_state          (org_id, account_id, folder)                 (org_id, account_id) -> email_accounts
+email_folders             (org_id, folder_id)                          (org_id, account_id) -> email_accounts; (org_id, account_id, parent_folder_id) -> email_folders
+email_message_folders     (org_id, account_id, message_id, folder_id)  (org_id, account_id, message_id) -> email_messages; (org_id, account_id, folder_id) -> email_folders
+email_account_sync_state  (org_id, account_id)                         (org_id, account_id) -> email_accounts
+email_sync_state          (org_id, account_id, folder_id)              (org_id, account_id) -> email_accounts; (org_id, account_id, folder_id) -> email_folders
 email_messages            (org_id, message_id)                         (org_id, message_id) -> messages; (org_id, account_id) -> email_accounts; (org_id, thread_id) -> threads
 email_attachments         (org_id, attachment_id)                      (org_id, message_id) -> email_messages
 email_drafts              (org_id, draft_id)                           (org_id, account_id) -> email_accounts; (org_id, thread_id) -> threads
@@ -1391,8 +1879,8 @@ CREATE TABLE contacts (
 CREATE TABLE contact_identities (
   org_id UUID NOT NULL,
   contact_id UUID NOT NULL,
-  kind TEXT NOT NULL, -- phone | email
-  value TEXT NOT NULL, -- E.164 phone or lowercase email
+  kind TEXT NOT NULL, -- phone | email | messenger_psid | instagram_igsid | tiktok_open_id
+  value TEXT NOT NULL, -- E.164, lowercase email, or channel_account_id:provider_user_id
   verified BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (org_id, kind, value),
   FOREIGN KEY (org_id, contact_id) REFERENCES contacts (org_id, contact_id)
@@ -1402,7 +1890,7 @@ CREATE TABLE threads (
   thread_id UUID NOT NULL,
   contact_id UUID,
   channel_account_id UUID,
-  channel TEXT NOT NULL, -- whatsapp | email | internal
+  channel TEXT NOT NULL, -- whatsapp | messenger | instagram | tiktok | email | internal
   external_thread_id TEXT, -- provider thread/conversation key
   contact_name TEXT,
   company_name TEXT,
@@ -1535,7 +2023,7 @@ CREATE TABLE messages (
   channel_account_id UUID,
   reply_to_message_id UUID,
   external_id TEXT,
-  channel TEXT NOT NULL, -- whatsapp | email | internal
+  channel TEXT NOT NULL, -- whatsapp | messenger | instagram | tiktok | email | internal
   sender_type TEXT NOT NULL, -- customer | user | system | whisper
   sender_user_id UUID,
   content_type TEXT NOT NULL, -- text | html_email | image | video | audio | document
@@ -1726,6 +2214,7 @@ CREATE TABLE usage_events (
 CREATE TABLE invoices (
   invoice_id UUID NOT NULL,
   org_id UUID NOT NULL,
+  charge_class TEXT NOT NULL, -- subscription | usage | add_on; never a Meta charge
   amount_minor BIGINT NOT NULL,
   currency TEXT NOT NULL,
   status TEXT NOT NULL,
@@ -1748,16 +2237,131 @@ CREATE TABLE payment_methods (
 CREATE TABLE channel_accounts (
   channel_account_id UUID NOT NULL,
   org_id UUID NOT NULL,
-  type TEXT NOT NULL, -- whatsapp | email | voice
-  provider TEXT NOT NULL,
-  external_id TEXT,
+  channel TEXT NOT NULL, -- whatsapp | messenger | instagram | tiktok | email | voice
   display_name TEXT,
-  status TEXT NOT NULL,
+  status TEXT NOT NULL, -- provisioning | pending_review | pending_provider_billing |
+                        -- ready | restricted | reauth_required | error | disabled |
+                        -- revoked | disconnected; WhatsApp mirrors whatsapp_phone_numbers.status
+  status_detail TEXT,
+  capabilities JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- Non-WhatsApp provider identity and credentials. For WhatsApp these columns
+  -- are null; the explicit whatsapp_* tables are authoritative.
+  provider TEXT,
+  external_id TEXT,
+  parent_external_id TEXT, -- Page ID for Instagram fallback/TikTok business ID; not used for WhatsApp
+  auth_method TEXT, -- embedded_signup | oauth2 | app_password | password | api_key
+  token_type TEXT,
+  scopes TEXT[],
+  webhook_status TEXT,
   health JSONB,
   secret_ref TEXT,
+  token_expires_at TIMESTAMPTZ,
+  token_refreshed_at TIMESTAMPTZ,
+  last_verified_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ,
   PRIMARY KEY (org_id, channel_account_id),
-  UNIQUE (org_id, type, external_id)
+  UNIQUE (channel, external_id)
+);
+CREATE TABLE whatsapp_connections (
+  connection_id UUID NOT NULL,
+  org_id UUID NOT NULL,
+  meta_business_portfolio_id TEXT,
+  onboarding_method TEXT NOT NULL, -- embedded_signup_v4 | bsp_embedded_signup | bsp_manual
+  onboarding_state TEXT NOT NULL, -- initiated | pending_assets | code_received |
+                                  -- code_exchanged | assets_verified | waba_subscribed |
+                                  -- provisioning | completed | failed | cancelled
+  onboarding_started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  onboarding_completed_at TIMESTAMPTZ,
+  onboarding_error_code TEXT,
+  onboarding_error_detail TEXT,
+  granted_permissions TEXT[] NOT NULL DEFAULT '{}',
+  status TEXT NOT NULL DEFAULT 'provisioning', -- provisioning | pending_review |
+                        -- pending_provider_billing | ready | restricted |
+                        -- reauth_required | error | disabled | revoked | disconnected
+  status_detail TEXT,
+  bsp_reference TEXT, -- optional fallback record; never a core dependency
+  created_by UUID,
+  connected_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  disconnected_at TIMESTAMPTZ,
+  last_verified_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMPTZ,
+  PRIMARY KEY (org_id, connection_id),
+  FOREIGN KEY (org_id, created_by) REFERENCES memberships (org_id, user_id)
+);
+CREATE TABLE whatsapp_business_accounts (
+  waba_id UUID NOT NULL,
+  org_id UUID NOT NULL,
+  connection_id UUID NOT NULL,
+  meta_waba_id TEXT NOT NULL,
+  name TEXT,
+  currency TEXT,
+  timezone TEXT,
+  review_status TEXT, -- pending | approved | rejected | restricted
+  status TEXT NOT NULL DEFAULT 'provisioning', -- provisioning | pending_review |
+                        -- pending_provider_billing | ready | restricted |
+                        -- reauth_required | error | disabled | revoked | disconnected
+  status_detail TEXT,
+  token_ref TEXT, -- cloud-vault reference only; never a raw token
+  token_type TEXT NOT NULL DEFAULT 'business_integration_system_user',
+  token_expires_at TIMESTAMPTZ,
+  token_refreshed_at TIMESTAMPTZ,
+  effective_permissions TEXT[] NOT NULL DEFAULT '{}',
+  webhook_status TEXT NOT NULL DEFAULT 'unsubscribed', -- unsubscribed | pending | subscribed | disabled | error
+  webhook_fields TEXT[] NOT NULL DEFAULT '{}',
+  webhook_subscribed_at TIMESTAMPTZ,
+  webhook_error TEXT,
+  meta_payment_status TEXT NOT NULL DEFAULT 'unknown', -- unknown | missing | pending | added | failed |
+                                                       -- managed_by_bsp | not_applicable (Meta-owned)
+  revoked_at TIMESTAMPTZ,
+  disconnected_at TIMESTAMPTZ,
+  last_verified_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMPTZ,
+  PRIMARY KEY (org_id, waba_id),
+  UNIQUE (meta_waba_id),
+  FOREIGN KEY (org_id, connection_id)
+    REFERENCES whatsapp_connections (org_id, connection_id)
+);
+CREATE TABLE whatsapp_phone_numbers (
+  wa_phone_number_id UUID NOT NULL,
+  org_id UUID NOT NULL,
+  waba_id UUID NOT NULL,
+  channel_account_id UUID NOT NULL,
+  meta_phone_number_id TEXT NOT NULL,
+  display_phone_number TEXT NOT NULL,
+  e164_phone_number TEXT NOT NULL,
+  verified_name TEXT,
+  registration_status TEXT NOT NULL DEFAULT 'unregistered', -- unregistered | registering | registered | failed
+  verification_status TEXT NOT NULL DEFAULT 'unverified', -- unverified | pending | verified | rejected
+  quality_rating TEXT, -- green | yellow | red | unknown
+  messaging_limit TEXT, -- 1K | 10K | 100K | unlimited | unknown
+  throughput TEXT, -- standard | high | unknown
+  calling_capability JSONB NOT NULL DEFAULT '{}'::jsonb, -- voice/video/sip flags and status
+  status TEXT NOT NULL DEFAULT 'provisioning', -- provisioning | pending_review |
+                        -- pending_provider_billing | ready | restricted |
+                        -- reauth_required | error | disabled | revoked | disconnected
+  status_detail TEXT,
+  registered_at TIMESTAMPTZ,
+  verified_at TIMESTAMPTZ,
+  last_synced_at TIMESTAMPTZ,
+  revoked_at TIMESTAMPTZ,
+  disconnected_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMPTZ,
+  PRIMARY KEY (org_id, wa_phone_number_id),
+  UNIQUE (meta_phone_number_id),
+  UNIQUE (org_id, channel_account_id),
+  FOREIGN KEY (org_id, waba_id)
+    REFERENCES whatsapp_business_accounts (org_id, waba_id),
+  FOREIGN KEY (org_id, channel_account_id)
+    REFERENCES channel_accounts (org_id, channel_account_id)
 );
 CREATE TABLE events (
   org_id UUID NOT NULL,
@@ -1851,9 +2455,14 @@ RLS policy pattern: every table with `org_id` uses `USING (org_id = current_sett
 | `sync_cursor`                            | Last applied `seq`; last event id.                                                                 |
 | `contacts_cache`                         | Authorized contact records; merge/identity links; `last_synced_at`.                                 |
 | `conversations_cache`                    | Authorized conversation summaries; `dirty`, `last_synced_at`.                                      |
+| `channel_accounts_cache`                 | Connected send targets, capability flags, status/health, and webhook state; no provider tokens.     |
+| `whatsapp_accounts_cache`                | WhatsApp connection/WABA/number display metadata, statuses, quality, throughput, and calling capabilities; no tokens or onboarding secrets. |
 | `opportunities_cache`                    | Pipeline opportunities, stage history, products, and owner; `last_synced_at`.                        |
 | `sales_signals_cache`                    | Open/resolved deterministic signals and follow-up tasks for the recovery queue.                      |
 | `messages_cache`                         | Authorized messages; FTS5 index; `pending` flag.                                                   |
+| `email_accounts_cache`                   | Connected mailbox metadata, status, owner, default, and capabilities; no credentials or OAuth tokens. |
+| `email_folders_cache`                    | Account-scoped folder/label tree, roles, role source, visibility, counts, and sync revision.        |
+| `email_message_folders_cache`            | Many-to-many folder/label membership used by the mail views and label chips.                        |
 | `products_cache` / `product_media_cache` | Catalog metadata, thumbnails, media paths.                                                         |
 | `quote_templates_cache`                  | Template configs and brand assets.                                                                 |
 | `quotes` / `quote_items`                 | Local quote state; sync status.                                                                    |
@@ -1878,7 +2487,13 @@ Desktop DB is a **cache**, not an authority. Every write is a command; optimisti
 - Backfill `quote_versions`/`quote_tax_lines` `org_id`; initialize `security_policies` defaults (10 min default, 60 min max); existing devices must set a local unlock password before accessing data.
 - Tenant-key migration: add/backfill `org_id` on every tenant table; create unique indexes `(org_id, entity_id)` concurrently; add composite FKs as `NOT VALID`, validate after the orphan check, then drop single-column FKs. Switch primary keys only after validation; keep the old global unique ID as a transitional index if needed.
 - Cross-tenant audit query before validation: every child `(org_id, parent_id)` must match exactly one parent `(org_id, parent_id)`; quarantine or delete orphans before enforcing FKs.
-- Email protocol data is cloud-only; desktop SQLite has no SMTP/IMAP credentials, mailbox state, or MIME parser. The desktop caches messages/drafts received through sync.
+- Create `whatsapp_connections`, `whatsapp_business_accounts`, and `whatsapp_phone_numbers`; backfill each existing WhatsApp `channel_accounts` row into a connection/WABA/phone tuple using its stored WABA parent and phone number ID; link the phone row 1:1 to the `channel_accounts` send target and move token, scope, webhook, registration, quality, and calling state into the new tables. Rename `channel_accounts.type` to `channel`; make provider/external_id nullable for WhatsApp; retain `parent_external_id` only for Page/TikTok grouping. Backfill `meta_business_portfolio_id` from Graph where known, otherwise leave it null and re-read it on reconnect. Reuse rows by Meta WABA/phone ID on reconnect; never duplicate. Add `channel.connection_updated`, `channel.connection_revoked`, and `channel.connection_disconnected`.
+- Rekey `wa_templates` from the Meta WABA text ID to the internal `(org_id, waba_id)` and drop `phone_number_id`; backfill every template to its WABA. Templates are WABA-scoped in 2.0; number-scoped templates are not migrated because they are not supported.
+- Re-key `wa_opt_ins` by the sending `wa_phone_number_id`; backfill where the originating number is known, otherwise require a fresh opt-in before marketing from that number.
+- Add `invoices.charge_class` (`subscription` | `usage` | `add_on`) and backfill existing invoices as `subscription`; add `whatsapp_business_accounts.meta_payment_status`. Never import Meta messaging/calling charges as IntelluxIQ invoice lines.
+- Add email auth/setup fields; backfill `provider_account_id` from the provider profile or the mailbox address/host, initialize `role_source='provider'`, and keep credentials out of the database migration.
+- Backfill `email_messages.folder` into `email_folders`/`email_message_folders`, rekey `email_sync_state` by `folder_id`, preserve `UIDVALIDITY`/`last_uid`, and drop the legacy column only after the orphan audit.
+- Email protocol data is cloud-only; desktop SQLite has no SMTP/IMAP credentials, IMAP sync cursors, or MIME parser. The desktop caches messages, drafts, normalized account/folder metadata, and message-to-folder memberships received through sync.
 
 ## 8. Protocol and events
 
@@ -1944,13 +2559,14 @@ See §12.3 for the canonical command/event catalog; this table is the minimum co
 | Messaging | `message.created`, `message.status_updated`, `message.deleted`                                                                                     |
 | Media     | `media.ready`, `media.failed`                                                                                                                      |
 | Conversations | `thread.created`, `thread.updated`, `thread.assigned`                                                                                              |
+| Channels    | `channel.account_updated`, `channel.account_removed`, `channel.connection_updated`, `channel.connection_revoked`, `channel.connection_disconnected` |
 | Opportunities | `opportunity.created`, `opportunity.updated`, `opportunity.stage_changed`, `opportunity.owner_changed`, `opportunity.linked`                       |
 | Intelligence | `intelligence.signal.opened`, `intelligence.signal.updated`, `intelligence.signal.resolved`                                                        |
 | Follow-ups   | `follow_up.created`, `follow_up.updated`, `follow_up.completed`                                                                                     |
 | Quotes    | `quote.created`, `quote.updated`, `quote.sent`, `quote.status_updated`, `quote.approval_requested`                                                 |
 | Catalog   | `catalog.updated`, `catalog.deleted`, `template.updated`                                                                                           |
 | WhatsApp  | `wa.template_status_changed`, `wa.window_updated`, `wa.quality_changed`                                                                            |
-| Email     | `email.received`, `email.sent`, `email.status_updated`, `email.bounced`                                                                            |
+| Email     | `email.received`, `email.sent`, `email.status_updated`, `email.bounced`, `email.account_updated`, `email.account_removed`, `email.folders_synced`, `email.folder_updated`, `email.folder_removed`, `email.message_folders_updated` |
 | Calls     | `call.ringing`, `call.updated`, `call.ended` (Phase 3)                                                                                             |
 | Users     | `user.invited`, `user.updated`, `user.removed`                                                                                                     |
 | Devices   | `device.linked`, `device.unlinked`, `device.terminated`, `device.pending_wipe`, `device.wipe_acked`                                                |
@@ -1961,7 +2577,7 @@ See §12.3 for the canonical command/event catalog; this table is the minimum co
 
 Ephemeral (not persisted in the log): `presence.updated`, `typing.started`, `typing.stopped`.
 
-Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broadcast in the org-wide CRM stream; they go to the audit log and the manager console. Policy and force-lock events are control events delivered to the affected devices. `device.pending_wipe` means `devices.wipe_status = pending`, not a link status.
+Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broadcast in the org-wide CRM stream; they go to the audit log and the manager console. Policy and force-lock events are control events delivered to the affected devices. `device.pending_wipe` means `devices.wipe_status = pending`, not a link status. Channel connection events carry lifecycle state, WABA/phone display metadata, permissions, and webhook health only; never tokens, token references, PINs, or raw provider payloads.
 
 §12.3 is the canonical command/event catalog and defines the contract rules.
 
@@ -1969,7 +2585,7 @@ Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broa
 
 1. Device connects with certificate/token; server resolves org, user, role.
 2. Client sends `last_seq`; the cloud allocates the next per-org `seq` atomically when appending events.
-3. If `last_seq` is within retention, server streams events after it; otherwise sends a snapshot and resumes. Snapshots are compressed, paginated, contain the org's CRM data (all linked CRM devices are authorized), and exclude media (signed URLs are issued separately).
+3. If `last_seq` is within retention, server streams events after it; otherwise sends a snapshot and resumes. Snapshots are compressed, paginated, contain the org's CRM data plus email/channel account status, WhatsApp connection/WABA/number metadata, and folder metadata (all linked CRM devices are authorized), and exclude media and provider secrets (signed URLs are issued separately).
 4. Live events over WSS; client acks every 100 events or 5 seconds.
 5. Commands over HTTPS; responses; resulting events via WSS.
 6. On disconnect, reconnect with backoff and resume from `last_seq`; client dedupes by `event_id`.
@@ -2039,9 +2655,11 @@ Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broa
 
 ### 9.3 Secrets
 
-- Provider credentials only in cloud vault (KMS envelope encryption); never returned by API.
-- Rotation; per-tenant scope; audit access.
-- No secrets in logs, crash reports, or desktop storage.
+- Provider credentials only in the cloud vault (KMS envelope encryption): OAuth refresh tokens, Meta business/Page/Instagram tokens, TikTok access/refresh tokens, app passwords, and provider API keys. They are never returned by the API.
+- WhatsApp business tokens are vaulted per WABA and referenced by `whatsapp_business_accounts.token_ref`; token type, expiry, and refresh metadata live on the WABA. Tokens are never stored on `channel_accounts`, in events, or on the desktop. BSP-supplied tokens follow the same rule. Registration PINs are not stored at all.
+- OAuth client IDs/secrets are application configuration in the secret manager, not tenant rows. Per-account secrets are referenced by `secret_ref` (non-WhatsApp) or `token_ref` (WhatsApp WABA) and decrypted only in workers.
+- Rotation; per-tenant scope; audit access. Refresh-token rotation is atomic; app passwords can be replaced but never re-displayed.
+- No access token, refresh token, authorization code, app password, or client secret in logs, crash reports, browser storage, redirect URLs, sync events, or desktop storage.
 
 ### 9.4 Data protection and compliance
 
@@ -2054,18 +2672,29 @@ Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broa
 - Lost-device termination is best-effort: an offline device retains encrypted data until it reconnects. Document this limitation; recommend OS-level remote wipe/MDM for high-risk devices.
 - Local idle-lock wipe is also best-effort on SSDs and cannot erase forensic copies or backups. The local unlock password is a separate credential; account passwords are never stored.
 
-### 9.5 Subscription and entitlements
+### 9.5 Subscription, provider charges, and entitlements
 
+Billing has three separate charge classes. They must stay separate in the data model, the UI, and the invoice.
+
+| Charge class | Biller and payer | Scope | In an IntelluxIQ invoice? |
+| --- | --- | --- | --- |
+| Meta WhatsApp messaging/calling | Meta bills the customer directly through the customer's Meta business portfolio payment method. If the customer has a separate BSP-managed billing arrangement, the BSP bills for Meta charges under that agreement; IntelluxIQ is not a party to either. | Meta conversation/message/calling pricing; provider-owned. | **No.** IntelluxIQ does not invoice, collect, hold, remit, or mark up Meta charges in 2.0. |
+| IntelluxIQ subscription | IntelluxIQ bills the customer through Stripe/Paddle plus an M-PESA-capable provider for Kenya. | Organisation base + connected sendable channels + monthly active conversations; devices included up to the plan cap. | **Yes.** |
+| Optional IntelluxIQ usage | IntelluxIQ bills the customer only when the customer explicitly enables the overage/add-on. | For example storage above plan or AI credits when enabled. | **Yes**, on a separate `charge_class='usage'`/`'add_on'` invoice; never inferred from Meta charges. |
+
+- A WhatsApp **phone number** is one connected channel for IntelluxIQ billing. The WABA and connection are grouping/onboarding records and are not separately billed. Meta's per-conversation/per-message/calling charges remain the customer's direct obligation to Meta.
+- `whatsapp_business_accounts.meta_payment_status` is read-only onboarding state for the customer's Meta payment method (unknown/missing/pending/added/failed) or a BSP-managed/not-applicable arrangement. It is never an IntelluxIQ payment method, invoice state, or dunning state. The account state `pending_provider_billing` means the provider-side payment method (or a BSP-managed billing confirmation) is still pending; it never means "the customer owes IntelluxIQ".
 - Plans: device limit, channel limit, conversation/storage/AI limits; the pricing metric and plan caps are in §12.6.
 - Entitlements cached on desktop with a 14-day offline lease; grace period; read-only after expiry (never delete local data). The 7-day session offline lease in §1.12 is separate; the shorter one wins.
 - Enforcement at device link and at send; clear upgrade prompts.
-- Billing: Stripe/Paddle plus M-PESA for Kenya; invoices, VAT, dunning, cancellation, export.
-- Usage metering: active devices, WhatsApp numbers, email accounts, conversations, AI credits.
+- Billing: Stripe/Paddle plus M-PESA for Kenya; invoices, VAT, dunning, cancellation, export. Invoices carry a `charge_class` (`subscription` | `usage` | `add_on`) and never contain a Meta charge.
+- Usage metering: active devices, connected channels, monthly active conversations, storage, AI credits, and provider diagnostics. Meta message/call volumes may be recorded in provider diagnostics for cost reporting and reconciliation, but they are never `usage_events` or IntelluxIQ invoice lines.
+- **No accidental billing intermediary.** Combining Meta charges with IntelluxIQ invoices, reselling Meta credit, holding customer funds, or becoming the merchant of record for Meta requires a deliberate ADR, a separate ledger, tax/compliance review, and explicit customer consent. It is not part of 2.0. A BSP may bill a customer under its own arrangement; that relationship is external to IntelluxIQ and does not change this boundary.
 
 ### 9.6 Audit and observability
 
-- Audit: device link/unlink, role changes, billing changes, data exports, support access, sends.
-- Metrics: event lag, WS connections, outbound failures, provider errors, queue depth, sync errors, tenant health.
+- Audit: device link/unlink, role changes, billing changes, data exports, support access, sends, email account connect/reconnect/disconnect, owner changes, default changes, social channel asset connect/reconnect/disconnect, and WhatsApp connection/WABA/number onboarding, token rotation, revocation, disconnect, and BSP fallback use.
+- Metrics: event lag, WS connections, outbound failures, provider errors, webhook-signature/asset-mapping failures, folder-discovery lag/failures, reauthentication/setup failures, queue depth, sync errors, tenant health.
 - Tracing per command/event; PII redaction in logs.
 - Status page and incident runbooks.
 
@@ -2076,14 +2705,15 @@ Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broa
 | Phase                  | Scope                                                                                                                                                                                            | Estimate\*  |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
 | 0 — Cloud foundation   | Orgs/users/roles/devices/auth, sessions/termination/wipe, security policy/idle lock/local wipe, event log, WSS sync, Next.js + Hono/Bun API, i18n/a11y foundations, subscription skeleton, audit | 8–12 weeks  |
-| 1 — Channel egress     | WhatsApp messaging/templates/media, email outbound/inbound, cloud egress, desktop sync/outbox, session refresh                                                                                   | 10–12 weeks |
+| 1 — Channel egress     | WhatsApp messaging/templates/media, email provider authentication/onboarding, outbound/inbound, folder discovery, cloud egress, desktop sync/outbox, session refresh                                             | 12–14 weeks |
+| 1.5 — Social messaging | WhatsApp Embedded Signup v4 with connection/WABA/phone hierarchy and lifecycle, Messenger, Instagram (Login + Page fallback), TikTok (gated), app-level webhooks, channel accounts, desktop channels | 8–12 weeks  |
 | 2 — Catalog and quotes | Cloud catalog/media origin, brand studio, quoting math, PDF, approvals, opportunity-linked quotes                                                                                              | 8–10 weeks  |
 | 2.5 — Sales intelligence | Contact/conversation/opportunity separation, deterministic signals, lead recovery, conversation/pipeline metrics, outcome model, manager dashboards                                      | 6–8 weeks   |
 | 3 — Voice (deferred)   | Cloud signaling, desktop media, AT/Twilio, recording                                                                                                                                             | 16–24 weeks |
 | 4 — Real AI (later)    | Transcription, autopsy, hints; eval/privacy                                                                                                                                                      | 8–12 weeks  |
 | Hardening/pilot        | Security, compliance, load/chaos, migration, pilot                                                                                                                                               | 6–8 weeks   |
 
-**Estimate basis:** 5–7 engineers (backend, desktop, SRE, security). Sequential total is ~9–12 months; parallel work can compress to ~7–9 months. A narrow 2.0 release without voice: 6–8 months with ~4 engineers. The §12 contract pack, release/update pipeline, billing skeleton, telemetry/crash plumbing, and test harness are built alongside Phase 0/1, not as a separate phase.
+**Estimate basis:** 5–7 engineers (backend, desktop, SRE, security). Sequential total is ~11–15 months; parallel work can compress to ~8–11 months. A narrow 2.0 release without voice: 7–9 months with ~4 engineers. The §12 contract pack, release/update pipeline, billing skeleton, telemetry/crash plumbing, and test harness are built alongside Phase 0/1, not as a separate phase.
 
 ### 10.2 Validation and post-2.0 items
 
@@ -2097,8 +2727,10 @@ Security audit events (`device.unlock_failed`, `device.local_wipe`) are not broa
 | Manager-only whispers          | Team-visible in 2.0                          | Post-2.0      |
 | Web catalog/brand admin        | Manager desktop                              | Post-2.0      |
 | Voice timing                   | Phase 3                                      | Confirm       |
-| Email provider validation      | Postmark/SendGrid first; cloud IMAP fallback | Pilot         |
-| WhatsApp onboarding validation | Embedded Signup; BSP fallback                | Pilot         |
+| Email provider validation      | Gmail API + Microsoft Graph + Zoho API first with OAuth app review; IMAP presets for Yahoo/iCloud/cPanel; Postmark/SendGrid for outbound | Phase 1/pilot |
+| WhatsApp onboarding validation | Direct Embedded Signup v4 first; Tech Provider/Tech Partner; BSP manual/embedded fallback only, with no single-BSP dependency; connection/WABA/phone lifecycle verified | Pilot |
+| WhatsApp billing boundary      | Customer pays Meta directly (or through its BSP billing arrangement) for messaging/calling; IntelluxIQ subscription and optional usage invoiced separately; no pass-through or billing intermediary | Pilot |
+| Social messaging provider access | Meta App Review/Business Verification; Instagram Login review; TikTok Business Messaging/data-security/region gate | Phase 1.5/pilot |
 | Framework upgrade cadence      | Exact pinning; quarterly window              | Ongoing       |
 | Offline termination/MDM        | Best effort                                  | Accepted      |
 | User removal retention         | Audit 12 months                              | Legal         |
@@ -2108,8 +2740,10 @@ No item in this table blocks the build; pricing, data region, and DPA are launch
 
 ### 10.3 Risks
 
-- Meta policy/template/quality changes; media limits and ID expiry.
-- Provider API changes (email/voice); deliverability.
+- Meta policy/template/quality changes; social messaging API/review changes; TikTok Business Messaging availability/region gates; media limits and ID expiry.
+- Meta pricing/billing changes and customer confusion between Meta charges, IntelluxIQ subscription, and optional usage; mitigated by explicit labels, separate charge classes, and no pass-through.
+- BSP commercial/technical dependency or lock-in; mitigated by making the direct Embedded Signup path the default, keeping the BSP fallback adapter-based, and never making core WhatsApp I/O depend on one BSP.
+- Provider API changes (Meta social, TikTok, email/voice), folder/label schema changes, OAuth app verification, owner-consent complexity, and IMAP namespace variations; deliverability.
 - Cloud media egress and WebSocket costs; unit economics.
 - Voice complexity (SIP/TURN/AEC/recording).
 - Compliance (recording consent, data residency, DPA).
@@ -2209,6 +2843,7 @@ This section closes the minimum engineering gaps from the spec review. It is del
 | WhatsApp text in window          | Sends via cloud egress; status transitions; duplicate `client_msg_id` does not double-send.                                              |
 | WhatsApp template outside window | Only `APPROVED` template; variables validated; opt-in/window/quality checks; Meta error mapped to user action.                           |
 | WhatsApp media                   | Desktop preflight; variant within limits; cloud revalidation; media-ID reuse or re-upload; failure leaves draft intact.                  |
+| Social messaging                  | WhatsApp Embedded Signup v4, Messenger Pages, Instagram Login/Page fallback, and gated TikTok onboarding; app-level signed webhooks; account status sync; no provider token on desktop. |
 | Entity separation                | Contact, conversation, opportunity, message, and quote remain distinct; a contact has many conversations/opportunities; a conversation links zero or more opportunities; a quote requires an opportunity; `threads` carries no deal stage/value. |
 | Conversation assignment          | Unassigned conversation is read-only; manager assigns; non-owner send rejected; reassignment preserves the draft.                        |
 | Opportunity lifecycle            | Enquiry → qualified → quotation → negotiation → won/lost; stage history recorded; only owner/manager changes stage; quote requires opportunity write access. |
@@ -2217,6 +2852,7 @@ This section closes the minimum engineering gaps from the spec review. It is del
 | Team performance                 | Outcomes (enquiries, qualified, quotes, accepted, won, revenue, recovered, follow-ups, conversion) ranked over activity; message counts are diagnostics only. |
 | Quote                            | Opportunity required; offline number block consumed; tax/discount/FX totals match stored values; PDF renders; send is idempotent; no number collision. |
 | Email                            | Cloud SMTP/IMAP only; desktop has no protocol code or credentials; send/receive; RFC 5322 threading; Sent append; bounce recorded; duplicate Message-ID not re-threaded. |
+| Email account onboarding         | Provider-specific OAuth/app-password setup; folder preview; duplicate/provider-mismatch rejection; no secret in browser or desktop; reauth preserves account/folder/message identity; default/owner changes sync. |
 | Device lifecycle                 | Link, terminate online/offline, wipe ack, re-link; no customer data survives a successful wipe.                                          |
 | Idle lock                        | Timeout locks; wrong password count persists; third failure wipes; manager policy wins.                                                  |
 | Offline/reconnect                | Queued commands replay once; cursor resumes; deletes do not resurrect; conflict is visible to the user.                                  |
@@ -2231,8 +2867,8 @@ This is an **initial operating envelope** for pilot and load testing, not a cont
 
 | Dimension           | 2.0 design target                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------- |
-| Organisation        | Up to 50 linked devices, 5 WhatsApp numbers, 5 email accounts.                                  |
-| Conversation volume | 20,000 WhatsApp/email messages per org per day; 100,000 threads; 1M messages retained.          |
+| Organisation        | Up to 50 linked devices, 5 WhatsApp numbers, 5 email accounts, 5 social messaging accounts.      |
+| Conversation volume | 20,000 WhatsApp/social/email messages per org per day; 100,000 threads; 1M messages retained.   |
 | Catalog             | 10,000 SKUs; 100 GB media per org; variants generated on demand.                                |
 | Realtime            | 50 concurrent WebSocket connections per org; 10 concurrent calls per org (Phase 3).             |
 | Availability        | 99.9% monthly API availability; single region, multi-AZ.                                        |
@@ -2293,7 +2929,10 @@ The contract pack consists of OpenAPI 3.1 (REST), AsyncAPI 2.6 (WebSocket), and 
 | Conversation | `unassigned` → `assigned` → `reassigned` (read-only for non-owner); `closed_at` closes the conversation.                     |
 | Opportunity | `enquiry` → `qualified` → `quotation` → `negotiation` → `won`/`lost`; stage history immutable.                             |
 | Quote     | `draft` → `pending_approval` → `approved`/`rejected` → `sent` → `accepted`/`expired`; versions immutable.                    |
-| Template  | `draft` → `pending` → `approved`/`rejected` → `paused`/`disabled`.                                                           |
+| Template  | `DRAFT` → `PENDING` → `APPROVED`/`REJECTED` → `PAUSED`/`DISABLED`.                                                           |
+| WhatsApp onboarding | `initiated` → `pending_assets` → `code_received` → `code_exchanged` → `assets_verified` → `waba_subscribed` → `provisioning` → `completed`; `failed`/`cancelled` terminal. |
+| WhatsApp connection | `provisioning` → `pending_review`/`pending_provider_billing` → `ready`; `restricted`/`reauth_required`/`error`/`disabled`; `revoked`/`disconnected`. |
+| WhatsApp phone number | `provisioning` → `pending_review`/`pending_provider_billing` → `ready`; `restricted`/`reauth_required`/`error`/`disabled`; `revoked`/`disconnected`. Registration and verification are tracked separately from send status. |
 | Email     | `queued` → `sending` → `sent` → `delivered`/`bounced`/`failed`; drafts separate.                                             |
 | Device    | Link state: `linked` → `revoked`/`terminated`; wipe state: `none` → `pending` → `sent` → `acked`/`failed`, or `local_wiped`. |
 | Session   | `active` → `revoked`/`expired`.                                                                                              |
@@ -2303,7 +2942,7 @@ Contract tests use golden JSON fixtures for every command/event. A payload chang
 
 ### 12.4 Data-model corrections
 
-These changes close the referential, tenant-key, and RLS gaps found in review. They are part of migration `0002`, applied expand/contract with backfills. The final column shapes are in §7.1; this table records the migration-specific work.
+These changes close the referential, tenant-key, and RLS gaps found in review. They are applied expand/contract with backfills; the folder-discovery and account-auth changes land in the next migration after `0002`. The final column shapes are in §7.1; this table records the migration-specific work.
 
 | Change                                                                                                                                           | Reason                                                             |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
@@ -2313,17 +2952,26 @@ These changes close the referential, tenant-key, and RLS gaps found in review. T
 | Backfill `quote_versions`/`quote_tax_lines` `org_id`; convert keys and FKs to `(org_id, quote_id, …)`                                             | RLS and tenant-scoped referential integrity.                        |
 | Populate `messages.reply_to_message_id` for new replies                                                                                          | WhatsApp/email quoted messages.                                    |
 | Change `outbound_jobs` to PK `(org_id, job_id)` and `UNIQUE (org_id, idempotency_key)`                                                           | Prevent cross-tenant collisions.                                   |
-| Add `channel_accounts` unique `(org_id, type, external_id)`                                                                                      | Prevent duplicate channel connections.                             |
+| Create `whatsapp_connections`, `whatsapp_business_accounts`, and `whatsapp_phone_numbers`; backfill existing WhatsApp `channel_accounts` into the hierarchy; rename `channel_accounts.type` to `channel` and make WhatsApp provider fields nullable; keep `channel_accounts` as the 1:1 send target; move WABA/token/permission/webhook/registration/quality/calling state into the explicit tables; add `channel.connection_updated`/`channel.connection_revoked`/`channel.connection_disconnected` | Explicit WABA-versus-phone scope, onboarding lifecycle, revocation, and no generic WhatsApp account fields. |
+| Add `wa_opt_ins.wa_phone_number_id`; rekey opt-in by sending number and require re-opt-in where the origin is unknown | Number-scoped STOP/START and marketing eligibility; prevents cross-number opt-in leakage. |
 | Add partial unique active subscription per org; add `usage_events.source_id` + unique                                                            | Billing correctness and idempotent metering.                       |
+| Add `invoices.charge_class` (`subscription` \| `usage` \| `add_on`); add `whatsapp_business_accounts.meta_payment_status` | Keep Meta charges out of IntelluxIQ invoices and distinguish provider billing from IntelluxIQ billing. |
 | Add `email_accounts.owner_user_id`; composite FKs to memberships; unique `(org_id, message_id_header)`                                           | Account ownership and tenant-scoped Message-ID.                    |
+| Add `provider_account_id`, `provider_tenant_id`, `auth_method`, `provider_preset`, `api_base_url`, `capabilities`, `status_detail`, `last_verified_at`, `deleted_at`; unique `(org_id, provider, provider_account_id)`; backfill provider identity | Stable account identity, setup state, and duplicate-safe reconnect. |
+| Add `email_folders.role_source`; backfill `provider` | Preserve manual IMAP/cPanel role overrides across discovery. |
+| Add `email.account_updated` and `email.account_removed` events | Desktop sync for account setup, reauth, owner/default changes, and disconnect. |
+| Add `email_folders`, `email_message_folders`, `email_account_sync_state`; rekey `email_sync_state` by `folder_id`; backfill and drop `email_messages.folder` | Gmail/Zoho labels are many-to-many; IMAP folders are provider-defined. |
 | Keep `devices.status` for linked/revoked/terminated and `wipe_status` for wipe state                                                             | Remove the overlapping `pending_wipe` status.                      |
 | Make `audit_log` append-only/WORM; PK `(org_id, audit_id)`; add 12-month retention                                                                | "Immutable audit" in §1.3 is not implemented by an ordinary table. |
 | Convert every tenant table to PK/unique `(org_id, entity_id)`; add composite `(org_id, parent_id)` FKs; validate after orphan audit               | Block cross-tenant references at the database layer.                |
-| Add indexes on `messages(org,thread,created)`, `email_messages(org,thread,received)`, `events(org,seq)`, `outbound_jobs(status,next_attempt_at)` | Query and queue performance.                                       |
-| Document templates as WABA-wide; keep `phone_number_id` as optional metadata; no number-scoped templates in 2.0                                  | Current key and number scope conflict.                             |
+| Add indexes on `messages(org,thread,created)`, `email_messages(org,thread,received)`, `email_folders(org,account,parent)`, `email_message_folders(org,account,folder)`, `events(org,seq)`, `outbound_jobs(status,next_attempt_at)` | Query and queue performance.                                       |
+| Rekey `wa_templates` by internal `(org_id, waba_id)`; drop `phone_number_id`; templates are WABA-scoped | WABA ownership; no number-scoped templates in 2.0. |
 
 ```sql
 CREATE INDEX email_messages_thread_idx ON email_messages (org_id, thread_id, received_at);
+CREATE UNIQUE INDEX email_accounts_one_default ON email_accounts (org_id) WHERE is_default AND deleted_at IS NULL;
+CREATE INDEX email_folders_account_idx ON email_folders (org_id, account_id, parent_folder_id);
+CREATE INDEX email_message_folders_folder_idx ON email_message_folders (org_id, account_id, folder_id);
 CREATE INDEX outbound_jobs_status_idx ON outbound_jobs (status, next_attempt_at);
 CREATE INDEX usage_events_org_metric_idx ON usage_events (org_id, metric, occurred_at);
 ```
@@ -2337,7 +2985,7 @@ CREATE INDEX usage_events_org_metric_idx ON usage_events (org_id, metric, occurr
 | Data classes and retention | Account, customer PII, message content, media, call recordings (Phase 3), payment metadata, secrets, telemetry. Messages/media default 24 months (org-configurable, minimum 30 days); call recordings 90 days; audit 12 months; logs 30 days; backups 35 days; AI jobs 30 days.                           |
 | Keys                       | Per-tenant KMS data keys; envelope encryption; 90-day data-key rotation; secrets vault; no provider secrets on desktops.                                                                                                                                                                                  |
 | Audit                      | Append-only/WORM, 12 months, tenant export; admin actions and support access recorded.                                                                                                                                                                                                                    |
-| Top threats                | Stolen device, refresh-token theft, webhook spoof, cross-tenant access, malicious attachment, update supply chain, support insider, export abuse. Mitigations are device wipe/encryption, short tokens, signature verification, RLS, virus scan, signed updates, time-bound support access, export audit. |
+| Top threats                | Stolen device, refresh-token/app-password theft, webhook spoof, cross-tenant access, malicious attachment, update supply chain, support insider, export abuse. Mitigations are device wipe/encryption, short tokens, signature verification, RLS, virus scan, signed updates, time-bound support access, export audit. |
 | App security               | Pen test before launch and annually; SBOM and dependency scanning; critical vulnerability fix ≤7 days, high ≤30 days.                                                                                                                                                                                     |
 | Privacy                    | DPA, subprocessor list, data residency, DSAR/export, erasure, 72-hour breach notification, Kenya DPA 2019/GDPR mapping.                                                                                                                                                                                   |
 | Support access             | Time-bound, customer-consented, fully audited; no standing production database access.                                                                                                                                                                                                                    |
@@ -2347,17 +2995,28 @@ This is a baseline, not a certification. SOC 2 readiness is a post-pilot decisio
 
 ### 12.6 Billing and entitlements
 
-**2.0 plan metric:** organisation base + connected channels + monthly active conversations; devices are included up to a cap. This preserves "no per-seat" pricing and avoids metering every seat.
+**2.0 plan metric:** organisation base + connected sendable channels + monthly active conversations; devices are included up to a cap. This preserves "no per-seat" pricing and avoids metering every seat. A WhatsApp phone number counts as one connected channel; the WABA and connection are grouping/onboarding records, not separate billable channels.
+
+**Charge classes (normative).**
+
+| Charge class | Biller / payer | In an IntelluxIQ invoice? | Source of truth |
+| --- | --- | --- | --- |
+| Meta WhatsApp messaging and calling | Meta bills the customer through the customer's Meta business portfolio payment method, or a BSP bills under a separate BSP-managed arrangement. | **No.** No pass-through, resale, markup, or customer-funds custody; IntelluxIQ is not a party to the Meta/BSP arrangement. | Meta / WhatsApp Manager or BSP |
+| IntelluxIQ subscription | IntelluxIQ bills the customer. | **Yes.** `charge_class='subscription'`. | Plan + entitlements |
+| Optional IntelluxIQ usage | IntelluxIQ bills the customer only when the customer explicitly enables the overage/add-on. | **Yes**, on a separate `charge_class='usage'`/`'add_on'` invoice. | Usage events + add-on order |
 
 | Item         | 2.0 default                                                                                                                                                                                                                             |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Entitlements | `devices.max`, `channels.max`, `conversations.monthly`, `storage.gb`, `ai.credits`.                                                                                                                                                     |
-| Usage events | `conversation_active` (a thread with at least one inbound/outbound message in the billing month), `wa_message_out`, `email_sent`, `storage_gb_month`, `device_active_day`; each has `source_id` and `occurred_at`; monthly aggregation. |
-| Plans        | Starter: 10 devices, 1 WhatsApp + 1 email, 5k conversations/month. Pro: 50 devices, 5 WhatsApp + 5 email, 50k conversations/month. Enterprise: custom. Exact prices are commercial.                                                     |
+| Usage events | IntelluxIQ-billable metrics only: `conversation_active` (a thread with at least one inbound/outbound message in the billing month), `channel_connected`, `email_sent`, `storage_gb_month`, `device_active_day`; each has `source_id` and `occurred_at`; monthly aggregation. Meta message/call volumes are **not** `usage_events`. |
+| Provider diagnostics | Meta message/call volumes, per-number quality/throughput snapshots, and provider cost estimates. Analytics and reconciliation only; never billed, never imported into `usage_events`, and never an invoice source. |
+| Plans        | Starter: 10 devices, 1 WhatsApp + 1 email + 1 social account, 5k conversations/month. Pro: 50 devices, 5 WhatsApp + 5 email + 5 social accounts, 50k conversations/month. Enterprise: custom. Exact prices are commercial.                     |
 | Grace        | 14 days past due, then read-only; export remains available; no data deletion during grace.                                                                                                                                              |
-| Billing      | Stripe/Paddle plus M-PESA via a supported provider; invoices, VAT, dunning (3 retries), cancellation, export.                                                                                                                           |
+| Billing      | Stripe/Paddle plus M-PESA via a supported provider; invoices carry `charge_class`, VAT, dunning (3 retries), cancellation, export. Meta charges are never imported as invoice lines.                                                     |
+| Meta billing | Customer-owned. `whatsapp_business_accounts.meta_payment_status` is read-only onboarding state (unknown/missing/pending/added/failed/managed_by_bsp/not_applicable); no Meta card data is stored. A BSP may bill the customer under its own arrangement; that is external to IntelluxIQ. |
 | Enforcement  | Device link, channel connect, send, and media upload; soft warning then hard block at the cap.                                                                                                                                          |
 | Idempotency  | Billing webhooks and usage events are idempotent; monthly reconciliation report.                                                                                                                                                        |
+| Intermediary | Not in 2.0. Combining Meta charges with IntelluxIQ invoices, reselling Meta credit, or holding customer funds requires a new ADR, separate ledger, tax/compliance review, and explicit customer consent.                                  |
 
 AI credits remain a placeholder until the AI module is enabled; the stub consumes none.
 
@@ -2437,7 +3096,7 @@ No big-bang migration. A pilot org can opt out before cutover without data loss.
 
 **Test levels:** unit, contract, integration, end-to-end, provider sandbox, load/chaos, security, accessibility (AccessKit/axe), i18n parity/pseudolocale, module-boundary checks.
 
-Key scenarios: offline/reconnect and tombstones; contact/conversation/opportunity separation; opportunity stage history and conversion; deterministic lead-recovery rules; outcome-vs-activity reporting; quote number blocks and tax/FX; WhatsApp 24h/template/media; cloud-only email threading/Sent/bounces; conversation assignment/read-only; device termination/wipe; idle lock/3 failures; tenant isolation including cross-org composite-FK rejection; update rollback; permission denial.
+Key scenarios: offline/reconnect and tombstones; contact/conversation/opportunity separation; opportunity stage history and conversion; deterministic lead-recovery rules; outcome-vs-activity reporting; quote number blocks and tax/FX; WhatsApp 24h/template/media plus connection/WABA/phone lifecycle, revocation/disconnection, and Meta-versus-IntelluxIQ billing separation; cloud-only email threading/Sent/bounces; conversation assignment/read-only; device termination/wipe; idle lock/3 failures; tenant isolation including cross-org composite-FK rejection; update rollback; permission denial.
 
 **CI gates:** build, unit, contract golden files, integration with Postgres/Redis/object storage, security scan, SBOM, accessibility (axe/AccessKit), English/Spanish key parity, signed artifacts.
 
@@ -2467,7 +3126,7 @@ These are build-blocking defaults, not permanent policy. Changing one requires a
 | Performance ranking       | Outcomes only (qualified, quotes, accepted, won, revenue, recovered, follow-ups); message counts are diagnostics.                        |
 | Supervisor whispers       | Team-visible in 2.0; manager-only store is post-2.0.                                                                                     |
 | Unlock credential         | Device-local password; account-password unlock is not in 2.0.                                                                            |
-| Pricing metric            | Org base + channels + monthly active conversations; devices included up to cap.                                                          |
+| Pricing metric            | Org base + connected sendable channels + monthly active conversations; devices included up to cap.                                      |
 | Data region               | Single region selected at deployment; 2.0 pilot uses EU (Frankfurt) or the nearest supported region; Kenya/Africa region when available. |
 | E2E encryption            | Not in 2.0; cloud is a trusted processor, documented in the DPA.                                                                         |
 | Voice                     | Phase 3; no native calls in 2.0.                                                                                                         |
@@ -2475,7 +3134,9 @@ These are build-blocking defaults, not permanent policy. Changing one requires a
 | Quote numbers             | Org-wide sequence plus offline blocks; no `{BRANCH}` in 2.0.                                                                             |
 | Email protocols           | Cloud-only. Provider API first (Postmark/SendGrid); direct SMTP/IMAP as cloud fallback; desktop has no SMTP/IMAP code, sockets, or credentials. |
 | Tenant keys               | Every tenant table is keyed `(org_id, <entity>_id)`; every tenant FK is `(org_id, parent_id)`; only `orgs`, `users`, and `plans` are global. |
-| WhatsApp onboarding       | Embedded Signup self-serve; manual BSP setup as fallback.                                                                                |
+| WhatsApp onboarding       | Direct Embedded Signup v4 self-serve first; BSP manual/embedded only as fallback; no single-BSP dependency.                                  |
+| WhatsApp account model    | Connection → WABA → phone number; WABA owns templates/token/permissions/webhook/status; phone number owns registration/quality/throughput/calling and is the sendable channel. |
+| WhatsApp billing          | Meta messaging/calling charges are paid by the customer to Meta (or through its BSP billing arrangement); IntelluxIQ subscription and optional usage are invoiced separately; no pass-through or billing intermediary. |
 | Framework pinning         | Exact `gpui-kit`/`gpui-fast` versions per release; quarterly upgrade window.                                                             |
 | Sessions                  | 15-minute access token; 7-day offline lease.                                                                                             |
 | Offline termination       | Best-effort wipe plus MDM guidance; no stricter lease in 2.0.                                                                            |
@@ -2666,7 +3327,7 @@ The repo is a polyglot monorepo: a **Cargo workspace** for the Rust desktop app,
 │   ├── db/                      # Drizzle schema + migrations
 │   ├── auth/                    # sessions, device tokens, RBAC
 │   ├── events/                  # event log/seq/cursor helpers
-│   ├── providers/               # WhatsApp/email/voice adapters
+│   ├── providers/               # WhatsApp/Meta/TikTok/email/voice adapters
 │   ├── media/                   # S3, FFmpeg, variants
 │   ├── jobs/                    # outbound queue types/handlers
 │   ├── features/                # TS domain modules
@@ -2858,3 +3519,516 @@ Verify against current Meta documentation; map codes to actionable UI messages.
 | `draft`   | `queued`    | User sends.                           |
 
 `sent_folder_synced` is independent: true only after cloud IMAP APPEND or provider Sent sync succeeds.
+
+## Appendix D — Messaging channel onboarding (normative)
+
+This appendix defines Phase 1.5 social messaging. WhatsApp Cloud API remains
+part of Phase 1; Meta Messenger/Instagram and TikTok are provider-gated. Provider
+approval, app review, business verification, and regional eligibility are
+external prerequisites, not bypassed by this specification. TikTok access is
+limited and must be presented as unavailable where the account does not qualify.
+
+### D.1 Channel matrix
+
+WhatsApp is hierarchical: a channel **connection** contains one or more **WABAs**, and each WABA contains one or more **phone numbers**. The sendable asset in the matrix is the phone number; the WABA owns templates, token, permissions, webhook subscription, and account status. `channel_accounts` is only the stable send target and is 1:1 with the WhatsApp phone number (D.7).
+
+| Channel | Onboarding | Sendable asset | Token | Meta/TikTok webhook | Main gate |
+| --- | --- | --- | --- | --- | --- |
+| WhatsApp Cloud API | Meta Embedded Signup v4, Tech Provider/Tech Partner path; BSP fallback only | Business phone number (`phone_number_id`) inside a WABA | Business Integration System User access token, vaulted per WABA | Meta object `whatsapp_business_account` | App Review/Advanced Access, business verification, Tech Provider status, customer Meta payment method or BSP-managed billing, templates/24h |
+| Facebook Messenger | Facebook Login for Business; Page selection | Facebook Page (`page_id`) | Page access token | Meta object `page` | App Review/Advanced Access, Business Verification, Page `MESSAGING`/`MODERATE` tasks |
+| Instagram (preferred) | Business Login for Instagram; Instagram professional account | Instagram professional account (`ig_user_id`) | Instagram User access token, 60 days, refreshable | Meta object `instagram` | Business app, App Review/Advanced Access, connected-tools toggle |
+| Instagram (Page fallback) | Facebook Login for Business; linked Page and Instagram account | Instagram account linked to a Page | Page access token | Meta object `instagram` | Page-linked account, permissions, App Review, Page tasks |
+| TikTok Business Messaging | TikTok OAuth after developer/app/account approval | TikTok Business account (`open_id`) | TikTok access + refresh token | TikTok app callback | Approved developer app, Business Messaging access, data-security/privacy review, USDS where applicable, account/region eligibility |
+
+### D.2 WhatsApp Embedded Signup v4
+
+**Status and prerequisites.** Implement Embedded Signup **v4 only**. Embedded
+Signup v2 and v3 were deprecated on 15 October 2026 and must not be used. The
+direct Tech Provider/Tech Partner path is the default. A BSP/Solution Partner is
+an optional fallback for a customer who cannot complete the direct path or who
+needs a different commercial/billing arrangement; it is not a prerequisite for
+the core WhatsApp integration and must never become a single point of dependency.
+The Meta app needs Advanced Access/App Review for the WhatsApp permissions,
+business verification, a Facebook Login for Business configuration, HTTPS allowed
+domains/redirect URIs, and the Meta JavaScript SDK loaded only in the web
+console. The app must already subscribe to the `account_update` webhook.
+
+**Account hierarchy.** WhatsApp is stored as three explicit levels (normative;
+see D.7 and §7.1):
+
+```text
+whatsapp_connections
+  └── whatsapp_business_accounts   (WABA)
+        └── whatsapp_phone_numbers (phone number; 1:1 channel_accounts send target)
+```
+
+The connection is the onboarding/audit anchor: it records the Meta business
+portfolio ID, method, completion/failure, granted permissions, and
+revocation/disconnection. The WABA owns the token reference, permissions,
+templates, webhook subscription, account/review status, and the Meta billing
+relationship. The phone number owns registration, verification, quality,
+messaging limit, throughput, calling capability, and is the sendable channel.
+One connection may contain multiple WABAs; one WABA may contain multiple phone
+numbers. A WABA is never a sendable asset and is never stored as
+`channel_accounts.parent_external_id`.
+
+**Console flow.**
+
+1. Manager/admin chooses **Connect WhatsApp** in Channels.
+2. The web console loads the Meta JavaScript SDK and calls `FB.login` with the
+   Embedded Signup `config_id`, `response_type=code`, and
+   `override_default_response_type=true`; no password is collected by the
+   console.
+3. The Meta flow returns a one-time token code through the login callback and a
+   `WA_EMBEDDED_SIGNUP` session message with `event=FINISH`, `waba_id` (or
+   `waba_ids`), `phone_number_id`, and `business_id`. `CANCEL` and `ERROR` events
+   map to actionable states; they are not successful onboarding.
+4. Send both the code and asset IDs to the web API immediately. The code has a
+   five-minute TTL. Never exchange it from the browser and never log the code.
+5. Create a `whatsapp_connections` row with
+   `onboarding_method='embedded_signup_v4'`, `onboarding_state='code_received'`,
+   `meta_business_portfolio_id`, `granted_permissions`, and `created_by`; then
+   exchange `GET /oauth/access_token` with the app ID, app secret, and code for a
+   customer-scoped business integration system user access token.
+6. Create one `whatsapp_business_accounts` row per returned WABA with
+   `meta_waba_id`, the vault `token_ref`, `token_type`, token expiry/refresh
+   metadata where provided, `effective_permissions`, and
+   `webhook_status='pending'`; set onboarding state `code_exchanged`.
+   The raw token is never written to Postgres.
+7. Verify that each WABA and phone number belongs to the returned customer
+   business; reject asset-ID mismatches and duplicate WABAs/phone numbers. Create
+   or reuse `whatsapp_phone_numbers` rows with `meta_phone_number_id`,
+   display/E.164, registration, and verification state, plus the 1:1
+   `channel_accounts` send target. Set state `assets_verified`.
+8. Subscribe the app to each WABA with
+   `POST /{WABA_ID}/subscribed_apps` using the business token; store
+   `webhook_status`, `webhook_fields`, and `webhook_subscribed_at`; set state
+   `waba_subscribed`.
+9. Register each phone number with `POST /{phone_number_id}/register` and the
+   6-digit PIN established during onboarding. If Meta did not establish one, the
+   console asks the customer to set it. The PIN is a secret: send it server-side,
+   never log it, never store it in the database, and do not return it to the
+   desktop. Update `registration_status` and set state `provisioning`.
+10. Read `account_update` and Graph status. Update
+    `meta_payment_status`, `review_status`, and phone quality/throughput/calling
+    fields. Show `pending_review` for business verification/display-name
+    approval and `pending_provider_billing` until the customer adds a Meta
+    payment method or a BSP-managed billing arrangement is confirmed.
+11. Move the connection, WABA, phone number, and send target to `ready` only when
+    the token is valid, the WABA webhook is verified, the number is registered,
+    and (Meta has the customer's payment method or the BSP-managed billing
+    arrangement is confirmed). Set `onboarding_state='completed'` and
+    `onboarding_completed_at`, then emit `channel.connection_updated` and
+    `channel.account_updated`.
+12. If Meta still requires an action, keep the pending state and reason; no send.
+    Do not mark onboarding complete on the presence of a token alone.
+
+**Lifecycle and recovery.**
+
+- The durable onboarding record is `whatsapp_connections`; transient OAuth state
+  and the one-time code are short-lived and are never synced to the desktop.
+  Record `onboarding_started_at`, `onboarding_completed_at`,
+  `onboarding_error_code`, and `onboarding_error_detail`. Each attempt is
+  audit-logged; a failed/cancelled retry does not overwrite an existing completed
+  hierarchy.
+- Token revocation, permission loss, an `account_update` restriction/disable, or
+  repeated auth errors move the connection/WABA/phone to `reauth_required` or
+  `restricted`, record `revoked_at`, and emit `channel.connection_revoked` plus
+  `channel.account_updated`. No send while in that state.
+- A manager disconnect sets `disconnected_at`, revokes the token with Meta where
+  possible, marks the hierarchy `disconnected`, and emits
+  `channel.connection_disconnected`. Records are soft-deleted/retained for audit;
+  never hard-delete, and never duplicate on reconnect.
+- Rerunning onboarding for the same `meta_waba_id`/`meta_phone_number_id` reuses
+  the existing rows and replaces the vault `token_ref` atomically. A new number
+  adds a phone row and its 1:1 send target; a WABA-only change does not create a
+  phone row.
+- A BSP fallback uses the same records with
+  `onboarding_method='bsp_manual'` or `'bsp_embedded_signup'` and an optional
+  `bsp_reference`. It is an adapter, not a schema fork. The direct path must keep
+  working if the BSP is unavailable.
+
+**Operational rules.**
+
+- The customer completes business verification, display-name approval, and the
+  Meta payment method (or BSP-managed billing arrangement) in the relevant
+  surface; the console shows the pending reason and a link to WhatsApp Manager
+  rather than pretending setup is complete.
+- Use the business token for Cloud API calls and include `appsecret_proof` on
+  Graph requests. Never expose the token to the browser/desktop.
+- Existing WhatsApp rules (§2–§3) still apply: opt-in, 24-hour customer service
+  window, approved templates outside the window, media limits, quality, and
+  messaging limits.
+- Templates are WABA-scoped (§2). Number-scoped templates are not implemented in
+  2.0; do not add a `phone_number_id` scope to `wa_templates`.
+- If the business has multiple WABAs, the v4 flow can return `waba_ids`; create
+  one WABA row per selected WABA and one phone row per selected number. There is
+  exactly one `channel_accounts` send target per phone number, never per WABA.
+- **Customer-owned billing.** Meta messaging/calling charges are paid by the
+  customer to Meta, or by the BSP under its own billing arrangement. `pending_provider_billing` means the Meta payment method or
+  BSP-managed billing confirmation is still pending; it does not mean the
+  customer owes IntelluxIQ.
+  IntelluxIQ subscription and optional usage are separate (§9.5, §12.6).
+- **BSP fallback is optional.** A BSP may supply asset IDs/tokens or handle a
+  customer-specific billing arrangement (recorded as `meta_payment_status=managed_by_bsp`
+  when the BSP is the Meta billing intermediary), but the core WhatsApp integration must
+  not depend on one BSP. Validate ownership, duplicate, token, webhook, and
+  number-registration rules identically for BSP onboarding. BSP billing is
+  external and never commingled with IntelluxIQ invoices.
+
+### D.3 Facebook Messenger
+
+**Prerequisites.** A Meta app with the Messenger use case, a Facebook Page, a
+Facebook Login for Business configuration, Advanced Access/App Review, and
+Business Verification for public use. The person connecting must be able to
+perform `MESSAGING` and `MODERATE` tasks on the Page.
+
+**Permissions.** Request `pages_show_list`, `pages_manage_metadata`,
+`pages_messaging`, `pages_read_engagement`, and `business_management` through
+Facebook Login for Business. Do not use WhatsApp Embedded Signup for Pages.
+
+**Console flow.**
+
+1. Manager/admin chooses **Connect Facebook Page**; the console starts Facebook
+   Login for Business with the Page selection configuration.
+2. The user grants Page access. The API exchanges the authorization code for a
+   user token, upgrades it to a long-lived token, and fetches the selected
+   Pages via `/me/accounts`.
+3. For each selected Page, obtain the Page access token, verify the required
+   tasks/permissions, and create one channel account per Page.
+4. Subscribe the Page to messaging fields with
+   `POST /{page-id}/subscribed_apps`; store `webhook_status` and the subscribed
+   fields. A Page that fails subscription is `error`, not ready.
+5. Store the Page token in the vault. A long-lived Page token can be
+   non-expiring, but it is invalidated by role/password/permission changes;
+   re-run Facebook Login and replace the token without duplicating the account.
+6. Activate only after the webhook test and a test message/echo path succeed.
+
+**Messaging rules.** A person must initiate the conversation. The standard
+Messenger window is normally 24 hours; a first message after a Click-to-Messenger
+or Click-to-Direct ad can open a longer window (currently up to 7 days). Use
+message tags/human-agent handling only where Meta policy permits; no unsolicited
+broadcasts. Store the Page-scoped ID (PSID) as a scoped contact identity.
+
+### D.4 Instagram
+
+Prefer **Instagram API with Instagram Login** for a new direct connection. Keep
+the Page-linked **Messenger API for Instagram** as a fallback when the account is
+already managed through a Facebook Page or the direct login path is not
+available. Never connect the same Instagram professional account through both
+paths.
+
+#### D.4.1 Preferred: Instagram API with Instagram Login
+
+- Requires a Meta business app with the Instagram product, Business Login for
+  Instagram configured, an Instagram professional account, and (for accounts
+  the app does not own) Advanced Access/App Review.
+- Use the Instagram App ID/Secret from the App Dashboard; keep the secret in the cloud secret manager. OAuth scopes: `instagram_business_basic` and
+  `instagram_business_manage_messages`. The authorization code is exchanged
+  server-side for a short-lived Instagram User token, then for a 60-day
+  long-lived token. Refresh before expiry; a token that has not been refreshed
+  for 60 days cannot be refreshed and requires reauthentication.
+- No Facebook Page is required. The API setup uses `graph.instagram.com` and the
+  Instagram account ID; do not mix it with Page-token calls.
+- Subscribe Instagram webhooks to the message fields; verify the Meta signature
+  and resolve the account by Instagram ID.
+- The customer must enable **Connected Tools → Allow Access to Messages** in
+  Instagram message controls. Without it, the account can authorize but cannot
+  manage messages; show this as a setup blocker.
+
+#### D.4.2 Fallback: Page-linked Instagram Messaging
+
+- Requires a Facebook Page linked to an Instagram professional account, a
+  Facebook Login for Business configuration, and Advanced Access/App Review.
+- Request `instagram_basic`, `instagram_manage_messages`,
+  `pages_manage_metadata`, `pages_show_list`, and `business_management`.
+- Obtain the Page access token; use it for Instagram Messaging calls and
+  `GET /{page-id}/conversations?platform=instagram`. Subscribe the `instagram`
+  webhook object from the Meta app.
+- The customer still enables Instagram connected tools. A Page token whose
+  permissions are revoked moves the account to `reauth_required`.
+- Store the Page-linked account with `parent_external_id=page_id`; the
+  Instagram account ID remains the sendable asset identity.
+
+#### D.4.3 Shared rules
+
+- The account must be a professional (Business or Creator) account. Personal
+  accounts are not supported.
+- A person must initiate the conversation. Apply Meta's standard messaging
+  window/tags and Instagram policy; do not assume WhatsApp template semantics.
+- Deduplicate by Instagram professional account ID. If both connection paths
+  exist, the console shows the active path and offers migration only after
+  explicit reauthentication.
+- App Review evidence must cover the actual Instagram messaging use case and the
+  Page-linked path if it remains enabled.
+
+### D.5 TikTok Business Messaging
+
+**Availability gate.** Do not present TikTok as generally available. Access
+requires an approved TikTok developer app, Business Messaging API access,
+TikTok's data-security/privacy review, and (for US-related access) the US Data
+Security (USDS) review/addendum. The TikTok Business Account must have Advanced Access or be a
+Verified Business Account, and direct messages must be open to everyone.
+TikTok availability is provider- and region-gated: accounts registered in the
+EEA, Switzerland, and the UK are currently outside the supported region set,
+and US-related access requires the USDS review/addendum. Re-check eligibility at
+onboarding. Gate the UI with the account capability endpoint and show
+`restricted`/`unavailable`, not a generic failure.
+
+**Console flow.**
+
+1. Manager/admin chooses **Connect TikTok** and starts TikTok OAuth with the
+   approved app's client ID, redirect URI, and state.
+2. The customer authorizes the Business Messaging scopes (Direct Messages read
+   and write, plus the account-type/capability scopes required by TikTok).
+3. Exchange the authorization code at
+   `POST /open_api/v1.3/tt_user/oauth2/token/`; store the access token and
+   refresh token in the vault. Refresh through
+   `/tt_user/oauth2/refresh_token/` before expiry.
+4. Read the TikTok account identity/open ID and account type. Call the
+   capability endpoint before enabling the channel; reject accounts without
+   messaging capability.
+5. Register/subscribe the TikTok webhook, verify the `TikTok-Signature` HMAC
+   with the app secret over the raw body, and test delivery.
+6. Activate only after a real inbound/echo test. A TikTok account with closed
+   DMs, no Advanced Access, or an unsupported region stays `restricted` with a
+   customer-action message.
+
+**Messaging rules.**
+
+- Outbound is limited to the conversation and capabilities TikTok permits.
+  Do not build arbitrary proactive DMs; welcome/follow/comment-to-message
+  features are capability-gated and must be independently enabled.
+- Store the TikTok open ID as a scoped contact identity; do not merge contacts by
+  username or display name.
+- Use provider message IDs for idempotency; TikTok webhook retries can repeat.
+- The TikTok data-security requirements and retention/consent rules apply to
+  message content and media; do not send TikTok data to unapproved processors.
+
+### D.6 App-level webhook routing
+
+Meta and TikTok callbacks are **app-level**, not per-org. The existing
+per-org/per-channel webhook paths are not valid for these providers.
+
+- Meta: `GET /v1/webhooks/meta` for the verification challenge and
+  `POST /v1/webhooks/meta` for events. Validate `hub.mode`, `hub.verify_token`,
+  and return the `hub.challenge` value. If separate Meta apps are used per
+  environment, include an app key in the path and resolve its app secret.
+- TikTok: `POST /v1/webhooks/tiktok` (or `/v1/webhooks/tiktok/{app_key}`).
+- Verify Meta `X-Hub-Signature-256` using the raw payload and app secret. Verify
+  TikTok's `TikTok-Signature` HMAC-SHA256 with the app secret and reject stale
+  timestamps/replays.
+- Resolve `org_id` and the send target from the asset in the payload: WhatsApp
+  `phone_number_id` → `whatsapp_phone_numbers` → `channel_account_id`; WABA-level
+  WhatsApp events (template status, `account_update`) → `whatsapp_business_accounts`
+  → connection. WABA-only events do not create or require a send target. Page ID,
+  Instagram ID, and TikTok open ID resolve as before. Never accept an org ID from
+  the client or from an unsigned field.
+- Meta objects are `whatsapp_business_account`, `page`, and `instagram`;
+  TikTok uses its Business Messaging event types. Return `200` within five
+  seconds and enqueue the raw event for async parsing. Store the provider
+  event/message ID for dedupe; delivery may retry and may be out of order, so
+  use provider timestamps when applying messages.
+- WhatsApp `account_update` events update connection/WABA/phone lifecycle:
+  restriction, disable, revocation, permission loss, and disconnection. Record
+  `revoked_at`/`disconnected_at` and emit `channel.connection_revoked` or
+  `channel.connection_disconnected` plus `channel.account_updated`. A token alone
+  is not complete onboarding.
+- Unknown/disabled asset IDs are rejected and alerted; they must not create a
+  new tenant/account.
+- Subscribe WhatsApp WABAs, Messenger Pages, Instagram accounts, and TikTok
+  accounts explicitly. For WhatsApp, store `webhook_status`, subscribed fields,
+  last verified time, and failure reason on `whatsapp_business_accounts`, not on
+  the generic `channel_accounts` row.
+
+### D.7 Channel account model
+
+**WhatsApp hierarchy (normative).** `channel_accounts` is not the WhatsApp
+account model. WhatsApp is stored explicitly:
+
+| Level | Table | Scope |
+| --- | --- | --- |
+| Connection | `whatsapp_connections` | onboarding method/state, Meta business portfolio ID, granted permissions, lifecycle status, revocation/disconnection |
+| WABA | `whatsapp_business_accounts` | Meta WABA ID, vault `token_ref`, token type and expiry/refresh metadata, effective permissions, templates, webhook subscription/fields/error, account/review status, Meta payment status |
+| Phone number | `whatsapp_phone_numbers` | Meta phone number ID, display/E.164, registration, verification, quality, messaging limit, throughput, calling capability, send status, revocation/disconnection |
+
+- One connection may contain multiple WABAs; one WABA may contain multiple phone
+  numbers. `UNIQUE (meta_waba_id)` and `UNIQUE (meta_phone_number_id)` make
+  app-level webhook mapping unambiguous across orgs. A connection has no token of
+  its own: each WABA row holds its `token_ref`, which may reference a shared
+  business-scoped vault secret; rotating a shared secret updates every WABA that
+  references it atomically.
+- `whatsapp_phone_numbers.channel_account_id` is unique and links the number 1:1
+  to the send target. The `channel_accounts` WhatsApp row carries only the stable
+  send identity, display name, and a normalized `status`/`capabilities`
+  projection; the phone row is authoritative. Never store a WABA ID, token, scope,
+  registration, quality, throughput, or calling state on the WhatsApp
+  `channel_accounts` row.
+- Scope rules: templates, token, permissions, webhook, account status, and the
+  Meta billing relationship are WABA-scoped. Registration, verification, quality,
+  messaging limit, throughput, calling, opt-in, and the send target are number-scoped.
+  A WABA is never a send target; a phone number is. The connection records the
+  permissions granted during onboarding; the WABA stores the effective
+  permissions used for Graph calls, and the onboarding service reconciles them on
+  token refresh or reauthorization.
+- The connection/WABA/phone rows are created, updated, and soft-deleted together
+  by the onboarding service. Reconnect reuses rows by Meta ID; it does not create
+  a second hierarchy.
+
+**Cross-channel send target.** For every channel, `channel_accounts` is the one
+row a thread/message/outbound job can reference:
+
+- `channel`: `whatsapp | messenger | instagram | tiktok | email | voice`.
+- `display_name`, `status`, and `capabilities`; capability keys include
+  `send_text`, `send_media`, `reactions`, `read_receipts`, `templates`,
+  `reply_window`, `proactive`, and `comment_to_message`.
+- For Messenger, Instagram, and TikTok, the provider identity/credential fields
+  remain on `channel_accounts`: `provider`, `external_id`, `parent_external_id`,
+  `auth_method`, `token_type`, `scopes`, `webhook_status`, `health`, `secret_ref`,
+  `status_detail`, and token metadata. `UNIQUE (channel, external_id)` keeps the
+  non-WhatsApp asset lookup unambiguous. For WhatsApp these provider fields are
+  null; the explicit tables above are authoritative.
+- A credential is stored once at its provider scope and referenced by every
+  sendable account it covers: a WhatsApp business token per WABA, a Page token per
+  Page (also usable by a linked Instagram fallback), an Instagram user token per
+  professional account, and a TikTok token per business account. `secret_ref` may
+  be shared for non-WhatsApp accounts; WhatsApp `token_ref` is on the WABA.
+  Rotation updates every referencing row atomically.
+- Setup sessions are short-lived and are not synced as channel accounts. They
+  carry `pending_auth` and `selecting_assets`; the durable onboarding state is on
+  `whatsapp_connections`, and the send target begins at `provisioning` only after
+  the phone number exists.
+
+| State | Meaning | Desktop behavior |
+| --- | --- | --- |
+| `provisioning` | Token stored; WABA/Page/IG webhook subscription, phone registration, or send target creation is in progress. | Setup state; no send. |
+| `pending_review` | Provider review, business verification, display-name approval, or account eligibility is pending. | Visible; read-only; no send. |
+| `pending_provider_billing` | The customer must add a payment method in the provider's billing surface (Meta-owned), or a BSP-managed billing arrangement must be confirmed. | Visible; read-only; no send. |
+| `ready` | Webhook verified, number registered, provider accepts sends. | Normal channel. |
+| `restricted` | Provider policy, region, or account capability blocks messaging. | Visible with reason; no send. |
+| `reauth_required` | Token revoked/expired, permissions lost, or app access removed. | Cached reads; banner; no send. |
+| `error` | Retryable setup/webhook/provider failure. | Cached reads; reconnect/retry. |
+| `disabled` | Manager/admin paused the channel. | Cached reads; no send. |
+| `revoked` | Provider revoked the connection/token; hierarchy is unusable until reauth. | Cached reads; reconnect banner; no send. |
+| `disconnected` | Soft-deleted channel; token revoked where possible. | Hidden; cached messages follow retention. |
+
+`threads.channel` and `messages.channel` add `messenger`, `instagram`, and
+`tiktok`. `contact_identities.kind` adds `messenger_psid`, `instagram_igsid`,
+and `tiktok_open_id`; these provider-scoped values are namespaced as
+`${channel_account_id}:${external_user_id}` before insert so the existing
+`(org_id, kind, value)` key cannot collide across accounts. They are never
+treated as global phone/email identities.
+
+Add channel sync events: `channel.account_updated`, `channel.account_removed`,
+`channel.connection_updated`, `channel.connection_revoked`, and
+`channel.connection_disconnected`. They carry connection/WABA/number display
+metadata, status, capabilities, permissions, webhook health, and last
+verification; never tokens, token references, PINs, or raw provider payloads.
+The desktop shows the phone numbers, cached threads/messages, and a reauth or
+disconnect banner.
+
+### D.8 Message normalization and policy
+
+- Normalize each provider message into the existing `message.created` stream with
+  `channel`, `channel_account_id`, provider message ID, sender display name,
+  timestamp, content type, and media references. Map delivery/read/echo events to
+  `message.status_updated`; never create a duplicate thread for a provider echo.
+- Provider message IDs are unique per `(org_id, channel, external_id)`. Store
+  raw payloads for audit/retry, but redact message bodies from logs.
+- PSID, IGSID, and TikTok open IDs are namespaced by `channel_account_id` in
+  `contact_identities`; merge contacts only by verified phone/email or explicit
+  user action, never by display name/username.
+- WhatsApp keeps the 24-hour customer-service window, opt-in, approved-template,
+  quality, and media rules. Messenger/Instagram use Meta's standard messaging
+  window and message tags; TikTok is conversation/capability limited. A disabled
+  composer must explain the provider policy/window, not silently drop a send.
+- Media capability is provider-specific. The cloud downloads/stores incoming
+  attachments, scans them, and uses the provider's upload/URL mechanism for
+  outbound; the desktop never calls a provider. Enforce per-provider size/type/
+  count limits and return an actionable error for unsupported sends.
+- Reactions, read receipts, postbacks, story replies, comment-to-message, and
+  welcome/follow messages are normalized only when the account capability and
+  provider policy allow them. Unsupported features are hidden, not faked.
+- Respect provider rate limits and backoff; a rapid outbound burst must not
+  disable the inbox. Provider error codes map to user actions, and permanent
+  failures do not retry forever.
+
+### D.9 Web-console and desktop behavior
+
+- **Web console.** Channels → WhatsApp shows the connection, its WABAs, and each
+  WABA's phone numbers. The connection shows onboarding method/state, Meta
+  business portfolio, granted permissions, and revocation/disconnection. A WABA
+  shows token type, permissions, templates, webhook subscription/fields,
+  account/review status, and Meta payment status. A phone number shows
+  registration, verification, quality, messaging limit, throughput, and calling
+  capability. IntelluxIQ subscription/billing is shown separately from Meta
+  charges. Manager/admin connects and reconnects; sales users only use channels.
+- Channels → Social accounts lists Pages, Instagram accounts, and TikTok accounts
+  with provider, asset ID, parent, permissions/scopes, token type, status,
+  webhook health, and last verification.
+- The provider picker states the prerequisite review/verification and the
+  expected flow. WhatsApp opens Embedded Signup v4 (or the BSP fallback path);
+  Messenger opens Facebook Login for Business; Instagram opens Business Login (or
+  Page fallback); TikTok opens OAuth and then shows the eligibility/capability
+  result.
+- **Desktop.** Channel rail and account switcher show sendable phone numbers
+  grouped by WABA, with ready/reauth/restricted/billing-pending states; no
+  provider auth UI and no WABA administration. A reauth action opens the correct
+  web-console connection. Threads/messages and composer capabilities arrive
+  through sync; the desktop never receives a Meta/TikTok token, token reference,
+  PIN, or SDK.
+- Provider windows/policies are enforced by the cloud at send time. The desktop
+  may show a disabled composer and the provider reason; it must not attempt a
+  send that the cloud will reject.
+
+### D.10 Acceptance tests
+
+- WhatsApp Embedded Signup v4: FINISH/CANCEL/ERROR, token-code TTL, business
+  token exchange, WABA subscription, phone registration PIN, payment-pending
+  state, duplicate WABA/phone, revoked token, and no v2/v3 path.
+- WhatsApp hierarchy and lifecycle: one connection with multiple WABAs and
+  numbers; WABA is never a send target; phone number is 1:1 with
+  `channel_accounts`; onboarding state transitions to completed only after
+  webhook, registration, and Meta payment method or BSP-managed billing;
+  reconnect reuses rows; no duplicate on retry.
+- WhatsApp scope and sync: templates are WABA-scoped and reject number scope;
+  token/permissions/webhook/status are WABA-scoped; registration, verification,
+  quality, throughput, and calling capability are number-scoped and sync without
+  exposing secrets.
+- WhatsApp revocation/disconnection: `account_update` restriction, permission
+  loss, revoked token, and manager disconnect set the correct state and timestamps
+  and emit `channel.connection_revoked`/`channel.connection_disconnected` without
+  tokens or PINs.
+- WhatsApp opt-in scope: STOP/START on one number does not change another number's
+  status; marketing eligibility is checked against the sending number.
+- WhatsApp billing boundary: Meta charges are not imported into IntelluxIQ
+  invoices; `pending_provider_billing` is distinct from IntelluxIQ dunning;
+  subscription and optional usage are separately invoiced; BSP-managed Meta
+  billing is recorded but never invoiced by IntelluxIQ, and cannot alter the
+  boundary.
+- BSP fallback: the direct Embedded Signup path works with no BSP configured; a
+  BSP-supplied connection maps to the same hierarchy, validates ownership and
+  duplicates, and does not block existing sends when the BSP is unavailable.
+- Messenger: Page selection, Page permissions/tasks, long-lived token, Page
+  webhook subscription, invalidation/reauth, multiple Pages, PSID mapping.
+- Instagram Login: professional account, scopes, 60-day token exchange/refresh,
+  connected-tools blocker, webhook delivery, and no Page dependency.
+- Instagram Page fallback: linked Page, Page token, Instagram webhook, and
+  deduplication against an existing Instagram Login account.
+- TikTok: app/Business Messaging approval gate, account Advanced Access, DMs
+  open, region eligibility, OAuth refresh, `TikTok-Signature` rejection,
+  capability check, and no arbitrary proactive send.
+- Webhooks: Meta verification/signature, TikTok signature, unknown asset
+  rejection, duplicate/retry/out-of-order delivery, tenant isolation, and 200
+  within five seconds.
+- Desktop: no Meta/TikTok token in cache/logs, account status sync, reauth
+  banner, channel capability gating, and no duplicate account on reconnect.
+
+### D.11 Provider references (non-normative)
+
+- WhatsApp Embedded Signup: [v4 implementation](https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/implementation), [onboarding as a Tech Provider](https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/onboarding-customers-as-a-tech-provider), and [access tokens](https://developers.facebook.com/documentation/business-messaging/whatsapp/access-tokens).
+- Meta login: [Facebook Login for Business](https://developers.facebook.com/documentation/facebook-login/facebook-login-for-business).
+- Messenger: [overview](https://developers.facebook.com/documentation/business-messaging/messenger-platform/overview), [webhooks](https://developers.facebook.com/documentation/business-messaging/messenger-platform/webhooks), and [quick start](https://developers.facebook.com/documentation/business-messaging/messenger-platform/getting-started/quick-start).
+- Instagram: [Instagram API with Instagram Login](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login), [Business Login](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login), [Instagram Messaging](https://developers.facebook.com/documentation/business-messaging/instagram-messaging/get-started), and [Instagram webhooks](https://developers.facebook.com/documentation/instagram-platform/webhooks).
+- TikTok: [Access to Business Messaging API](https://business-api.tiktok.com/portal/docs/access-to-business-messaging-api/v1.3), [Business Messaging API authentication](https://business-api.tiktok.com/portal/docs/business-messaging-api-authentication/v1.3), [webhook subscription](https://business-api.tiktok.com/portal/docs/subscribe-to-business-messaging-webhook-events-via-webhooks-api/v1.3), and [webhook verification](https://business-api.tiktok.com/portal/docs/webhook-verification/v1.3).
+- Billing: Meta's WhatsApp Business terms and pricing govern the customer's direct Meta charges; IntelluxIQ's subscription terms govern IntelluxIQ invoices. Any BSP billing is governed by the customer's separate agreement with that BSP. This appendix does not make IntelluxIQ a billing intermediary.
