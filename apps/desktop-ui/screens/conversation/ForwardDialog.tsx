@@ -31,13 +31,13 @@ export function ForwardDialog(props: { conversation: Conversation; message: Acti
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeForwarding}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-2">
-        <Text class="text-[9.5px] text-muted-foreground">
+        <Text class="text-[11px] text-muted-foreground">
           Choose a WhatsApp conversation. The message is forwarded as you.
         </Text>
         <Scroll style={{ maxHeight: 420 }} scrollbar={false}>
@@ -55,15 +55,10 @@ export function ForwardDialog(props: { conversation: Conversation; message: Acti
                 class="flex-row items-center gap-3 rounded-lg px-2 py-2"
                 hoverStyle={{ backgroundColor: token("accent") }}
               >
-                <Avatar
-                  photo={target().photo}
-                  initials={target().initials}
-                  size={30}
-                  tone={target().tone}
-                />
+                <Avatar name={target().name} size={30} />
                 <View class="min-w-0 flex-1">
-                  <Text class="text-[11px] font-medium text-foreground">{target().name}</Text>
-                  <Text class="text-[9px] text-muted-foreground">{target().company}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{target().name}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{target().company}</Text>
                 </View>
                 <Icon name="forward" size={12} tone="muted-foreground" />
               </View>

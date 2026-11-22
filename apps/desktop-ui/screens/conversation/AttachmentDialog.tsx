@@ -42,7 +42,7 @@ export function AttachmentDialog() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeAttachments}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -61,7 +61,7 @@ export function AttachmentDialog() {
             testID="confirm-attachment"
           >
             <Icon name="paperclip" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Attach</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Attach</Text>
           </Button>
         </DialogActions>
       }
@@ -85,8 +85,8 @@ export function AttachmentDialog() {
                   <Icon name={option().icon} size={14} tone="muted-foreground" />
                 </View>
                 <View class="min-w-0 flex-1 gap-0.5">
-                  <Text class="text-[10.5px] font-medium text-foreground">{option().title}</Text>
-                  <Text class="text-[9px] text-muted-foreground">{option().detail}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{option().title}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{option().detail}</Text>
                 </View>
                 <View
                   class="h-4 w-4 items-center justify-center rounded-full border"
@@ -104,7 +104,7 @@ export function AttachmentDialog() {
         </View>
         <View class="gap-2 rounded-lg border border-border bg-panel p-2.5">
           <View class="flex-row items-center justify-between">
-            <Text class="text-[9.5px] font-medium text-foreground">Desktop preflight</Text>
+            <Text class="text-[11px] font-medium text-foreground">Desktop preflight</Text>
             <View
               role="button"
               accessibilityLabel="Toggle optimize for WhatsApp"
@@ -118,10 +118,10 @@ export function AttachmentDialog() {
                   backgroundColor: optimize() ? token("success") : token("muted-foreground"),
                 }}
               />
-              <Text class="text-[8px] font-medium text-foreground">Optimize</Text>
+              <Text class="text-[11px] font-medium text-foreground">Optimize</Text>
             </View>
           </View>
-          <Text class="text-[9px] leading-3.5 text-muted-foreground">
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             Format, size, dimensions, and codec are checked locally. Images are converted to
             JPEG/PNG for WhatsApp; originals stay local.
           </Text>

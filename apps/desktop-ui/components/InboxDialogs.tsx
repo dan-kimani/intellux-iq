@@ -15,7 +15,7 @@ import { contacts } from "../screens/contacts/data";
 const closeNewMessage = () => newMessageOpen.set(false);
 
 function NewMessageForm() {
-  const recipient = signal("Sarah Wanjiku");
+  const recipient = signal("Maya Lin");
   const channel = signal("WhatsApp");
   const message = signal("");
   return (
@@ -29,7 +29,7 @@ function NewMessageForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeNewMessage}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -61,7 +61,7 @@ function NewMessageForm() {
             testID="send-new-message"
           >
             <Icon name="send" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">
+            <Text class="text-[12px] font-semibold text-primary-foreground">
               Start conversation
             </Text>
           </Button>
@@ -85,7 +85,7 @@ function NewMessageForm() {
           label="First message"
           value={message}
           onChange={message.set}
-          placeholder="Hi Sarah — following up on the quote."
+          placeholder="Hi Maya — following up on the quote."
           testID="new-message-body"
         />
         <ModalNotice

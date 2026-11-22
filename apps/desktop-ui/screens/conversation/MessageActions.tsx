@@ -1,8 +1,11 @@
 import { Clipboard, reduceMotion, Text, token, View } from "nsh";
 import { Popover } from "nsh/base";
 import { Icon, type IconName } from "../../components/ui";
+import { requestConfirmation } from "../../components/ConfirmationDialog";
 import type { Conversation } from "../../data";
+import { MessageWorkRows } from "./MessageWorkRows";
 import { setDraftFor, showToast } from "../../state";
+import { openNewOpportunity } from "../opportunities/state";
 import {
   clearReply,
   deleteMessage,
@@ -50,7 +53,7 @@ function ActionRow(props: {
     >
       <Icon name={props.icon} size={13} tone={props.danger ? "destructive" : "muted-foreground"} />
       <Text
-        class="flex-1 text-[11.5px]"
+        class="flex-1 text-[12px]"
         style={{ color: token(props.danger ? "destructive" : "foreground") }}
       >
         {props.label}
@@ -159,6 +162,20 @@ export function MessageActions(props: {
             showToast("Reply started.");
           }}
         />
+        <ActionRow
+          id="opportunity"
+          label="Create opportunity"
+          icon="briefcase"
+          onPress={() => {
+            props.setOpen(false);
+            openNewOpportunity(props.conversation.id, props.message.id);
+          }}
+        />
+        <MessageWorkRows
+          conversation={props.conversation}
+          message={props.message}
+          onClose={() => props.setOpen(false)}
+        />
         <ActionRow id="copy" label="Copy" icon="copy" disabled={!canCopy} onPress={copy} />
         <If when={props.outgoing && props.message.kind === "text"}>
           <ActionRow
@@ -237,8 +254,16 @@ export function MessageActions(props: {
           danger
           onPress={() => {
             props.setOpen(false);
-            deleteMessage(props.conversation, props.message, "me");
-            showToast("Message deleted for you.");
+            requestConfirmation({
+              title: "Delete this message for you?",
+              description: "It disappears from your view only; other participants keep their copy.",
+              confirmLabel: "Delete for me",
+              icon: "trash",
+              onConfirm: () => {
+                deleteMessage(props.conversation, props.message, "me");
+                showToast("Message deleted for you.");
+              },
+            });
           }}
         />
         <If when={props.outgoing}>
@@ -249,8 +274,17 @@ export function MessageActions(props: {
             danger
             onPress={() => {
               props.setOpen(false);
-              deleteMessage(props.conversation, props.message, "everyone");
-              showToast("Message deleted for everyone.");
+              requestConfirmation({
+                title: "Delete this message for everyone?",
+                description:
+                  "It will be removed for every participant and replaced with a deleted-message notice.",
+                confirmLabel: "Delete for everyone",
+                icon: "trash",
+                onConfirm: () => {
+                  deleteMessage(props.conversation, props.message, "everyone");
+                  showToast("Message deleted for everyone.");
+                },
+              });
             }}
           />
         </If>

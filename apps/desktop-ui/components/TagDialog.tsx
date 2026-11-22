@@ -33,22 +33,22 @@ export function TagDialog() {
               showToast("Conversation tags updated.");
             }}
           >
-            <Text class="text-[10px] font-semibold text-primary-foreground">Done</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Done</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-3">
         <View class="gap-1">
-          <Text class="text-[9px] uppercase tracking-wide text-muted-foreground">Applied</Text>
+          <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">Applied</Text>
           <View class="flex-row flex-wrap gap-1.5">
             <If when={tags.length === 0}>
-              <Text class="text-[10px] text-muted-foreground">No tags applied.</Text>
+              <Text class="text-[12px] text-muted-foreground">No tags applied.</Text>
             </If>
             <Each of={tags}>
               {(tag: () => string) => (
                 <View class="h-6 flex-row items-center gap-1 rounded-md bg-muted px-2">
-                  <Text class="text-[9px] font-medium text-foreground">#{tag()}</Text>
+                  <Text class="text-[11px] font-medium text-foreground">#{tag()}</Text>
                   <View
                     role="button"
                     accessibilityLabel={`Remove ${tag()} tag`}
@@ -62,7 +62,7 @@ export function TagDialog() {
           </View>
         </View>
         <View class="gap-1">
-          <Text class="text-[9px] uppercase tracking-wide text-muted-foreground">Add a tag</Text>
+          <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">Add a tag</Text>
           <View class="flex-row flex-wrap gap-1.5">
             <Each of={presets}>
               {(tag: () => string) => (
@@ -73,7 +73,7 @@ export function TagDialog() {
                   class="h-7 items-center justify-center rounded-md border border-border px-2.5"
                   hoverStyle={{ backgroundColor: token("accent") }}
                 >
-                  <Text class="text-[9.5px] font-medium text-foreground">#{tag()}</Text>
+                  <Text class="text-[11px] font-medium text-foreground">#{tag()}</Text>
                 </View>
               )}
             </Each>

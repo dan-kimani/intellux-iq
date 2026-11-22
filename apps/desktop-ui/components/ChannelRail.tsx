@@ -1,5 +1,5 @@
 import type { JSX } from "nsh";
-import { Text, token, View } from "nsh";
+import { createAnimatedValue, signal, Text, token, View } from "nsh";
 import type { Channel } from "../data";
 import {
   allConversations,
@@ -12,10 +12,11 @@ import {
   selectConversation,
   selectedId,
 } from "../state";
-import { mailUnreadCount } from "../screens/inbox/mail";
-import { channelProviders, type ChannelProvider } from "./channel-config";
+import { mailUnreadCount } from "../screens/inbox/mailMetrics";
+import type { ChannelProvider } from "./channel-config";
 import { ChannelLogo } from "./ChannelLogo";
-import { Icon } from "./ui";
+import { Icon, Tooltip } from "./ui";
+import { moveChannel, orderedChannelProviders } from "./channelOrder";
 
 function unreadFor(filter: "all" | Channel): number {
   return allConversations()
@@ -41,7 +42,7 @@ function UnreadBadge(props: { count: number; testID: string }) {
       }}
     >
       <Text
-        class="text-[9px] font-semibold leading-none"
+        class="text-[11px] font-semibold leading-none"
         style={{ color: token("unread-foreground") }}
       >
         {props.count}
@@ -68,7 +69,7 @@ function RailButton(props: {
         accessibilityLabel={`${props.label}${props.count > 0 ? `, ${props.count} unread` : ""}${props.disabled ? ", not connected" : ""}${props.selected ? ", selected" : ""}`}
         testID={props.testID}
         disabled={props.disabled}
-        tooltip={props.tooltip}
+        tooltip={<Tooltip>{props.tooltip}</Tooltip>}
         onPress={props.onPress}
         class={`relative h-10 w-10 items-center justify-center rounded-2xl border ${props.selected ? "shadow-sm" : ""}`}
         style={{
@@ -95,15 +96,24 @@ function RailButton(props: {
 function tooltipFor(provider: ChannelProvider) {
   return (
     <View class="gap-0.5">
-      <Text class="text-[10.5px] font-medium text-foreground">
+      <Text class="text-[12px] font-medium text-foreground">
         {provider.label}
         {provider.isDefault ? " · Default" : ""}
       </Text>
-      <Text class="text-[9px] text-muted-foreground">
+      <Text class="text-[11px] text-muted-foreground">
         {provider.connected ? provider.account : `${provider.detail} · Not connected`}
       </Text>
+      <Text class="text-[10px] text-muted-foreground">Drag to reorder</Text>
     </View>
   );
+}
+
+function providers(): ChannelProvider[] {
+  return orderedChannelProviders();
+}
+
+function clampChannel(index: number): number {
+  return Math.max(0, Math.min(index, providers().length - 1));
 }
 
 function selectProvider(provider: ChannelProvider) {
@@ -125,6 +135,36 @@ function selectProvider(provider: ChannelProvider) {
 }
 
 export function ChannelRail() {
+  const dragY = createAnimatedValue(0);
+  const dragX = createAnimatedValue(0);
+  const drag = signal<{ id: string; from: number; to: number } | null>(null);
+  let targetTimer: ReturnType<typeof setInterval> | undefined;
+
+  const startDrag = (id: string, from: number) => {
+    dragY.set(0);
+    drag.set({ id, from, to: from });
+    if (targetTimer) clearInterval(targetTimer);
+    targetTimer = setInterval(async () => {
+      const value = await dragY.getValue();
+      const current = drag();
+      if (!current) return;
+      const to = clampChannel(current.from + Math.round(value / 46));
+      if (to !== current.to) drag.set({ ...current, to });
+    }, 50);
+  };
+
+  const endDrag = (event: { translation: { y: number } }) => {
+    if (targetTimer) clearInterval(targetTimer);
+    targetTimer = undefined;
+    const current = drag();
+    if (current) {
+      const to = clampChannel(current.from + Math.round(event.translation.y / 46));
+      moveChannel(current.from, to);
+    }
+    drag.set(null);
+    dragY.set(0);
+  };
+
   return (
     <View
       testID="channel-rail"
@@ -139,8 +179,10 @@ export function ChannelRail() {
           badgeTestID="unread-all"
           tooltip={
             <View class="gap-0.5">
-              <Text class="text-[10.5px] font-medium text-foreground">All channels</Text>
-              <Text class="text-[9px] text-muted-foreground">WhatsApp and email in one inbox</Text>
+              <Text class="text-[12px] font-medium text-foreground">All channels</Text>
+              <Text class="text-[11px] text-muted-foreground">
+                One inbox for messaging, social, and email
+              </Text>
             </View>
           }
           onPress={() => channelFilter.set("all")}
@@ -154,34 +196,72 @@ export function ChannelRail() {
 
         <View class="my-0.5 h-px w-7 bg-border" />
 
-        <Each of={channelProviders}>
-          {(provider: () => ChannelProvider) => (
-            <RailButton
-              label={provider().label}
-              selected={provider().connected && channelFilter() === provider().channel}
-              count={
-                provider().connected
-                  ? provider().id === "gmail"
-                    ? mailUnreadCount()
-                    : unreadFor(provider().channel ?? "all")
-                  : 0
-              }
-              testID={
-                provider().id === "whatsapp"
-                  ? "filter-whatsapp"
-                  : provider().connected
-                    ? "filter-email"
-                    : `channel-${provider().id}`
-              }
-              badgeTestID={`unread-${provider().id}`}
-              tooltip={tooltipFor(provider())}
-              onPress={() => selectProvider(provider())}
-              disabled={!provider().connected}
+        <View
+          testID="channel-provider-list"
+          accessibilityLabel={`Channel order: ${providers()
+            .map((provider) => provider.label)
+            .join(", ")}`}
+          class="relative flex-col gap-1.5"
+        >
+          <Each of={providers()}>
+            {(provider: () => ChannelProvider, index: () => number) => (
+              <View
+                class="relative h-10 w-10 cursor-grab"
+                pan={{ x: dragX, y: dragY }}
+                onPanStart={() => startDrag(provider().id, index())}
+                onPanEnd={endDrag}
+                style={{ opacity: drag()?.id === provider().id ? 0 : 1 }}
+              >
+                <RailButton
+                  label={provider().label}
+                  selected={provider().connected && channelFilter() === provider().channel}
+                  count={
+                    provider().connected
+                      ? provider().id === "gmail"
+                        ? mailUnreadCount()
+                        : unreadFor(provider().channel ?? "all")
+                      : 0
+                  }
+                  testID={
+                    provider().id === "whatsapp"
+                      ? "filter-whatsapp"
+                      : provider().connected
+                        ? "filter-email"
+                        : `channel-${provider().id}`
+                  }
+                  badgeTestID={`unread-${provider().id}`}
+                  tooltip={tooltipFor(provider())}
+                  onPress={() => selectProvider(provider())}
+                  disabled={!provider().connected}
+                >
+                  <ChannelLogo provider={provider()} muted={!provider().connected} />
+                </RailButton>
+              </View>
+            )}
+          </Each>
+
+          <If when={drag()}>
+            <View
+              testID="channel-drop-indicator"
+              class="pointer-events-none absolute -left-1 -right-1 z-20 h-0.5 rounded-full bg-primary"
+              style={{ top: (drag()?.to ?? 0) * 46 }}
+            />
+            <View
+              testID="channel-drag-preview"
+              class="pointer-events-none absolute left-0 top-0 z-30 h-10 w-10 items-center justify-center rounded-2xl border border-ring bg-card shadow-2xl"
+              style={{
+                top: (drag()?.from ?? 0) * 46,
+                transform: [{ translateY: dragY }],
+              }}
             >
-              <ChannelLogo provider={provider()} muted={!provider().connected} />
-            </RailButton>
-          )}
-        </Each>
+              <ChannelLogo
+                provider={
+                  providers().find((provider) => provider.id === drag()?.id) ?? providers()[0]
+                }
+              />
+            </View>
+          </If>
+        </View>
       </View>
 
       <View class="items-center gap-1.5 border-t border-border pt-3">
@@ -189,7 +269,7 @@ export function ChannelRail() {
           role="button"
           accessibilityLabel="Connect a channel"
           testID="channel-connect"
-          tooltip={<Text class="text-[10px] text-foreground">Connect a channel</Text>}
+          tooltip={<Tooltip label="Connect a channel" placement="top" />}
           onPress={() => channelConnectOpen.set(true)}
           class="h-10 w-10 items-center justify-center rounded-xl border border-dashed border-border"
           hoverStyle={{ backgroundColor: token("accent"), borderColor: token("ring") }}

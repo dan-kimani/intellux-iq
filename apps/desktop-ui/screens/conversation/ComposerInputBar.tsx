@@ -144,7 +144,7 @@ export function ComposerInputBar(props: {
                 height: inputHeight(),
                 paddingLeft: 0,
                 paddingRight: 0,
-                fontSize: 13,
+                fontSize: 14,
                 color: token("foreground"),
                 placeholderColor: token("muted-foreground"),
                 backgroundColor: "transparent",
@@ -158,7 +158,7 @@ export function ComposerInputBar(props: {
         }
       >
         <View class="min-h-11 min-w-0 flex-1 items-center justify-center rounded-2xl border border-dashed border-border px-3">
-          <Text class="text-center text-[10px] text-muted-foreground">
+          <Text class="text-center text-[12px] text-muted-foreground">
             Free-form replies reopen when the customer messages again.
           </Text>
         </View>

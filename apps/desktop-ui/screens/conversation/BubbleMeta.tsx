@@ -30,10 +30,10 @@ export function BubbleMeta(props: {
   return (
     <View class="flex-row items-center justify-end gap-1">
       <Text
-        class="text-[9.5px]"
+        class="text-[11px] tabular-nums"
         style={{
           color: props.outgoing
-            ? withAlpha(token("bubble-out-foreground"), "99")
+            ? withAlpha(token("bubble-out-foreground"), "b3")
             : token("muted-foreground"),
         }}
       >
@@ -41,12 +41,12 @@ export function BubbleMeta(props: {
       </Text>
       <If when={props.outgoing}>
         <Text
-          class="text-[8.5px]"
+          class="text-[11px]"
           style={{
             color:
               status === "failed"
                 ? token("warning")
-                : withAlpha(token("bubble-out-foreground"), "88"),
+                : withAlpha(token("bubble-out-foreground"), "a8"),
           }}
         >
           {statusLabel(status)}

@@ -18,8 +18,8 @@ function statusText(message: ActionableMessage): string {
 function InfoRow(props: { label: string; value: string }) {
   return (
     <View class="flex-row items-start justify-between gap-4 border-b border-border py-2 last:border-b-0">
-      <Text class="text-[10px] text-muted-foreground">{props.label}</Text>
-      <Text class="max-w-60 text-right text-[10px] font-medium text-foreground">{props.value}</Text>
+      <Text class="text-[12px] text-muted-foreground">{props.label}</Text>
+      <Text class="max-w-60 text-right text-[12px] font-medium text-foreground">{props.value}</Text>
     </View>
   );
 }
@@ -43,7 +43,7 @@ export function MessageInfoDialog(props: {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeMessageInfo}>
-            <Text class="text-[10px] font-medium">Close</Text>
+            <Text class="text-[12px] font-medium">Close</Text>
           </Button>
         </DialogActions>
       }
@@ -58,12 +58,12 @@ export function MessageInfoDialog(props: {
             />
           </View>
           <View class="min-w-0 flex-1">
-            <Text class="text-[11px] font-semibold text-foreground">
+            <Text class="text-[12px] font-semibold text-foreground">
               {props.message.from === "me"
                 ? "Sent by you"
                 : `Received from ${props.conversation.name}`}
             </Text>
-            <Text class="text-[9px] text-muted-foreground">{props.message.time}</Text>
+            <Text class="text-[11px] text-muted-foreground">{props.message.time}</Text>
           </View>
         </View>
         <View>

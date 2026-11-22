@@ -1,12 +1,15 @@
 import { expect, open, test } from "nsh/test";
 
-function openDesktop() {
-  return open("./App.tsx", {
+async function openDesktop() {
+  const app = await open("./App.tsx", {
     width: 1440,
     height: 900,
     platform: "linux",
     colorScheme: "dark",
   });
+  await app.press("id:nav-inbox");
+  await app.waitFor("id:conversation-sarah");
+  return app;
 }
 
 test("formats WhatsApp text with markup", async () => {

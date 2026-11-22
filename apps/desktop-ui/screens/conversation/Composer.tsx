@@ -134,7 +134,7 @@ export function Composer(props: { onSent?: () => void }) {
       <If when={!isAssignedToMe(conversation)}>
         <View class="mb-2 flex-row items-center gap-2 rounded-md border border-border bg-panel px-2.5 py-1.5">
           <Icon name="users" size={10} tone="muted-foreground" />
-          <Text class="flex-1 text-[9px] text-muted-foreground">
+          <Text class="flex-1 text-[11px] text-muted-foreground">
             {owner()
               ? `Manager override — owned by ${owner()!.name}.`
               : "Unassigned — sending will assign this conversation to you."}
@@ -144,7 +144,7 @@ export function Composer(props: { onSent?: () => void }) {
       <If when={composerAttachment()}>
         <View class="mb-2 flex-row items-center gap-2 self-start rounded-lg border border-border bg-panel px-2.5 py-1.5">
           <Icon name="paperclip" size={11} tone="muted-foreground" />
-          <Text class="text-[9.5px] font-medium text-foreground">
+          <Text class="text-[11px] font-medium text-foreground">
             {composerAttachment()} attached
           </Text>
           <View
@@ -159,9 +159,9 @@ export function Composer(props: { onSent?: () => void }) {
       <If when={appliedTemplate()}>
         <View class="mb-2 flex-row items-center gap-2 rounded-lg border border-border bg-panel px-2.5 py-1.5">
           <Badge variant="success">
-            <Text class="text-[8px] font-medium text-success">APPROVED TEMPLATE</Text>
+            <Text class="text-[11px] font-medium text-success">APPROVED TEMPLATE</Text>
           </Badge>
-          <Text class="flex-1 text-[9.5px] font-medium text-foreground">
+          <Text class="flex-1 text-[11px] font-medium text-foreground">
             {appliedTemplate()?.name} · {appliedTemplate()?.language.toUpperCase()}
           </Text>
           <View
@@ -179,7 +179,7 @@ export function Composer(props: { onSent?: () => void }) {
       <If when={windowClosed() && !appliedTemplate() && !noteMode()}>
         <View class="mb-2 flex-row items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2">
           <Icon name="shieldCheck" size={12} tone="warning" />
-          <Text class="flex-1 text-[9.5px] text-muted-foreground">
+          <Text class="flex-1 text-[11px] text-muted-foreground">
             24-hour window closed. Only an approved template can re-engage this customer.
           </Text>
           <Button
@@ -188,7 +188,7 @@ export function Composer(props: { onSent?: () => void }) {
             testID="choose-window-template"
             onPress={() => templateOpen.set(true)}
           >
-            <Text class="text-[9.5px] font-medium text-foreground">Choose template</Text>
+            <Text class="text-[11px] font-medium text-foreground">Choose template</Text>
           </Button>
         </View>
       </If>
@@ -230,7 +230,7 @@ export function Composer(props: { onSent?: () => void }) {
       />
       <View class="mt-1.5 flex-row items-center justify-between pl-1">
         <View class="flex-row items-center gap-2">
-          <Text class="text-[9.5px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             {online()
               ? conversation.channel === "whatsapp" && windowClosed()
                 ? "Template egress only · 24h window closed"
@@ -246,14 +246,14 @@ export function Composer(props: { onSent?: () => void }) {
             style={{ backgroundColor: noteMode() ? token("accent") : "transparent" }}
           >
             <Text
-              class="text-[9px] font-medium"
+              class="text-[11px] font-medium"
               style={{ color: noteMode() ? token("highlight") : token("muted-foreground") }}
             >
               Internal note
             </Text>
           </View>
         </View>
-        <Text class="text-[9.5px] text-muted-foreground">
+        <Text class="text-[11px] text-muted-foreground">
           {conversation.channel === "whatsapp"
             ? `Enter to send · ${keymap.label("mod+enter")} new line`
             : `${keymap.label("mod+enter")} to send`}

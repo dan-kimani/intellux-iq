@@ -1,6 +1,7 @@
 import { Text, token, View } from "nsh";
 import type { Conversation } from "../data";
-import { assignmentFor, inboxReminders, isAssignedToMe, tagsFor, tagDialogOpen } from "../state";
+import { assignmentFor, isAssignedToMe, tagsFor, tagDialogOpen } from "../state";
+import { activeReminderForConversation } from "../screens/work/state";
 import { Icon, withAlpha } from "./ui";
 
 function slaLabel(minutes: number): string {
@@ -19,12 +20,12 @@ export function ConversationStatusBar(props: { conversation: Conversation }) {
   const c = props.conversation;
   const owner = () => assignmentFor(c);
   const tags = tagsFor(c);
-  const reminder = () => inboxReminders()[c.id];
+  const reminder = () => activeReminderForConversation(c.id);
   return (
-    <View class="shrink-0 flex-row items-center gap-3 border-b border-border bg-background px-5 py-2">
-      <View class="min-w-0 flex-1 flex-row items-center gap-2">
+    <View class="shrink-0 flex-row flex-wrap items-center gap-2 gap-y-1.5 border-b border-border bg-background px-5 py-2">
+      <View class="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
         <Text
-          class="shrink-0 text-[9.5px] font-medium"
+          class="shrink-0 text-[11px] font-medium"
           style={{ color: isAssignedToMe(c) ? token("success") : token("muted-foreground") }}
         >
           {owner()
@@ -33,13 +34,10 @@ export function ConversationStatusBar(props: { conversation: Conversation }) {
               : `Owned by ${owner()!.name}`
             : "Unassigned"}
         </Text>
-        <Text class="shrink-0 text-[9px] capitalize text-muted-foreground">
-          · {c.typing ? "typing" : c.presence.replace("_", " ")}
-        </Text>
         <Each of={tags}>
           {(tag: () => string) => (
             <View class="h-5 shrink-0 items-center justify-center rounded bg-muted px-1.5">
-              <Text class="text-[8.5px] font-medium text-muted-foreground">#{tag()}</Text>
+              <Text class="text-[11px] font-medium text-muted-foreground">#{tag()}</Text>
             </View>
           )}
         </Each>
@@ -56,7 +54,7 @@ export function ConversationStatusBar(props: { conversation: Conversation }) {
         <If when={reminder()}>
           <View class="shrink-0 flex-row items-center gap-1">
             <Icon name="calendarClock" size={10} tone="warning" />
-            <Text class="text-[8.5px] text-muted-foreground">{reminder()}</Text>
+            <Text class="text-[11px] text-muted-foreground">Reminder: {reminder()?.triggerAt}</Text>
           </View>
         </If>
       </View>
@@ -78,7 +76,7 @@ export function ConversationStatusBar(props: { conversation: Conversation }) {
             tone={c.slaMinutes < 0 ? "warning" : "muted-foreground"}
           />
           <Text
-            class="text-[8.5px] font-medium"
+            class="text-[11px] font-medium"
             style={{ color: c.slaMinutes < 0 ? token("warning") : token("muted-foreground") }}
           >
             {slaLabel(c.slaMinutes)}
@@ -102,7 +100,7 @@ export function ConversationStatusBar(props: { conversation: Conversation }) {
               tone={(c.windowMinutes ?? 0) <= 0 ? "warning" : "muted-foreground"}
             />
             <Text
-              class="text-[8.5px] font-medium"
+              class="text-[11px] font-medium"
               style={{
                 color: (c.windowMinutes ?? 0) <= 0 ? token("warning") : token("muted-foreground"),
               }}

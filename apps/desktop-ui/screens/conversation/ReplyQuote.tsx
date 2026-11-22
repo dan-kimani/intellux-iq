@@ -11,7 +11,7 @@ export function ReplyQuote(props: { replyTo: ReplyPreview; outgoing?: boolean })
       }}
     >
       <Text
-        class="text-[8.5px] font-semibold"
+        class="text-[11px] font-semibold"
         style={{
           color: props.outgoing
             ? withAlpha(token("bubble-out-foreground"), "cc")
@@ -21,12 +21,12 @@ export function ReplyQuote(props: { replyTo: ReplyPreview; outgoing?: boolean })
         {props.replyTo.from}
       </Text>
       <Text
-        class="text-[9px]"
+        class="text-[11px]"
         style={{
           color: props.outgoing
             ? withAlpha(token("bubble-out-foreground"), "aa")
             : token("muted-foreground"),
-          numberOfLines: 1,
+          numberOfLines: 2,
         }}
       >
         {props.replyTo.text}

@@ -31,12 +31,12 @@ function SentBody() {
       <View class="gap-1 self-start rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-2.5">
         <View class="flex-row items-center gap-1.5">
           <Icon name="shieldCheck" size={10} tone="warning" />
-          <Text class="text-[8px] font-semibold uppercase tracking-wide text-warning">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-warning">
             Internal note · team-visible
           </Text>
         </View>
-        <Text class="text-[11.5px] leading-4.5 text-foreground">{text}</Text>
-        <Text class="text-[8.5px] text-muted-foreground">Just now</Text>
+        <Text class="text-[12px] leading-4.5 text-foreground">{text}</Text>
+        <Text class="text-[11px] text-muted-foreground">Just now</Text>
       </View>
     );
   }
@@ -58,7 +58,7 @@ function SentBody() {
         <View class="flex-row items-center gap-1">
           <Icon name="fileText" size={9} tone="bubble-out-foreground" />
           <Text
-            class="text-[8px] font-medium"
+            class="text-[11px] font-medium"
             style={{ color: withAlpha(token("bubble-out-foreground"), "aa") }}
           >
             Template {template?.name} · {template?.language.toUpperCase()}
@@ -69,8 +69,8 @@ function SentBody() {
         when={selectedConversation().channel === "whatsapp"}
         else={
           <Text
-            class="text-[13px]"
-            style={{ lineHeight: 20, color: token("bubble-out-foreground") }}
+            class="text-[14px]"
+            style={{ lineHeight: 22, color: token("bubble-out-foreground") }}
           >
             {text}
           </Text>

@@ -1,12 +1,15 @@
 import { expect, open, test } from "nsh/test";
 
-function openDesktop() {
-  return open("./App.tsx", {
+async function openDesktop() {
+  const app = await open("./App.tsx", {
     width: 1440,
     height: 900,
     platform: "linux",
     colorScheme: "dark",
   });
+  await app.press("id:nav-inbox");
+  await app.waitFor("id:conversation-sarah");
+  return app;
 }
 
 async function openMessageMenu(app: Awaited<ReturnType<typeof openDesktop>>, id: string) {
@@ -20,7 +23,7 @@ test("replies to a message from its WhatsApp actions", async () => {
   await app.press("id:message-action-reply");
   await app.waitFor("text:Reply started.");
   await app.waitFor("id:composer-cancel-reply");
-  expect(app.texts()).toContain("Sarah Wanjiku");
+  expect(app.texts()).toContain("Maya Lin");
 
   await app.type("id:composer-input", "Sharing the revised pricing now.");
   await app.keyboard.press("Enter");
@@ -31,9 +34,11 @@ test("deletes a message for the current user", async () => {
   const app = await openDesktop();
   await openMessageMenu(app, "sarah-m1");
   await app.press("id:message-action-delete-me");
+  await app.waitFor("id:confirm-dialog");
+  await app.press("id:confirm-dialog-delete");
   await app.waitFor("text:Message deleted for you.");
   expect(
-    app.shows("text:Hi David, can you share the latest pricing for 50 units of the ProMax model?"),
+    app.shows("text:Hi Alex, can you share the latest pricing for 50 units of the ProMax model?"),
   ).toBe(false);
 });
 
@@ -59,10 +64,10 @@ test("forwards a message to another WhatsApp conversation", async () => {
   await app.press("id:message-action-forward");
   await app.waitFor("id:forward-dialog");
   await app.press("id:forward-target-david");
-  await app.waitFor("text:Message forwarded to David Ochieng.");
+  await app.waitFor("text:Message forwarded to Jonah Reyes.");
   await app.press("id:conversation-david");
   await app.waitFor(
-    "text:Hi David, can you share the latest pricing for 50 units of the ProMax model?",
+    "text:Hi Alex, can you share the latest pricing for 50 units of the ProMax model?",
   );
 });
 
@@ -79,6 +84,8 @@ test("deletes an outgoing message for everyone", async () => {
   const app = await openDesktop();
   await openMessageMenu(app, "sarah-m2");
   await app.press("id:message-action-delete-everyone");
+  await app.waitFor("id:confirm-dialog");
+  await app.press("id:confirm-dialog-delete");
   await app.waitFor("text:Message deleted for everyone.");
   await app.waitFor("text:This message was deleted");
   expect(app.shows("text:Sure! Here's the updated quotation with the volume discount.")).toBe(
@@ -92,7 +99,7 @@ test("copies message text to the clipboard", async () => {
   await app.press("id:message-action-copy");
   await app.waitFor("text:Message copied.");
   expect(app.clipboard()).toBe(
-    "Hi David, can you share the latest pricing for 50 units of the ProMax model?",
+    "Hi Alex, can you share the latest pricing for 50 units of the ProMax model?",
   );
 });
 
@@ -125,7 +132,7 @@ test("opens the message actions with a right click", async () => {
   await app.waitFor("text:Editing message.");
   await app.press("id:composer-cancel-edit");
   await app.rightClick(
-    "text:Hi David, can you share the latest pricing for 50 units of the ProMax model?",
+    "text:Hi Alex, can you share the latest pricing for 50 units of the ProMax model?",
   );
   await app.waitFor("id:message-action-menu");
   expect(app.shows("id:message-action-edit")).toBe(false);

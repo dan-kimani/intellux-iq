@@ -14,6 +14,29 @@ const connectionDetails: Record<ConnectTarget, { title: string; body: string; st
     body: "This number is already connected through the WhatsApp Cloud API.",
     steps: ["Number verified", "Templates approved", "Cloud egress healthy"],
   },
+  messenger: {
+    title: "Facebook Messenger",
+    body: "Messenger connects through Meta Business. The cloud holds the authorization and syncs conversations to every linked device.",
+    steps: ["Authorize Meta Business", "Select the Page inbox", "Messages begin syncing"],
+  },
+  instagram: {
+    title: "Instagram",
+    body: "Instagram direct messages connect through Meta Business. The desktop receives synced conversations, never the OAuth grant.",
+    steps: [
+      "Authorize Meta Business",
+      "Select the Instagram account",
+      "Direct messages begin syncing",
+    ],
+  },
+  tiktok: {
+    title: "TikTok",
+    body: "TikTok connects through TikTok Business Messaging. The cloud owns the authorization and delivers synced direct messages.",
+    steps: [
+      "Authorize TikTok Business",
+      "Select the messaging account",
+      "Direct messages begin syncing",
+    ],
+  },
   gmail: {
     title: "Google Workspace",
     body: "Gmail is connected through OAuth. Mail history is synced by the cloud.",
@@ -72,19 +95,19 @@ function ProviderRow(props: {
         </If>
       </View>
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[11px] font-medium text-foreground">{label}</Text>
-        <Text class="text-[9px] text-muted-foreground">{detail}</Text>
+        <Text class="text-[12px] font-medium text-foreground">{label}</Text>
+        <Text class="text-[11px] text-muted-foreground">{detail}</Text>
       </View>
       <If
         when={provider?.connected}
         else={
-          <Text class="text-[8.5px] font-medium text-muted-foreground">
+          <Text class="text-[11px] font-medium text-muted-foreground">
             {props.selected ? "Configure" : "Not connected"}
           </Text>
         }
       >
         <Badge variant="success">
-          <Text class="text-[8px] font-medium text-success">Connected</Text>
+          <Text class="text-[11px] font-medium text-success">Connected</Text>
         </Badge>
       </If>
     </View>
@@ -95,14 +118,14 @@ function ConnectionDetail(props: { target: () => ConnectTarget | null }) {
   const detail = () => connectionDetails[props.target() ?? "custom"];
   return (
     <View class="gap-2 rounded-lg border border-border bg-panel p-3">
-      <Text class="text-[10.5px] font-medium text-foreground">{detail().title}</Text>
-      <Text class="text-[9.5px] leading-4 text-muted-foreground">{detail().body}</Text>
+      <Text class="text-[12px] font-medium text-foreground">{detail().title}</Text>
+      <Text class="text-[11px] leading-4 text-muted-foreground">{detail().body}</Text>
       <View class="flex-row flex-wrap items-center gap-1.5">
         <Each of={detail().steps}>
           {(step: () => string) => (
             <View class="flex-row items-center gap-1 rounded-md bg-muted px-1.5 py-1">
               <Icon name="check" size={8} tone="muted-foreground" />
-              <Text class="text-[8px] text-muted-foreground">{step()}</Text>
+              <Text class="text-[11px] text-muted-foreground">{step()}</Text>
             </View>
           )}
         </Each>
@@ -137,13 +160,13 @@ export function ChannelConnectDialog() {
       open={() => true}
       onClose={closeChannelConnect}
       title="Connect a channel"
-      description="Add a mailbox or WhatsApp number. Authorization and credentials stay in the cloud."
+      description="Add a social inbox or mailbox. Authorization and credentials stay in the cloud."
       width={540}
       testID="channel-connect-dialog"
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeChannelConnect}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -152,14 +175,14 @@ export function ChannelConnectDialog() {
             testID="open-cloud-console"
           >
             <Icon name="arrowUpRight" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Cloud console</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Cloud console</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-3.5">
         <View class="gap-1.5">
-          <Text class="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Connected
           </Text>
           <Each of={channelProviders.filter((provider) => provider.connected)}>
@@ -174,7 +197,7 @@ export function ChannelConnectDialog() {
         </View>
 
         <View class="gap-1.5">
-          <Text class="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Available
           </Text>
           <Each of={channelProviders.filter((provider) => !provider.connected)}>
@@ -193,7 +216,7 @@ export function ChannelConnectDialog() {
 
         <View class="flex-row items-center gap-2 px-1">
           <Icon name="shieldCheck" size={12} tone="muted-foreground" />
-          <Text class="flex-1 text-[8.5px] leading-3 text-muted-foreground">
+          <Text class="flex-1 text-[11px] leading-3 text-muted-foreground">
             OAuth consent, IMAP/SMTP passwords, and token refresh stay in the cloud. This desktop
             only receives synced mail and status.
           </Text>

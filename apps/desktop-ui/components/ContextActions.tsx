@@ -56,13 +56,13 @@ export function ContextActions(props: {
                     tone={item().danger ? "destructive" : "muted-foreground"}
                   />
                   <Text
-                    class="flex-1 text-[12px]"
+                    class="flex-1 text-[13px]"
                     style={{ color: token(item().danger ? "destructive" : "foreground") }}
                   >
                     {item().label}
                   </Text>
                   <If when={item().shortcut}>
-                    <Text class="text-[10px] text-muted-foreground">{item().shortcut}</Text>
+                    <Text class="text-[12px] text-muted-foreground">{item().shortcut}</Text>
                   </If>
                 </MenuItem>
               )}

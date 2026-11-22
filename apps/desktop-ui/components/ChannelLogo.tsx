@@ -1,4 +1,4 @@
-import { Image, token } from "nsh";
+import { Image } from "nsh";
 import type { ChannelProvider } from "./channel-config";
 
 export function ChannelLogo(props: { provider: ChannelProvider; size?: number; muted?: boolean }) {
@@ -10,7 +10,7 @@ export function ChannelLogo(props: { provider: ChannelProvider; size?: number; m
       style={{
         width: size,
         height: size,
-        ...(props.muted ? { tintColor: token("muted-foreground") as string } : {}),
+        opacity: props.muted ? 0.72 : 1,
       }}
     />
   );

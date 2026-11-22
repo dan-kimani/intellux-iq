@@ -9,12 +9,14 @@ import { statusFor } from "./message-status";
 import { BubbleMeta } from "./BubbleMeta";
 import { DeletedBubble, PinnedBanner } from "./MessageNotices";
 import {
+  focusMessage,
   messageById,
   messageOverrides,
   messagesFor,
   overrideFor,
   pinnedMessages,
   toggleReaction,
+  trackMessageView,
   type ThreadMessage,
 } from "./message-actions";
 import { ReplyQuote } from "./ReplyQuote";
@@ -58,7 +60,7 @@ function AudioBubble(props: {
           </Each>
         </View>
         <Text
-          class="text-[9px]"
+          class="text-[11px]"
           style={{
             color: outgoing
               ? withAlpha(token("bubble-out-foreground"), "aa")
@@ -107,9 +109,9 @@ function TextBubble(props: {
         when={props.channel === "whatsapp"}
         else={
           <Text
-            class="text-[13px]"
+            class="text-[14px]"
             style={{
-              lineHeight: 20,
+              lineHeight: 22,
               color: outgoing ? token("bubble-out-foreground") : token("bubble-in-foreground"),
             }}
           >
@@ -135,7 +137,7 @@ function MessageBubble(props: {
     return (
       <View class="my-1 items-center">
         <View class="rounded-full border border-border bg-panel px-3 py-1">
-          <Text class="text-[9px] text-muted-foreground">{message.text}</Text>
+          <Text class="text-[11px] text-muted-foreground">{message.text}</Text>
         </View>
       </View>
     );
@@ -145,11 +147,11 @@ function MessageBubble(props: {
       <View class="max-w-140 gap-1 self-start rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-2.5">
         <View class="flex-row items-center gap-1.5">
           <Icon name="shieldCheck" size={10} tone="warning" />
-          <Text class="text-[8px] font-semibold uppercase tracking-wide text-warning">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-warning">
             Internal note · team-visible
           </Text>
         </View>
-        <Text class="text-[11.5px] leading-4.5 text-foreground">{message.text}</Text>
+        <Text class="text-[12px] leading-4.5 text-foreground">{message.text}</Text>
         <BubbleMeta time={message.time} />
       </View>
     );
@@ -179,6 +181,8 @@ function MessageRow(props: {
   const override = () => overrideFor(m.id);
   if (override().deleted === "me") return null;
   const menuOpen = signal(false);
+  const focused = () =>
+    focusMessage()?.conversationId === props.conversation.id && focusMessage()?.messageId === m.id;
   const outgoing = m.from === "me";
   const text = override().text;
   const message = text && m.kind === "text" ? { ...m, text } : m;
@@ -186,6 +190,12 @@ function MessageRow(props: {
     <View
       class="flex-col gap-1"
       testID={`message-${m.id}`}
+      ref={(node) => trackMessageView(m.id, node)}
+      style={
+        focused()
+          ? { outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 4, borderRadius: 12 }
+          : undefined
+      }
       onContextMenu={() => menuOpen.set(true)}
     >
       <If
@@ -219,7 +229,7 @@ function MessageRow(props: {
             class="rounded-full border border-border bg-card px-1.5 py-0.5"
             hoverStyle={{ backgroundColor: token("accent") }}
           >
-            <Text class="text-[11px]">{override().reaction}</Text>
+            <Text class="text-[12px]">{override().reaction}</Text>
           </View>
         </Reveal>
       </If>
@@ -247,7 +257,7 @@ export function MessageList(props: { conversation: Conversation }) {
       </If>
       <View class="my-2 flex-row items-center justify-center gap-2">
         <View class="h-px flex-1 bg-border" />
-        <Text class="text-[9.5px] font-medium text-muted-foreground">Today</Text>
+        <Text class="text-[11px] font-medium text-muted-foreground">Today</Text>
         <View class="h-px flex-1 bg-border" />
       </View>
       <Each of={messages()}>

@@ -20,7 +20,7 @@ export function ImageBubble(props: { message: ImageMessage; actions?: JSX.Elemen
       class="relative max-w-97.5 gap-1"
       style={{ alignSelf: outgoing ? "flex-end" : "flex-start" }}
     >
-      <View class="relative overflow-hidden rounded-3xl border border-border bg-card shadow-md">
+      <View class="relative overflow-hidden rounded-xl border border-border bg-card shadow-md">
         <View
           role="button"
           accessibilityLabel="View image"
@@ -48,7 +48,7 @@ export function ImageBubble(props: { message: ImageMessage; actions?: JSX.Elemen
                 pointerEvents: "none",
               }}
             >
-              <Text class="text-[9px]" style={{ color: token("foreground") }}>
+              <Text class="text-[11px]" style={{ color: token("foreground") }}>
                 {m.time}
               </Text>
             </View>
@@ -64,7 +64,7 @@ export function ImageBubble(props: { message: ImageMessage; actions?: JSX.Elemen
         </View>
       </View>
       <If when={m.caption}>
-        <Text class="text-[10px] text-muted-foreground">{m.caption}</Text>
+        <Text class="text-[12px] text-muted-foreground">{m.caption}</Text>
       </If>
     </View>
   );
@@ -97,13 +97,13 @@ export function FileBubble(props: { message: FileMessage; actions?: JSX.Element 
           <FileThumb file={file()} height={40} />
           <View class="min-w-0 flex-1 gap-0.5">
             <Text
-              class="text-[12px] font-medium text-bubble-file-foreground"
-              style={{ numberOfLines: 1 }}
+              class="text-[13px] font-medium text-bubble-file-foreground"
+              style={{ numberOfLines: 2 }}
             >
               {m.fileName}
             </Text>
             <View class="flex-row items-center gap-1">
-              <Text class="text-[9.5px] text-bubble-file-foreground/70">
+              <Text class="text-[11px] text-bubble-file-foreground/70">
                 {m.size} · {fileKindLabel[file().kind]} · {preview() ? "Preview" : "Save"}
               </Text>
               <Icon name={preview() ? "eye" : "download"} size={9} tone="bubble-file-foreground" />

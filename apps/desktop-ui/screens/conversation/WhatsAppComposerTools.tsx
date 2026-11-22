@@ -45,7 +45,7 @@ function FormatTile(props: {
       focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
     >
       {props.children}
-      <Text class="text-[7.5px] text-muted-foreground">{props.label}</Text>
+      <Text class="text-[11px] text-muted-foreground">{props.label}</Text>
     </View>
   );
 }
@@ -67,14 +67,14 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
       popupStyle={{ width: 258 }}
       trigger={
         <ComposerTool label="Formatting" testID="wa-format-menu">
-          <Text class="text-[11px] font-semibold text-muted-foreground">Aa</Text>
+          <Text class="text-[12px] font-semibold text-muted-foreground">Aa</Text>
         </ComposerTool>
       }
     >
       <View testID="wa-format-menu-panel" class="gap-2">
         <View class="gap-0.5">
-          <Text class="text-[11px] font-semibold text-foreground">Formatting</Text>
-          <Text class="text-[9px] text-muted-foreground">
+          <Text class="text-[12px] font-semibold text-foreground">Formatting</Text>
+          <Text class="text-[11px] text-muted-foreground">
             WhatsApp markup is applied around the selection.
           </Text>
         </View>
@@ -86,7 +86,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-bold"
               onPress={() => choose("bold")}
             >
-              <Text class="text-[12px] font-bold text-foreground">B</Text>
+              <Text class="text-[13px] font-bold text-foreground">B</Text>
             </FormatTile>
             <FormatTile
               label="Italic"
@@ -94,7 +94,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-italic"
               onPress={() => choose("italic")}
             >
-              <Text class="text-[12px] italic text-foreground">I</Text>
+              <Text class="text-[13px] italic text-foreground">I</Text>
             </FormatTile>
             <FormatTile
               label="Strikethrough"
@@ -102,7 +102,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-strike"
               onPress={() => choose("strike")}
             >
-              <Text class="text-[12px] line-through text-foreground">S</Text>
+              <Text class="text-[13px] line-through text-foreground">S</Text>
             </FormatTile>
           </View>
           <View class="flex-row gap-1">
@@ -112,7 +112,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-monospace"
               onPress={() => choose("monospace")}
             >
-              <Text class="font-mono text-[10px] text-foreground">M</Text>
+              <Text class="font-mono text-[12px] text-foreground">M</Text>
             </FormatTile>
             <FormatTile
               label="Inline code"
@@ -120,7 +120,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-code"
               onPress={() => choose("code")}
             >
-              <Text class="font-mono text-[11px] text-foreground">`</Text>
+              <Text class="font-mono text-[12px] text-foreground">`</Text>
             </FormatTile>
             <FormatTile
               label="Quote"
@@ -128,7 +128,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-quote"
               onPress={() => choose("quote")}
             >
-              <Text class="text-[13px] leading-none text-foreground">❝</Text>
+              <Text class="text-[14px] leading-none text-foreground">❝</Text>
             </FormatTile>
           </View>
           <View class="flex-row gap-1">
@@ -138,7 +138,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-bullet"
               onPress={() => choose("bullet")}
             >
-              <Text class="text-[13px] leading-none text-foreground">•</Text>
+              <Text class="text-[14px] leading-none text-foreground">•</Text>
             </FormatTile>
             <FormatTile
               label="Numbered list"
@@ -146,7 +146,7 @@ export function WhatsAppFormatMenu(props: { onFormat: (format: WhatsAppFormat) =
               testID="wa-format-numbered"
               onPress={() => choose("numbered")}
             >
-              <Text class="text-[9px] font-semibold text-foreground">1.</Text>
+              <Text class="text-[11px] font-semibold text-foreground">1.</Text>
             </FormatTile>
             <View class="flex-1" />
           </View>
@@ -189,7 +189,7 @@ export function WhatsAppEmojiButton(props: { onEmoji: (emoji: string) => void })
           "objects",
           "symbols",
         ]}
-        itemClass="h-8 flex-1 items-center justify-center rounded-md text-[17px]"
+        itemClass="h-8 flex-1 items-center justify-center rounded-md text-[18px]"
         onSelect={({ emoji }) => {
           props.onEmoji(emoji);
           open.set(false);

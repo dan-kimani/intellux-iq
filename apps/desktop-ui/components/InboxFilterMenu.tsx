@@ -25,7 +25,7 @@ function Option(props: { label: string; selected: boolean; onPress: () => void; 
           <View class="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
         </If>
       </View>
-      <Text class="flex-1 text-[12px] text-foreground">{props.label}</Text>
+      <Text class="flex-1 text-[13px] text-foreground">{props.label}</Text>
     </View>
   );
 }
@@ -33,7 +33,7 @@ function Option(props: { label: string; selected: boolean; onPress: () => void; 
 function Section(props: { label: string; children?: import("nsh").JSX.Element }) {
   return (
     <View class="gap-0.5">
-      <Text class="px-2 pb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      <Text class="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {props.label}
       </Text>
       {props.children}
@@ -69,7 +69,7 @@ export function InboxFilterMenu() {
     >
       <View class="gap-2" testID="inbox-filter-popover">
         <View class="flex-row items-center justify-between px-2 py-1">
-          <Text class="text-[12.5px] font-semibold text-foreground">Filter inbox</Text>
+          <Text class="text-[13px] font-semibold text-foreground">Filter inbox</Text>
           <View
             role="button"
             accessibilityLabel="Reset inbox filters"
@@ -82,7 +82,7 @@ export function InboxFilterMenu() {
             class="rounded px-1.5 py-0.5"
             hoverStyle={{ backgroundColor: token("accent") }}
           >
-            <Text class="text-[10px] text-muted-foreground">Reset</Text>
+            <Text class="text-[12px] text-muted-foreground">Reset</Text>
           </View>
         </View>
         <Section label="Scope">
@@ -142,7 +142,7 @@ export function InboxFilterMenu() {
           />
         </Section>
         <View class="flex-row items-center justify-between border-t border-border px-1 pt-2">
-          <Text class="text-[10px] text-muted-foreground">Read visibility stays org-wide.</Text>
+          <Text class="text-[12px] text-muted-foreground">Read visibility stays org-wide.</Text>
           <Button
             variant="primary"
             size="sm"
@@ -152,7 +152,7 @@ export function InboxFilterMenu() {
               showToast("Inbox view updated.");
             }}
           >
-            <Text class="text-[10px] font-semibold text-primary-foreground">Done</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Done</Text>
           </Button>
         </View>
       </View>

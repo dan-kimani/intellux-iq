@@ -3,6 +3,7 @@ import { Input as NativeInput } from "nsh/base";
 import { AppDialog, DialogActions, ModalNotice } from "../../components/overlay";
 import { Badge, Button, Icon, SectionTitle } from "../../components/ui";
 import { templateOpen, type AppliedTemplate } from "../../state";
+import { moneyText } from "../../lib/money";
 
 const closeTemplates = () => templateOpen.set(false);
 
@@ -25,7 +26,7 @@ const templates: Template[] = [
     language: "en",
     status: "APPROVED",
     body: "Hi {{1}}, your order {{2}} is confirmed. Expected delivery: {{3}}. Reply if you need to change anything.",
-    variables: ["Sarah", "QT-2025-0045", "22 Nov"],
+    variables: ["Maya", "QT-2025-0045", "22 Nov"],
   },
   {
     id: "quote_follow_up",
@@ -34,16 +35,16 @@ const templates: Template[] = [
     language: "en",
     status: "APPROVED",
     body: "Hello {{1}}, just following up on quotation {{2}} for {{3}}. Would you like us to hold the pricing?",
-    variables: ["Sarah", "QT-2025-0045", "KES 248,500"],
+    variables: ["Maya", "QT-2025-0045", "$248,500"],
   },
   {
     id: "delivery_window",
     name: "delivery_window",
     category: "UTILITY",
-    language: "sw",
+    language: "en",
     status: "APPROVED",
-    body: "Habari {{1}}, delivery yako ya {{2}} imeratibiwa kwa {{3}}. Asante kwa kuendelea nasi.",
-    variables: ["Sarah", "50 units", "Jumatatu"],
+    body: "Hi {{1}}, your delivery for {{2}} is scheduled for {{3}}. Thanks for staying with us.",
+    variables: ["Maya", "50 units", "Monday"],
   },
   {
     id: "promo_q4",
@@ -52,7 +53,7 @@ const templates: Template[] = [
     language: "en",
     status: "PENDING",
     body: "Hi {{1}}, our Q4 bundle is available. Reply YES for the price list.",
-    variables: ["Sarah"],
+    variables: ["Maya"],
   },
   {
     id: "winback",
@@ -61,7 +62,7 @@ const templates: Template[] = [
     language: "en",
     status: "PAUSED",
     body: "Hi {{1}}, we saved the pricing we discussed. Want us to hold it for another week?",
-    variables: ["Sarah"],
+    variables: ["Maya"],
     rejectionReason: "Paused by Meta for quality review.",
   },
 ];
@@ -101,7 +102,7 @@ export function TemplatePicker(props: {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeTemplates}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -120,7 +121,7 @@ export function TemplatePicker(props: {
             testID="use-template-in-composer"
           >
             <Icon name="fileText" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Use template</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Use template</Text>
           </Button>
         </DialogActions>
       }
@@ -136,7 +137,7 @@ export function TemplatePicker(props: {
             style={{
               flex: 1,
               height: 26,
-              fontSize: 11,
+              fontSize: 12,
               color: token("foreground"),
               backgroundColor: "transparent",
               borderWidth: 0,
@@ -145,7 +146,7 @@ export function TemplatePicker(props: {
           />
           <Badge variant={props.windowClosed ? "warning" : "success"}>
             <Text
-              class="text-[8px] font-medium"
+              class="text-[11px] font-medium"
               style={{ color: token(props.windowClosed ? "warning" : "success") }}
             >
               {props.windowClosed ? "Window closed" : "Window open"}
@@ -155,7 +156,7 @@ export function TemplatePicker(props: {
 
         <View class="grid grid-cols-2 gap-3">
           <View class="gap-1.5">
-            <Text class="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {filtered().length} templates
             </Text>
             <Each of={filtered()}>
@@ -165,7 +166,7 @@ export function TemplatePicker(props: {
                   accessibilityLabel={`Select template ${item().name}`}
                   onPress={() => {
                     selected.set(item().id);
-                    values.set([...item().variables]);
+                    values.set(item().variables.map(moneyText));
                   }}
                   class="gap-1 rounded-lg border p-2.5"
                   style={{
@@ -175,7 +176,7 @@ export function TemplatePicker(props: {
                   hoverStyle={{ backgroundColor: token("accent") }}
                 >
                   <View class="flex-row items-center gap-1.5">
-                    <Text class="flex-1 text-[9.5px] font-semibold text-foreground">
+                    <Text class="flex-1 text-[11px] font-semibold text-foreground">
                       {item().name}
                     </Text>
                     <Badge
@@ -188,7 +189,7 @@ export function TemplatePicker(props: {
                       }
                     >
                       <Text
-                        class="text-[7px] font-medium"
+                        class="text-[11px] font-medium"
                         style={{
                           color: token(
                             item().status === "APPROVED"
@@ -203,37 +204,39 @@ export function TemplatePicker(props: {
                       </Text>
                     </Badge>
                   </View>
-                  <Text class="text-[8px] text-muted-foreground">
+                  <Text class="text-[11px] text-muted-foreground">
                     {item().category} · {item().language.toUpperCase()}
                   </Text>
                   <If when={item().rejectionReason}>
-                    <Text class="text-[8px] text-warning">{item().rejectionReason}</Text>
+                    <Text class="text-[11px] text-warning">{item().rejectionReason}</Text>
                   </If>
                 </View>
               )}
             </Each>
             <If when={filtered().length === 0}>
-              <Text class="py-4 text-[9.5px] text-muted-foreground">
+              <Text class="py-4 text-[11px] text-muted-foreground">
                 No templates match that search.
               </Text>
             </If>
           </View>
 
-          <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+          <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
             <SectionTitle>Preview</SectionTitle>
             <View class="gap-1 rounded-lg border border-border bg-panel p-2.5">
-              <Text class="text-[8px] uppercase tracking-wide text-muted-foreground">
+              <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                 WhatsApp · {template()?.language.toUpperCase()} · v3
               </Text>
-              <Text class="text-[9.5px] leading-4 text-foreground">
+              <Text class="text-[11px] leading-4 text-foreground">
                 {render(template()?.body ?? "", values())}
               </Text>
             </View>
-            <Text class="text-[8px] uppercase tracking-wide text-muted-foreground">Variables</Text>
+            <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Variables
+            </Text>
             <Each of={values()}>
               {(value: () => string, index: () => number) => (
                 <View class="flex-row items-center gap-2">
-                  <Text class="w-4 text-[8px] font-semibold text-muted-foreground">
+                  <Text class="w-4 text-[11px] font-semibold text-muted-foreground">
                     {index() + 1}
                   </Text>
                   <View class="h-6 flex-1 justify-center rounded-md border border-border bg-panel px-1.5">
@@ -247,7 +250,7 @@ export function TemplatePicker(props: {
                       testID={`template-variable-${index() + 1}`}
                       style={{
                         height: 22,
-                        fontSize: 9.5,
+                        fontSize: 11,
                         color: token("foreground"),
                         backgroundColor: "transparent",
                         borderWidth: 0,
@@ -258,7 +261,7 @@ export function TemplatePicker(props: {
                 </View>
               )}
             </Each>
-            <Text class="text-[8px] leading-3.5 text-muted-foreground">
+            <Text class="text-[11px] leading-3.5 text-muted-foreground">
               Variables validate against Meta rules before send. Positional parameters map from CRM
               fields or manual values.
             </Text>
@@ -266,7 +269,7 @@ export function TemplatePicker(props: {
         </View>
         <View class="flex-row items-center gap-2 rounded-lg border border-border bg-panel px-3 py-2">
           <View class="h-1.5 w-1.5 rounded-full bg-success" />
-          <Text class="text-[8.5px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             Number quality green · marketing requires opt-in · variables revalidate before egress
           </Text>
         </View>

@@ -29,7 +29,7 @@ export function DeletedBubble(props: { message: ActionableMessage }) {
     >
       <View class="flex-row items-center gap-1.5">
         <Icon name="close" size={10} tone="muted-foreground" />
-        <Text class="text-[11px] italic text-muted-foreground">This message was deleted</Text>
+        <Text class="text-[12px] italic text-muted-foreground">This message was deleted</Text>
       </View>
       <BubbleMeta time={props.message.time} outgoing={outgoing} status={statusFor(props.message)} />
     </View>
@@ -45,10 +45,10 @@ export function PinnedBanner(props: { conversation: Conversation; message: Threa
     >
       <Icon name="pin" size={11} tone="highlight" />
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[8.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <Text class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Pinned message
         </Text>
-        <Text class="text-[10px] text-foreground" style={{ numberOfLines: 1 }}>
+        <Text class="text-[12px] text-foreground" style={{ numberOfLines: 2 }}>
           {overrideFor(props.message.id).text ?? messagePreview(props.message)}
         </Text>
       </View>

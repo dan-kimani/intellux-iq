@@ -22,7 +22,7 @@ export function ComposerReplyBanners(props: { conversationId: string }) {
           class="mb-2 flex-row items-center gap-2 rounded-lg border border-border bg-panel px-2.5 py-1.5"
         >
           <Icon name="pencil" size={11} tone="highlight" />
-          <Text class="flex-1 text-[9.5px] font-medium text-foreground">Editing message</Text>
+          <Text class="flex-1 text-[11px] font-medium text-foreground">Editing message</Text>
           <IconButton
             icon="close"
             label="Cancel edit"

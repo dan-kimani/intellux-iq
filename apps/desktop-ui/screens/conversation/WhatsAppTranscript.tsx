@@ -15,7 +15,7 @@ export function WhatsAppTranscript(props: {
     <TextView
       html={whatsappToHtml(props.text)}
       onContextMenu={() => props.onContextMenu?.()}
-      class={`text-[13px] leading-5 ${
+      class={`text-[14px] leading-5.5 ${
         props.outgoing ? "text-bubble-out-foreground" : "text-bubble-in-foreground"
       }`}
       classes={{
@@ -23,7 +23,7 @@ export function WhatsAppTranscript(props: {
         strong: "font-bold",
         emphasis: "italic",
         strikethrough: "line-through",
-        code: "font-mono text-[12px]",
+        code: "font-mono text-[13px]",
         list: "my-1 pl-4",
         listItem: "my-0.5",
         blockquote: "my-1 border-l-2 border-border pl-2",

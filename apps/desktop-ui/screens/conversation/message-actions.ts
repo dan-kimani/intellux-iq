@@ -1,4 +1,4 @@
-import { LayoutAnimation, reduceMotion, signal } from "nsh";
+import { LayoutAnimation, reduceMotion, signal, type ViewRef } from "nsh";
 import type { Conversation, Message, ReplyPreview } from "../../data";
 
 export type ThreadMessage = Message & { id: string };
@@ -25,6 +25,7 @@ export interface MessageRef {
 }
 
 export const messageOverrides = signal<Record<string, MessageOverride>>({});
+export const focusMessage = signal<MessageRef | null>(null);
 export const pinnedMessages = signal<Record<string, string>>({});
 export const replyTarget = signal<ReplyTarget | null>(null);
 export const sentReplyTo = signal<ReplyPreview | null>(null);
@@ -33,6 +34,20 @@ export const editingMessage = signal<MessageRef | null>(null);
 export const forwardingMessage = signal<MessageRef | null>(null);
 export const forwardedMessages = signal<Record<string, Message[]>>({});
 export const composerFocusRequest = signal(0);
+
+const messageViews = new Map<string, ViewRef>();
+
+export function trackMessageView(id: string, node: ViewRef): void {
+  messageViews.set(id, node);
+}
+
+export function revealMessageView(id: string): void {
+  messageViews.get(id)?.reveal({ vertical: "center", animated: true });
+}
+
+export function openMessageRef(conversationId: string, messageId: string): void {
+  focusMessage.set({ conversationId, messageId });
+}
 
 export function overrideFor(id: string): MessageOverride {
   return messageOverrides()[id] ?? {};

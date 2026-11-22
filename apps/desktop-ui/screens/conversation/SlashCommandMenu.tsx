@@ -10,7 +10,7 @@ function Command(props: { label: string; testID: string; onPress: () => void }) 
       class="h-6 flex-row items-center gap-1 rounded px-2"
       hoverStyle={{ backgroundColor: token("accent") }}
     >
-      <Text class="text-[9px] font-medium text-foreground">{props.label}</Text>
+      <Text class="text-[11px] font-medium text-foreground">{props.label}</Text>
     </View>
   );
 }

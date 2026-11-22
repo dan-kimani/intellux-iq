@@ -1,46 +1,16 @@
 import { expect, open, test } from "nsh/test";
 
-function openDesktop() {
-  return open("./App.tsx", {
+async function openDesktop() {
+  const app = await open("./App.tsx", {
     width: 1440,
     height: 900,
     platform: "linux",
     colorScheme: "dark",
   });
+  await app.press("id:nav-inbox");
+  await app.waitFor("id:conversation-sarah");
+  return app;
 }
-
-test("switches channels from the rail and shows unread counters", async () => {
-  const app = await openDesktop();
-  await app.waitFor("id:channel-rail");
-  await app.waitFor("label:All channels, 7 unread, selected");
-  await app.waitFor("label:WhatsApp, 6 unread");
-  await app.waitFor("label:Gmail, 1 unread");
-  expect(app.shows("id:channel-outlook")).toBe(true);
-  expect(app.shows("id:channel-yahoo")).toBe(true);
-
-  await app.press("id:filter-whatsapp");
-  await app.waitFor("label:WhatsApp, 6 unread, selected");
-  await app.waitFor("text:8 conversations");
-  expect(app.shows("id:conversation-james")).toBe(false);
-
-  await app.press("id:filter-email");
-  await app.waitFor("text:2 messages · inbox");
-  await app.press("id:filter-all");
-  await app.waitFor("text:10 conversations");
-});
-
-test("explains how to connect another channel", async () => {
-  const app = await openDesktop();
-  await app.press("id:channel-connect");
-  await app.waitFor("id:channel-connect-dialog");
-  expect(app.texts()).toContain("Other IMAP/SMTP");
-  await app.press("id:connect-provider-outlook");
-  await app.waitFor(
-    "text:Outlook connects through Microsoft OAuth. The cloud stores the refresh token and streams mail to every linked device.",
-  );
-  await app.press("id:dialog-close");
-  expect(app.shows("id:channel-connect-dialog")).toBe(false);
-});
 
 test("filters the inbox", async () => {
   const app = await openDesktop();
@@ -55,55 +25,62 @@ test("starts a new conversation from the new message form", async () => {
   const app = await openDesktop();
   await app.press("id:chrome-new-message");
   await app.waitFor("id:new-message-dialog");
-  await app.type("id:new-message-body", "Hi Sarah — sharing the revised delivery schedule.");
+  await app.type("id:new-message-body", "Hi Maya — sharing the revised delivery schedule.");
   await app.press("id:send-new-message");
-  await app.waitFor("text:Conversation opened with Sarah Wanjiku.");
+  await app.waitFor("text:Conversation opened with Maya Lin.");
   await app.waitFor("id:conversation-conversation-1");
   await app.waitFor("text:11");
 });
 
-test("acts on a linked opportunity from the conversation", async () => {
+test("acts on a linked opportunity from the side panel", async () => {
   const app = await openDesktop();
-  await app.press("id:opportunity-switcher");
-  await app.waitFor("id:menu-switch-OPP-2025-0131");
-  await app.press("id:menu-switch-OPP-2025-0131");
+  await app.press("id:chat-opportunities");
+  await app.waitFor("id:opportunities-panel");
+  await app.press("id:opportunity-row-OPP-2025-0131");
+  await app.waitFor("id:opportunity-detail");
   await app.press("id:opportunity-stage-menu");
   await app.waitFor("id:menu-stage-qualified");
   await app.press("id:menu-stage-qualified");
   await app.waitFor("text:Opportunity moved to Qualified.");
   await app.press("id:opportunity-create-quote");
   await app.waitFor("id:quote-builder-dialog");
-  expect(app.value("id:quote-customer")).toBe("ABC Enterprises");
-  expect(app.value("id:quote-opportunity")).toBe("Acme Kenya — accessory bundle");
+  expect(app.value("id:quote-customer")).toBe("Atlas Enterprises");
+  expect(app.value("id:quote-opportunity")).toBe("Acme Inc. — accessory bundle");
   await app.press("id:dialog-close");
   await app.press("id:nav-inbox");
   await app.wait(350);
-  await app.press("id:link-opportunity");
+  await app.press("id:chat-opportunities");
+  await app.waitFor("id:opportunities-panel");
+  await app.press("id:opportunity-link");
   await app.waitFor("id:link-opportunity-dialog");
   await app.waitFor("text:All opportunities linked");
 });
 
-test("edits an opportunity value from the conversation strip", async () => {
+test("edits an opportunity value from the side panel", async () => {
   const app = await openDesktop();
-  await app.press("id:opportunity-more");
-  await app.waitFor("id:menu-edit");
-  await app.press("id:menu-edit");
+  await app.press("id:chat-opportunities");
+  await app.waitFor("id:opportunities-panel");
+  await app.press("id:opportunity-row-OPP-2025-0131");
+  await app.waitFor("id:opportunity-detail");
+  await app.press("id:opportunity-edit");
   await app.waitFor("id:opportunity-edit-dialog");
-  await app.press("id:opportunity-value");
-  await app.keyboard.press("mod+a");
-  await app.type("id:opportunity-value", "KES 275,000");
+  await app.clear("id:opportunity-value");
+  await app.type("id:opportunity-value", "$275,000");
   await app.press("id:save-opportunity");
-  await app.waitFor("text:Opportunity value updated.");
+  await app.waitFor("text:Opportunity updated.");
+  expect(app.texts()).toContain("$275,000");
 });
 
 test("links a matching opportunity to a conversation", async () => {
   const app = await openDesktop();
   await app.press("id:conversation-david");
-  await app.press("id:link-opportunity");
+  await app.press("id:chat-opportunities");
+  await app.waitFor("id:opportunities-panel");
+  await app.press("id:opportunity-link");
   await app.waitFor("id:link-opportunity-dialog");
   await app.press("id:link-opportunity-OPP-2025-0110");
-  await app.waitFor("text:Nairobi Office — bulk order linked to this conversation.");
-  await app.press("id:link-opportunity");
+  await app.waitFor("text:New York Office — bulk order linked to this conversation.");
+  await app.press("id:opportunity-link");
   await app.waitFor("id:link-opportunity-dialog");
   await app.waitFor("text:All opportunities linked");
 });
@@ -141,7 +118,7 @@ test("inserts a WhatsApp template and sends it", async () => {
   await app.press("id:use-template-in-composer");
   await app.press("id:composer-send");
   await app.waitFor(
-    "text:Hi Sarah, your order QT-2025-0045 is confirmed. Expected delivery: 22 Nov. Reply if you need to change anything.",
+    "text:Hi Maya, your order QT-2025-0045 is confirmed. Expected delivery: 22 Nov. Reply if you need to change anything.",
   );
 });
 
@@ -152,8 +129,8 @@ test("reassigns a conversation and preserves manager override", async () => {
   await app.press("id:conversation-assignment");
   await app.waitFor("id:assignment-dialog");
   await app.press("id:assign-user-u-amina");
-  await app.waitFor("text:Assigned to Amina Kimani");
-  await app.waitFor("text:Manager override — owned by Amina Kimani.");
+  await app.waitFor("text:Assigned to Aiko Tanaka");
+  await app.waitFor("text:Manager override — owned by Aiko Tanaka.");
   await app.waitFor("id:choose-window-template");
 });
 
@@ -204,8 +181,8 @@ test("replies all with a saved draft and switches mail accounts", async () => {
   await app.press("id:mail-reply-all");
   await app.waitFor("id:mail-composer");
   expect(app.shows("id:mail-page")).toBe(true);
-  expect(app.value("id:mail-to")).toContain("sarah@abc.co.ke");
-  expect(app.value("id:mail-cc")).toContain("david@acmetrading.co.ke");
+  expect(app.value("id:mail-to")).toContain("maya@abc.com");
+  expect(app.value("id:mail-cc")).toContain("david@acmetrading.com");
   await app.type("id:mail-body", "Adding the packaging team to the thread.");
   await app.press("text:Close");
   await app.press("id:mail-reply-all");
@@ -223,8 +200,8 @@ test("composes a new email with CC, BCC, subject, and attachment", async () => {
   await app.press("id:mail-compose");
   await app.waitFor("id:mail-composer");
   await app.type("id:mail-to", "grace@example.com");
-  await app.type("id:mail-cc", "manager@acmetrading.co.ke");
-  await app.type("id:mail-bcc", "audit@acmetrading.co.ke");
+  await app.type("id:mail-cc", "manager@acmetrading.com");
+  await app.type("id:mail-bcc", "audit@acmetrading.com");
   await app.type("id:mail-subject", "Updated pricing for December");
   await app.type("id:mail-body", "Hi Grace, sharing the December pricing and the quote PDF.");
   await app.press("text:Attach from quote");

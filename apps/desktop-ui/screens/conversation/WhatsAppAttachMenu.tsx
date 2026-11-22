@@ -28,7 +28,7 @@ function AttachItem(props: {
       >
         <Icon name={props.icon} size={13} tone={props.tone} />
       </View>
-      <Text class="text-[11.5px] text-foreground">{props.label}</Text>
+      <Text class="text-[12px] text-foreground">{props.label}</Text>
     </View>
   );
 }
@@ -58,7 +58,7 @@ export function WhatsAppAttachMenu(props: {
       }
     >
       <View testID="wa-attachment-menu" class="gap-0.5">
-        <Text class="px-2 pb-1 pt-0.5 text-[8.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <Text class="px-2 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Attach
         </Text>
         <AttachItem
