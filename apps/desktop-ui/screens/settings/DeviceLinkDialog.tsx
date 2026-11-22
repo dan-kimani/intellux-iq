@@ -28,7 +28,7 @@ export function DeviceLinkDialog() {
             onPress={() => showToast("Opened device authorization in the browser.")}
           >
             <Icon name="arrowUpRight" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Open browser</Text>
+            <Text class="text-[12px] font-medium">Open browser</Text>
           </Button>
           <Button
             variant="primary"
@@ -40,7 +40,7 @@ export function DeviceLinkDialog() {
             testID="confirm-device-link"
           >
             <Icon name="check" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">
+            <Text class="text-[12px] font-semibold text-primary-foreground">
               I entered the code
             </Text>
           </Button>
@@ -63,9 +63,11 @@ export function DeviceLinkDialog() {
               </Each>
             </View>
           </View>
-          <Text class="text-[9px] text-muted-foreground">Scan with the IntelluxIQ desktop app</Text>
-          <View class="flex-row items-center gap-2 rounded-3xl border border-border bg-card shadow-md px-3 py-2">
-            <Text class="font-mono text-[16px] font-semibold tracking-widest text-foreground">
+          <Text class="text-[11px] text-muted-foreground">
+            Scan with the IntelluxIQ desktop app
+          </Text>
+          <View class="flex-row items-center gap-2 rounded-xl border border-border bg-card shadow-md px-3 py-2">
+            <Text class="font-mono text-[16px] font-semibold tracking-wider text-foreground">
               IQ-7K42-9M
             </Text>
             <View
@@ -79,14 +81,14 @@ export function DeviceLinkDialog() {
               hoverStyle={{ backgroundColor: token("accent") }}
             >
               <Text
-                class="text-[9px] font-medium"
+                class="text-[11px] font-medium"
                 style={{ color: copied() ? token("success") : token("muted-foreground") }}
               >
                 {copied() ? "Copied" : "Copy"}
               </Text>
             </View>
           </View>
-          <Text class="text-[9.5px] font-medium text-warning">Expires in 9:42</Text>
+          <Text class="text-[11px] font-medium text-warning">Expires in 9:42</Text>
         </View>
         <View class="gap-2">
           <SectionTitle>Device link steps</SectionTitle>
@@ -120,9 +122,9 @@ function Step(props: { number: string; text: string }) {
         class="h-5 w-5 items-center justify-center rounded-full"
         style={{ backgroundColor: withAlpha(token("primary"), "24") }}
       >
-        <Text class="text-[8.5px] font-semibold text-highlight">{props.number}</Text>
+        <Text class="text-[11px] font-semibold text-highlight">{props.number}</Text>
       </View>
-      <Text class="flex-1 text-[9.5px] leading-3.75 text-muted-foreground">{props.text}</Text>
+      <Text class="flex-1 text-[11px] leading-3.75 text-muted-foreground">{props.text}</Text>
     </View>
   );
 }

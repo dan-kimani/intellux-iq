@@ -51,7 +51,7 @@ export function OnboardingDialog() {
       footer={
         <View class="w-full flex-row items-center justify-between">
           <Button variant="ghost" size="sm" onPress={closeTour}>
-            <Text class="text-[10px] font-medium">Skip</Text>
+            <Text class="text-[12px] font-medium">Skip</Text>
           </Button>
           <View class="flex-row items-center gap-2">
             <Button
@@ -60,7 +60,7 @@ export function OnboardingDialog() {
               disabled={step() === 0}
               onPress={() => step.set(Math.max(0, step() - 1))}
             >
-              <Text class="text-[10px] font-medium">Back</Text>
+              <Text class="text-[12px] font-medium">Back</Text>
             </Button>
             <Button
               variant="primary"
@@ -74,7 +74,7 @@ export function OnboardingDialog() {
                 }
               }}
             >
-              <Text class="text-[10px] font-semibold text-primary-foreground">
+              <Text class="text-[12px] font-semibold text-primary-foreground">
                 {last() ? "Get started" : "Next"}
               </Text>
               <Icon name={last() ? "check" : "chevronRight"} size={11} tone="primary-foreground" />
@@ -92,10 +92,10 @@ export function OnboardingDialog() {
           <Icon name={current().icon} size={24} tone={current().tone} />
         </View>
         <View class="items-center gap-1">
-          <Text class="text-center text-[17px] font-semibold tracking-tight text-foreground">
+          <Text class="text-center text-[18px] font-semibold text-foreground">
             {current().title}
           </Text>
-          <Text class="max-w-96 text-center text-[10px] leading-4 text-muted-foreground">
+          <Text class="max-w-96 text-center text-[12px] leading-4 text-muted-foreground">
             {current().detail}
           </Text>
         </View>
@@ -129,7 +129,7 @@ export function OnboardingDialog() {
 function Pill(props: { label: string }) {
   return (
     <View class="h-6 items-center justify-center rounded-md border border-border bg-panel">
-      <Text class="text-[8px] font-medium text-muted-foreground">{props.label}</Text>
+      <Text class="text-[11px] font-medium text-muted-foreground">{props.label}</Text>
     </View>
   );
 }

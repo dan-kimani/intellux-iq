@@ -17,7 +17,7 @@ export function SecurityPanel() {
           <SectionTitle
             action={
               <Badge variant="success">
-                <Text class="text-[8px] font-medium text-success">Policy enforced</Text>
+                <Text class="text-[11px] font-medium text-success">Policy enforced</Text>
               </Badge>
             }
           >
@@ -33,10 +33,10 @@ export function SecurityPanel() {
             title="Failed unlock attempts"
             detail="Local cryptographic wipe after 3 failures"
           >
-            <Text class="text-[10.5px] text-warning">3 attempts</Text>
+            <Text class="text-[12px] text-warning">3 attempts</Text>
           </SettingRow>
           <SettingRow title="Device posture" detail="OS version, disk encryption, app version">
-            <Text class="text-[10.5px] font-medium text-success">Healthy</Text>
+            <Text class="text-[12px] font-medium text-success">Healthy</Text>
           </SettingRow>
         </Card>
         <Card class="gap-2 p-4">
@@ -46,8 +46,8 @@ export function SecurityPanel() {
               <Icon name="shieldCheck" size={13} tone="highlight" />
             </View>
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[10px] font-medium text-foreground">SQLCipher cache</Text>
-              <Text class="text-[9px] text-muted-foreground">
+              <Text class="text-[12px] font-medium text-foreground">SQLCipher cache</Text>
+              <Text class="text-[11px] text-muted-foreground">
                 Key stays in the OS keychain; conversations, quotes, and catalog metadata are
                 encrypted at rest.
               </Text>
@@ -65,7 +65,7 @@ export function SecurityPanel() {
             onPress={() => showToast("Security policy refreshed from the cloud.")}
           >
             <Icon name="shieldCheck" size={11} tone="muted-foreground" />
-            <Text class="text-[9.5px] font-medium">Refresh policy</Text>
+            <Text class="text-[11px] font-medium">Refresh policy</Text>
           </Button>
         </Card>
       </View>
@@ -76,8 +76,8 @@ export function SecurityPanel() {
 function Stat(props: { label: string; value: string }) {
   return (
     <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2">
-      <Text class="text-[7.5px] uppercase tracking-wide text-muted-foreground">{props.label}</Text>
-      <Text class="text-[9.5px] font-semibold text-foreground">{props.value}</Text>
+      <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">{props.label}</Text>
+      <Text class="text-[11px] font-semibold text-foreground">{props.value}</Text>
     </View>
   );
 }

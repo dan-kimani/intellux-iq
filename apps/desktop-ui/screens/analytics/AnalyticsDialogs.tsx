@@ -1,3 +1,4 @@
+import { moneyText } from "../../lib/money";
 import { signal, Text, token, View } from "nsh";
 import { AppDialog, DialogActions, FormGrid, ModalNotice } from "../../components/overlay";
 import { ChoiceCards, SelectField, TextField } from "../../components/forms";
@@ -29,7 +30,7 @@ function TeamDialog() {
       footer={
         <DialogActions>
           <Button variant="outline" size="sm" onPress={closeTeam}>
-            <Text class="text-[10px] font-medium">Close</Text>
+            <Text class="text-[12px] font-medium">Close</Text>
           </Button>
           <Button
             variant="primary"
@@ -40,7 +41,7 @@ function TeamDialog() {
             }}
           >
             <Icon name="download" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">
+            <Text class="text-[12px] font-semibold text-primary-foreground">
               Export team report
             </Text>
           </Button>
@@ -49,12 +50,12 @@ function TeamDialog() {
     >
       <View class="gap-3">
         <View class="flex-row gap-2">
-          <Stat label="Revenue won" value="KES 1.28M" />
+          <Stat label="Revenue won" value={moneyText("$1.28M")} />
           <Stat label="Deals won" value="347" />
           <Stat label="Conversion" value="11.2%" />
         </View>
-        <View class="gap-0.5 rounded-3xl border border-border bg-card shadow-md p-3">
-          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[8.5px] uppercase tracking-wide text-muted-foreground">
+        <View class="gap-0.5 rounded-xl border border-border bg-card shadow-md p-3">
+          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
             <Text class="flex-1">Sales rep</Text>
             <Text class="w-16 text-right">Conv.</Text>
             <Text class="w-14 text-right">Won</Text>
@@ -64,19 +65,19 @@ function TeamDialog() {
             {(member: () => (typeof team)[number]) => (
               <View class="flex-row items-center gap-2 border-b border-border py-2 last:border-b-0">
                 <View class="min-w-0 flex-1 flex-row items-center gap-2">
-                  <Avatar initials={member().initials} tone={member().tone} size={22} />
-                  <Text class="text-[9.5px] font-medium text-foreground">{member().name}</Text>
+                  <Avatar name={member().name} size={22} />
+                  <Text class="text-[11px] font-medium text-foreground">{member().name}</Text>
                 </View>
-                <Text class="w-16 text-right text-[9px] text-muted-foreground">
+                <Text class="w-16 text-right text-[11px] text-muted-foreground">
                   {member().conversations}
                 </Text>
-                <Text class="w-14 text-right text-[9px] font-medium text-foreground">
+                <Text class="w-14 text-right text-[11px] font-medium text-foreground">
                   {member().deals}
                 </Text>
                 <View class="w-20 items-end">
                   <Badge variant={member().conversion >= 12 ? "success" : "outline"}>
                     <Text
-                      class="text-[8px] font-medium"
+                      class="text-[11px] font-medium"
                       style={{
                         color: token(member().conversion >= 12 ? "success" : "muted-foreground"),
                       }}
@@ -110,12 +111,12 @@ function ActivityDialog() {
       footer={
         <DialogActions>
           <Button variant="outline" size="sm" onPress={closeActivity}>
-            <Text class="text-[10px] font-medium">Close</Text>
+            <Text class="text-[12px] font-medium">Close</Text>
           </Button>
         </DialogActions>
       }
     >
-      <View class="gap-0.5 rounded-3xl border border-border bg-card shadow-md p-3">
+      <View class="gap-0.5 rounded-xl border border-border bg-card shadow-md p-3">
         <Each of={recentActivity}>
           {(item: () => (typeof recentActivity)[number]) => (
             <View class="flex-row items-start gap-2.5 border-b border-border py-2.5 last:border-b-0">
@@ -123,8 +124,8 @@ function ActivityDialog() {
                 <Icon name={item().icon} size={11} tone={item().tone} />
               </View>
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[10px] font-medium text-foreground">{item().title}</Text>
-                <Text class="text-[9px] text-muted-foreground">{item().meta}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{item().title}</Text>
+                <Text class="text-[11px] text-muted-foreground">{item().meta}</Text>
               </View>
               <Icon name="chevronRight" size={10} tone="muted-foreground" />
             </View>
@@ -147,7 +148,7 @@ function InsightDialog() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeInsight}>
-            <Text class="text-[10px] font-medium">Dismiss</Text>
+            <Text class="text-[12px] font-medium">Dismiss</Text>
           </Button>
           <Button
             variant="primary"
@@ -158,28 +159,28 @@ function InsightDialog() {
             }}
           >
             <Icon name="check" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create follow-up</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create follow-up</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-4">
-        <View class="flex-row items-center gap-3 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="flex-row items-center gap-3 rounded-xl border border-border bg-card shadow-md p-3">
           <View class="h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
             <Icon name="sparkles" size={17} tone="warning" />
           </View>
           <View class="gap-0.5">
-            <Text class="text-[12px] font-semibold text-foreground">
+            <Text class="text-[13px] font-semibold text-foreground">
               +1.1% conversion this month
             </Text>
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[11px] text-muted-foreground">
               Compared with the previous 30-day window
             </Text>
           </View>
         </View>
         <View class="gap-2">
           <SectionTitle>Why this fired</SectionTitle>
-          <Text class="text-[10px] leading-4 text-muted-foreground">
+          <Text class="text-[12px] leading-4 text-muted-foreground">
             Accepted quotes rose faster than issued quotes, and recovered leads converted at 2.4×
             the baseline. The rule is deterministic: accepted ÷ issued, compared with the prior
             period.
@@ -216,7 +217,7 @@ function ExportDialog() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeExport}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -228,7 +229,7 @@ function ExportDialog() {
             testID="generate-report"
           >
             <Icon name="download" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Generate report</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Generate report</Text>
           </Button>
         </DialogActions>
       }

@@ -1,6 +1,5 @@
 import { signal, Text, View } from "nsh";
 import { Popover } from "nsh/base";
-import userPhoto from "../assets/images/user.jpg";
 import { accountOpen } from "../state";
 import { AccountActionRow, commonAccountActions, type AccountAction } from "./AccountActions";
 import { Avatar, IconButton } from "./ui";
@@ -41,18 +40,16 @@ export function ProfileMenu() {
     >
       <View testID="profile-menu" class="gap-1">
         <View class="flex-row items-center gap-2.5 rounded-lg px-2 py-2">
-          <Avatar photo={userPhoto} initials="DM" size={34} online tone="green" />
+          <Avatar name="Alex Morgan" size={34} online />
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[11.5px] font-semibold leading-none text-foreground">
-              David Mwangi
-            </Text>
-            <Text class="text-[9px] leading-none text-muted-foreground">
-              david@acmetrading.co.ke
+            <Text class="text-[12px] font-semibold leading-none text-foreground">Alex Morgan</Text>
+            <Text class="text-[11px] leading-none text-muted-foreground">
+              david@acmetrading.com
             </Text>
           </View>
           <View class="flex-row items-center gap-1">
             <View class="rounded-full bg-success" style={{ width: 5, height: 5 }} />
-            <Text class="text-[8.5px] text-muted-foreground">Active</Text>
+            <Text class="text-[11px] text-muted-foreground">Active</Text>
           </View>
         </View>
         <View class="h-px bg-border" />

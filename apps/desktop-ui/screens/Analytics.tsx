@@ -23,7 +23,7 @@ export function AnalyticsScreen() {
             <PeriodTabs />
             <Button variant="outline" size="sm" onPress={() => analyticsExportOpen.set(true)}>
               <Icon name="download" size={12} tone="muted-foreground" />
-              <Text class="text-[10px] font-medium">Export</Text>
+              <Text class="text-[12px] font-medium">Export</Text>
             </Button>
           </PageActions>
         }

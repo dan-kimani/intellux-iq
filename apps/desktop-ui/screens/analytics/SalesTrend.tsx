@@ -26,7 +26,7 @@ const series: SeriesConfig[] = [
     key: "revenue",
     label: "Revenue",
     color: "series-3",
-    format: (value) => `KES ${(value / 1000).toFixed(1)}M`,
+    format: (value) => `$${(value / 1000).toFixed(1)}M`,
   },
 ];
 
@@ -59,7 +59,7 @@ function Legend(props: { item: SeriesConfig; active: boolean; onPress: () => voi
       style={{ opacity: props.active ? 1 : 0.4 }}
     >
       <View class="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: token(props.item.color) }} />
-      <Text class="text-[9.5px] font-medium text-muted-foreground">{props.item.label}</Text>
+      <Text class="text-[11px] font-medium text-muted-foreground">{props.item.label}</Text>
     </View>
   );
 }
@@ -73,7 +73,7 @@ function TrendTooltip(props: { row: TrendPoint | null; visible: Record<SeriesKey
         style={{ backgroundColor: token("foreground") }}
       >
         <Text
-          class="text-[10px] font-medium"
+          class="text-[12px] font-medium"
           style={{ color: withAlpha(token("background"), "b8") }}
         >
           {props.row?.label}
@@ -87,12 +87,12 @@ function TrendTooltip(props: { row: TrendPoint | null; visible: Record<SeriesKey
                   style={{ backgroundColor: token(item().color) }}
                 />
                 <Text
-                  class="flex-1 text-[10px]"
+                  class="flex-1 text-[12px]"
                   style={{ color: withAlpha(token("background"), "b8") }}
                 >
                   {item().label}
                 </Text>
-                <Text class="text-[10px] font-semibold" style={{ color: token("background") }}>
+                <Text class="text-[12px] font-semibold" style={{ color: token("background") }}>
                   {item().format(props.row?.[item().key] ?? 0)}
                 </Text>
               </View>
@@ -133,8 +133,8 @@ export function SalesTrend() {
       <Card class="h-full gap-3 overflow-hidden p-4">
         <View class="flex-row items-start justify-between">
           <View class="gap-1">
-            <Text class="text-[13.5px] font-semibold text-foreground">Sales performance trend</Text>
-            <Text class="text-[10.5px] text-muted-foreground">
+            <Text class="text-[14px] font-semibold text-foreground">Sales performance trend</Text>
+            <Text class="text-[12px] text-muted-foreground">
               Conversations, deals won, and revenue over the selected period
             </Text>
           </View>
@@ -230,13 +230,13 @@ export function SalesTrend() {
               placement="left"
               tickValues={[0, 1000, 2000, 3000, 4000]}
               format={(value) => (value === 0 ? "0" : `${value / 1000}K`)}
-              labelClass="text-[8.5px] text-muted-foreground"
+              labelClass="text-[11px] tabular-nums text-muted-foreground"
             />
             <PlotAxis
               placement="bottom"
               tickValues={xTicks()}
               format={(value) => rows()[value]?.label ?? ""}
-              labelClass="text-[8.5px] text-muted-foreground"
+              labelClass="text-[11px] tabular-nums text-muted-foreground"
             />
           </Plot>
         </View>

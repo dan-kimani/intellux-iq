@@ -18,7 +18,7 @@ export function RecentActivity() {
             onPress={() => analyticsActivityOpen.set(true)}
             class="flex-row items-center gap-1"
           >
-            <Text class="text-[10px] font-medium text-highlight">View all</Text>
+            <Text class="text-[12px] font-medium text-highlight">View all</Text>
             <Icon name="chevronRight" size={10} tone="highlight" />
           </View>
         </View>
@@ -32,10 +32,10 @@ export function RecentActivity() {
                 <Icon name={item().icon} size={11} tone={item().tone} />
               </View>
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11px] font-medium leading-4 text-foreground">
+                <Text class="text-[12px] font-medium leading-4 text-foreground">
                   {item().title}
                 </Text>
-                <Text class="text-[9.5px] text-muted-foreground">{item().meta}</Text>
+                <Text class="text-[11px] text-muted-foreground">{item().meta}</Text>
               </View>
             </View>
           )}
@@ -55,8 +55,8 @@ export function TopProducts() {
           {(product: () => (typeof topProducts)[number]) => (
             <View class="gap-1.5">
               <View class="flex-row items-center justify-between">
-                <Text class="text-[10.5px] font-medium text-foreground">{product().name}</Text>
-                <Text class="text-[9.5px] text-muted-foreground">{product().units}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{product().name}</Text>
+                <Text class="text-[11px] text-muted-foreground">{product().units}</Text>
               </View>
               <View class="h-1.5 overflow-hidden rounded-full bg-muted">
                 <View
@@ -90,9 +90,9 @@ export function InsightsCard() {
           >
             <Icon name="sparkles" size={13} tone="warning" />
           </View>
-          <Text class="text-[11px] font-semibold text-foreground">Insights</Text>
+          <Text class="text-[12px] font-semibold text-foreground">Insights</Text>
         </View>
-        <Text class="text-[10px] leading-4 text-muted-foreground">
+        <Text class="text-[12px] leading-4 text-muted-foreground">
           Your conversion rate increased by 1.1% compared to last month. Keep up the great work!
         </Text>
         <View class="flex-row items-end gap-1 self-end pt-1">
@@ -117,7 +117,7 @@ export function InsightsCard() {
           class="w-full"
           onPress={() => analyticsInsightOpen.set(true)}
         >
-          <Text class="text-[10px] font-medium">View details</Text>
+          <Text class="text-[12px] font-medium">View details</Text>
           <Icon name="arrowUpRight" size={10} tone="muted-foreground" />
         </Button>
       </Card>

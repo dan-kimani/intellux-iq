@@ -4,8 +4,10 @@ import { ChoiceCards, SelectField, TextField } from "../../components/forms";
 import { Avatar, Badge, Button, Icon, SectionTitle } from "../../components/ui";
 import { showToast } from "../../state";
 import { accessRows } from "./data";
+import type { CurrencyCode } from "../../lib/money";
 import {
   accessSettingsOpen,
+  setCurrency,
   thresholds,
   thresholdsEditOpen,
   workspace,
@@ -32,16 +34,16 @@ function WorkspaceForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeWorkspace}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
             size="sm"
             onPress={() => {
+              setCurrency(currency() as CurrencyCode);
               workspace.set({
                 ...workspace(),
                 name: name(),
-                currency: currency(),
                 timezone: timezone(),
               });
               closeWorkspace();
@@ -50,7 +52,7 @@ function WorkspaceForm() {
             testID="save-workspace-settings"
           >
             <Icon name="check" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Save changes</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Save changes</Text>
           </Button>
         </DialogActions>
       }
@@ -61,13 +63,14 @@ function WorkspaceForm() {
           <SelectField
             label="Base currency"
             value={currency}
-            options={["KES", "USD", "EUR", "GBP"]}
-            onChange={currency.set}
+            options={["USD", "EUR", "GBP", "KES"]}
+            onChange={(value) => currency.set(value as CurrencyCode)}
+            testID="currency-select"
           />
           <SelectField
             label="Timezone"
             value={timezone}
-            options={["Africa/Nairobi", "Africa/Lagos", "Europe/London", "UTC"]}
+            options={["America/New_York", "Europe/London", "Asia/Singapore", "UTC"]}
             onChange={timezone.set}
           />
         </FormGrid>
@@ -85,7 +88,7 @@ function WorkspaceForm() {
         />
         <ModalNotice
           title="Shared through the cloud"
-          detail="Workspace policy is scoped by org_id and delivered to every linked device on its next refresh."
+          detail="Prototype: saved locally. Base currency will come from cloud console org policy."
         />
       </View>
     </AppDialog>
@@ -106,7 +109,7 @@ function AccessForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeAccess}>
-            <Text class="text-[10px] font-medium">Close</Text>
+            <Text class="text-[12px] font-medium">Close</Text>
           </Button>
           <Button
             variant="primary"
@@ -118,34 +121,27 @@ function AccessForm() {
             testID="send-invite"
           >
             <Icon name="send" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Send invite</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Send invite</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-4">
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Workspace members</SectionTitle>
           <Each of={accessRows}>
             {(member: () => (typeof accessRows)[number]) => (
               <View class="flex-row items-center gap-2.5 border-t border-border pt-2.5 first:border-t-0 first:pt-0">
-                <Avatar
-                  initials={member()
-                    .name.split(" ")
-                    .map((part) => part[0])
-                    .join("")}
-                  tone={member().tone}
-                  size={26}
-                />
+                <Avatar name={member().name} size={26} />
                 <View class="min-w-0 flex-1 gap-0.5">
-                  <Text class="text-[10.5px] font-medium text-foreground">{member().name}</Text>
-                  <Text class="text-[9px] text-muted-foreground">
+                  <Text class="text-[12px] font-medium text-foreground">{member().name}</Text>
+                  <Text class="text-[11px] text-muted-foreground">
                     {member().role} · {member().devices} device(s)
                   </Text>
                 </View>
                 <Badge variant={member().role === "Sales Manager" ? "primary" : "outline"}>
                   <Text
-                    class="text-[8px] font-medium"
+                    class="text-[11px] font-medium"
                     style={{
                       color:
                         member().role === "Sales Manager"
@@ -211,7 +207,7 @@ function ThresholdsForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeThresholds}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -228,7 +224,7 @@ function ThresholdsForm() {
             testID="save-thresholds"
           >
             <Icon name="check" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Save thresholds</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Save thresholds</Text>
           </Button>
         </DialogActions>
       }

@@ -86,12 +86,12 @@ export function AccountActionRow(props: {
       </View>
       <View class="min-w-0 flex-1 gap-0.5">
         <Text
-          class="text-[10px] font-medium"
+          class="text-[12px] font-medium"
           style={{ color: token(props.action.danger ? "destructive" : "foreground") }}
         >
           {props.action.label}
         </Text>
-        <Text class="text-[8.5px] text-muted-foreground">{props.action.detail}</Text>
+        <Text class="text-[11px] text-muted-foreground">{props.action.detail}</Text>
       </View>
       <Icon name="chevronRight" size={10} tone="muted-foreground" />
     </View>

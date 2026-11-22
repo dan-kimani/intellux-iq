@@ -3,6 +3,7 @@ import { Badge, Card, Icon, SectionTitle, withAlpha } from "../components/ui";
 import { useAfter } from "../components/motion";
 import { Skeleton, SkeletonMetric } from "../components/skeletons";
 import { PageShell } from "./PageShell";
+import { currencySymbol, moneyText } from "../lib/money";
 import { recoveredThisWeek, severityStyles, type RecoverySignal } from "./recovery/data";
 import { RecoveryDialog } from "./recovery/RecoveryDialog";
 import { recoveryDetail, recoveryFilter, recoveryResolved, recoveryRows } from "./recovery/state";
@@ -36,41 +37,41 @@ function RecoveryMetrics() {
       <View class="grid grid-cols-4 gap-3">
         <Card class="gap-2 p-3.5">
           <View class="flex-row items-center justify-between">
-            <Text class="text-[10.5px] text-muted-foreground">Open signals</Text>
+            <Text class="text-[12px] text-muted-foreground">Open signals</Text>
             <Icon name="bell" size={12} tone="chart-4" />
           </View>
-          <Text class="text-[22px] font-semibold tracking-tight text-foreground">
+          <Text class="text-[22px] font-semibold tabular-nums text-foreground">
             {openSignals()}
           </Text>
-          <Text class="text-[10.5px] text-muted-foreground">Across conversations and quotes</Text>
+          <Text class="text-[12px] text-muted-foreground">Across conversations and quotes</Text>
         </Card>
         <Card class="gap-2 p-3.5">
           <View class="flex-row items-center justify-between">
-            <Text class="text-[10.5px] text-muted-foreground">Urgent</Text>
+            <Text class="text-[12px] text-muted-foreground">Urgent</Text>
             <Icon name="zap" size={12} tone="warning" />
           </View>
-          <Text class="text-[22px] font-semibold tracking-tight text-warning">
-            {urgentSignals()}
-          </Text>
-          <Text class="text-[10.5px] text-muted-foreground">Needs action now</Text>
+          <Text class="text-[22px] font-semibold tabular-nums text-warning">{urgentSignals()}</Text>
+          <Text class="text-[12px] text-muted-foreground">Needs action now</Text>
         </Card>
         <Card class="gap-2 p-3.5">
           <View class="flex-row items-center justify-between">
-            <Text class="text-[10.5px] text-muted-foreground">Recovered this month</Text>
+            <Text class="text-[12px] text-muted-foreground">Recovered this month</Text>
             <Icon name="check" size={12} tone="success" />
           </View>
-          <Text class="text-[22px] font-semibold tracking-tight text-success">
+          <Text class="text-[22px] font-semibold tabular-nums text-success">
             {18 + recoveryResolved()}
           </Text>
-          <Text class="text-[10.5px] text-muted-foreground">Resolved by an outcome</Text>
+          <Text class="text-[12px] text-muted-foreground">Resolved by an outcome</Text>
         </Card>
         <Card class="gap-2 p-3.5">
           <View class="flex-row items-center justify-between">
-            <Text class="text-[10.5px] text-muted-foreground">Value at risk</Text>
+            <Text class="text-[12px] text-muted-foreground">Value at risk</Text>
             <Icon name="briefcase" size={12} tone="chart-1" />
           </View>
-          <Text class="text-[22px] font-semibold tracking-tight text-foreground">KES 1.4M</Text>
-          <Text class="text-[10.5px] text-muted-foreground">Open opportunity value</Text>
+          <Text class="text-[22px] font-semibold tabular-nums text-foreground">
+            {moneyText("$1.4M")}
+          </Text>
+          <Text class="text-[12px] text-muted-foreground">Open opportunity value</Text>
         </Card>
       </View>
     </If>
@@ -83,7 +84,7 @@ function RecoveryQueue() {
   return (
     <Card class="min-w-0 flex-1 overflow-hidden">
       <View class="flex-row items-center gap-2 border-b border-border px-4 py-3">
-        <Text class="text-[13.5px] font-semibold text-foreground">Intervention queue</Text>
+        <Text class="text-[14px] font-semibold text-foreground">Intervention queue</Text>
         <View class="flex-row items-center gap-1 rounded-md bg-muted p-1">
           <Each of={["all", "urgent", "unassigned"] as const}>
             {(item: () => "all" | "urgent" | "unassigned") => (
@@ -97,7 +98,7 @@ function RecoveryQueue() {
                 }}
               >
                 <Text
-                  class="text-[10px] font-medium capitalize"
+                  class="text-[12px] font-medium capitalize"
                   style={{
                     color:
                       activeFilter() === item() ? token("foreground") : token("muted-foreground"),
@@ -110,9 +111,11 @@ function RecoveryQueue() {
           </Each>
         </View>
         <View class="flex-1" />
-        <Text class="text-[10px] text-muted-foreground">{visibleSignals().length} signals</Text>
+        <Text class="text-[12px] tabular-nums text-muted-foreground">
+          {visibleSignals().length} signals
+        </Text>
       </View>
-      <View class="flex-row items-center gap-3 border-b border-border bg-panel-strong px-4 py-2 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+      <View class="flex-row items-center gap-3 border-b border-border bg-panel-strong px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         <Text class="w-16">Severity</Text>
         <Text class="flex-1">Signal</Text>
         <Text class="w-28">Owner</Text>
@@ -143,7 +146,7 @@ function RecoveryQueue() {
               <View class="w-16">
                 <Badge variant={severityStyles[signal().severity].variant}>
                   <Text
-                    class="text-[9px] font-semibold"
+                    class="text-[11px] font-semibold"
                     style={{ color: token(severityStyles[signal().severity].color as never) }}
                   >
                     {severityStyles[signal().severity].label}
@@ -159,20 +162,22 @@ function RecoveryQueue() {
                 </View>
                 <View class="min-w-0 gap-0.5">
                   <Text
-                    class="text-[11.5px] font-medium text-foreground"
-                    style={{ numberOfLines: 1 }}
+                    class="text-[12px] font-medium leading-4 text-foreground"
+                    style={{ numberOfLines: 2 }}
                   >
                     {signal().title}
                   </Text>
-                  <Text class="text-[9.5px] text-muted-foreground" style={{ numberOfLines: 1 }}>
+                  <Text class="text-[11px] text-muted-foreground" style={{ numberOfLines: 2 }}>
                     {signal().entity} · {signal().rule}
                   </Text>
                 </View>
               </View>
-              <Text class="w-28 text-[9px] text-muted-foreground">{signal().owner}</Text>
-              <Text class="w-12 text-right text-[9px] text-muted-foreground">{signal().age}</Text>
-              <Text class="w-14 text-right text-[9px] font-medium text-foreground">
-                {signal().value.replace("KES ", "")}
+              <Text class="w-28 text-[11px] text-muted-foreground">{signal().owner}</Text>
+              <Text class="w-12 text-right text-[11px] tabular-nums text-muted-foreground">
+                {signal().age}
+              </Text>
+              <Text class="w-14 text-right text-[11px] font-medium tabular-nums text-foreground">
+                {moneyText(signal().value).replace(currencySymbol(), "")}
               </Text>
               <View class="w-12 items-end">
                 <Icon name="chevronRight" size={11} tone="muted-foreground" />
@@ -182,8 +187,8 @@ function RecoveryQueue() {
         </Each>
         <If when={visibleSignals().length === 0}>
           <View class="items-center gap-1 py-12">
-            <Text class="text-[11px] font-medium text-success">Queue clear</Text>
-            <Text class="text-[10px] text-muted-foreground">
+            <Text class="text-[12px] font-medium text-success">Queue clear</Text>
+            <Text class="text-[12px] text-muted-foreground">
               Every signal has a documented outcome.
             </Text>
           </View>
@@ -210,7 +215,7 @@ function RecoverySide() {
           <SectionTitle
             action={
               <Badge variant="success">
-                <Text class="text-[8px] font-medium text-success">Deterministic</Text>
+                <Text class="text-[11px] font-medium text-success">Deterministic</Text>
               </Badge>
             }
           >
@@ -223,7 +228,7 @@ function RecoverySide() {
             text="Resolve only when the customer replies or the opportunity advances."
           />
           <View class="rounded-md bg-muted px-2.5 py-2">
-            <Text class="text-[9.5px] leading-3.75 text-muted-foreground">
+            <Text class="text-[11px] leading-3.75 text-muted-foreground">
               Dismissal without action is not a recovery. It is recorded and audited.
             </Text>
           </View>
@@ -235,10 +240,10 @@ function RecoverySide() {
               <View class="flex-row items-start gap-2.5 border-t border-border pt-2.5 first:border-t-0 first:pt-0">
                 <View class="mt-1 h-1.5 w-1.5 rounded-full bg-success" />
                 <View class="min-w-0 flex-1 gap-0.5">
-                  <Text class="text-[10.5px] font-medium text-foreground">{item().title}</Text>
-                  <Text class="text-[9.5px] text-muted-foreground">{item().detail}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{item().title}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{item().detail}</Text>
                 </View>
-                <Text class="text-[9px] text-muted-foreground">{item().time}</Text>
+                <Text class="text-[11px] text-muted-foreground">{item().time}</Text>
               </View>
             )}
           </Each>
@@ -249,11 +254,13 @@ function RecoverySide() {
             backgroundImage: `linear-gradient(145deg, ${withAlpha(token("success"), "16")}, transparent 80%)`,
           }}
         >
-          <Text class="text-[9px] uppercase tracking-wide text-muted-foreground">
+          <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
             Outcome impact
           </Text>
-          <Text class="text-[20px] font-semibold text-success">KES 680K</Text>
-          <Text class="text-[10px] leading-4 text-muted-foreground">
+          <Text class="text-[20px] font-semibold tabular-nums text-success">
+            {moneyText("$680K")}
+          </Text>
+          <Text class="text-[12px] leading-4 text-muted-foreground">
             Recovered pipeline this month. Measured by resolution outcome — not messages sent.
           </Text>
         </Card>
@@ -266,9 +273,9 @@ function Step(props: { number: string; text: string }) {
   return (
     <View class="flex-row items-start gap-2.5">
       <View class="h-5 w-5 items-center justify-center rounded-full bg-accent">
-        <Text class="text-[8.5px] font-semibold text-highlight">{props.number}</Text>
+        <Text class="text-[11px] font-semibold text-highlight">{props.number}</Text>
       </View>
-      <Text class="flex-1 text-[9px] leading-3.5 text-muted-foreground">{props.text}</Text>
+      <Text class="flex-1 text-[11px] leading-3.5 text-muted-foreground">{props.text}</Text>
     </View>
   );
 }

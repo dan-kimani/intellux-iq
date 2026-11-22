@@ -41,10 +41,10 @@ function RuleList() {
                 </View>
                 <View class="min-w-0 flex-1 gap-1">
                   <View class="flex-row items-center gap-2">
-                    <Text class="text-[13px] font-semibold text-foreground">{rule().title}</Text>
+                    <Text class="text-[14px] font-semibold text-foreground">{rule().title}</Text>
                     <Badge variant={rule().enabled ? "success" : "outline"}>
                       <Text
-                        class="text-[9px] font-medium"
+                        class="text-[11px] font-medium"
                         style={{
                           color: rule().enabled ? token("success") : token("muted-foreground"),
                         }}
@@ -53,7 +53,7 @@ function RuleList() {
                       </Text>
                     </Badge>
                   </View>
-                  <Text class="text-[11px] leading-4.25 text-muted-foreground">
+                  <Text class="text-[12px] leading-4.25 text-muted-foreground">
                     {rule().description}
                   </Text>
                 </View>
@@ -66,18 +66,18 @@ function RuleList() {
               </View>
               <View class="flex-row items-center gap-3 border-t border-border pt-2.5">
                 <View class="flex-1 gap-0.5">
-                  <Text class="text-[9.5px] uppercase tracking-wide text-muted-foreground">
+                  <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                     Trigger
                   </Text>
-                  <Text class="text-[10.5px] font-medium text-foreground">{rule().trigger}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{rule().trigger}</Text>
                 </View>
                 <View class="flex-1 gap-0.5">
-                  <Text class="text-[9.5px] uppercase tracking-wide text-muted-foreground">
+                  <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                     Action
                   </Text>
-                  <Text class="text-[10.5px] font-medium text-foreground">{rule().action}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{rule().action}</Text>
                 </View>
-                <Text class="text-[10px] text-muted-foreground">{rule().runs}</Text>
+                <Text class="text-[12px] text-muted-foreground">{rule().runs}</Text>
               </View>
             </Card>
           )}
@@ -101,15 +101,15 @@ function RecentRuns() {
                 style={{ backgroundColor: token(run().tone) }}
               />
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11px] font-medium text-foreground">{run().name}</Text>
-                <Text class="text-[10px] leading-3.75 text-muted-foreground">{run().detail}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{run().name}</Text>
+                <Text class="text-[12px] leading-3.75 text-muted-foreground">{run().detail}</Text>
               </View>
-              <Text class="text-[9.5px] text-muted-foreground">{run().time}</Text>
+              <Text class="text-[11px] text-muted-foreground">{run().time}</Text>
             </View>
           )}
         </Each>
         <Button variant="outline" size="sm" onPress={() => runLogOpen.set(true)}>
-          <Text class="text-[11px] font-medium">View run log</Text>
+          <Text class="text-[12px] font-medium">View run log</Text>
           <Icon name="chevronRight" size={11} tone="muted-foreground" />
         </Button>
       </Card>
@@ -128,7 +128,7 @@ export function AutomationsScreen() {
           <PageActions>
             <Button variant="primary" size="sm" onPress={() => newRuleOpen.set(true)}>
               <Icon name="plus" size={12} tone="primary-foreground" />
-              <Text class="text-[11px] font-semibold text-primary-foreground">New rule</Text>
+              <Text class="text-[12px] font-semibold text-primary-foreground">New rule</Text>
             </Button>
           </PageActions>
         }

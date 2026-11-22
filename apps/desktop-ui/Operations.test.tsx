@@ -29,7 +29,7 @@ test("opens command search and notifications", async () => {
   await app.press("id:open-command");
   await app.waitFor("id:command-palette");
   await app.waitFor("id:command-result-new-message");
-  await app.type("id:command-search", "Sarah");
+  await app.type("id:command-search", "Maya");
   await app.waitFor("id:command-result-contact-c1");
   await app.keyboard.press("enter");
   await app.waitFor("id:contact-page");
@@ -127,22 +127,23 @@ test("logs a contact note and a deal task", async () => {
   const app = await openDesktop();
   await app.press("id:nav-contacts");
   await app.waitFor("text:Directory");
-  await app.press("text:Sarah Wanjiku");
+  await app.press("text:Maya Lin");
   await app.waitFor("id:contact-page");
   await app.press("text:Add note");
-  await app.waitFor("id:activity-dialog");
-  await app.type("id:activity-text", "Prefers delivery before noon.");
-  await app.press("id:save-activity");
+  await app.waitFor("id:work-dialog");
+  await app.type("id:work-title", "Prefers delivery before noon.");
+  await app.press("id:save-work-item");
+  await app.waitFor("text:Activity logged.");
   await app.waitFor("text:Prefers delivery before noon.");
   await app.press("id:nav-deals");
   await app.waitFor("text:Enquiry");
   await app.press("id:deal-OPP-2025-0123");
   await app.waitFor("text:NEXT STEP");
   await app.press("text:Log");
-  await app.waitFor("id:activity-dialog");
-  await app.press("text:Follow-up task");
-  await app.type("id:activity-text", "Confirm packaging artwork by Friday.");
-  await app.press("id:save-activity");
+  await app.waitFor("id:work-dialog");
+  await app.type("id:work-title", "Confirm packaging artwork by Friday.");
+  await app.press("id:save-work-item");
+  await app.waitFor("text:Activity logged.");
   await app.waitFor("text:Confirm packaging artwork by Friday.");
 });
 
@@ -170,7 +171,8 @@ test("renders the minimum supported window", async () => {
     platform: "linux",
     colorScheme: "dark",
   });
-  await app.waitFor("text:Sarah Wanjiku");
+  await app.press("id:nav-inbox");
+  await app.waitFor("text:Maya Lin");
   expect(app.texts()).toContain("End of recent conversations");
   await app.press("id:nav-recovery");
   await app.waitFor("text:Intervention queue");

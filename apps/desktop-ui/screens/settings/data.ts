@@ -19,12 +19,12 @@ export const settingsTabs: SettingsTab[] = [
 
 export const devices = [
   {
-    name: "David's MacBook Pro",
+    name: "Alex's MacBook Pro",
     platform: "macOS 15.6",
     status: "This device",
     tone: "chart-3" as const,
   },
-  { name: "David's iPhone", platform: "iOS 26.1", status: "Linked", tone: "chart-2" as const },
+  { name: "Alex's iPhone", platform: "iOS 26.1", status: "Linked", tone: "chart-2" as const },
   {
     name: "Finance workstation",
     platform: "Ubuntu 24.04",
@@ -34,8 +34,8 @@ export const devices = [
 ];
 
 export const accessRows = [
-  { name: "David Mwangi", role: "Sales Manager", devices: 2, tone: "violet" as AvatarTone },
-  { name: "Yasir Noori", role: "Sales", devices: 1, tone: "blue" as AvatarTone },
-  { name: "Amina Kimani", role: "Sales", devices: 1, tone: "green" as AvatarTone },
-  { name: "Moses Otieno", role: "Sales", devices: 1, tone: "amber" as AvatarTone },
+  { name: "Alex Morgan", role: "Sales Manager", devices: 2, tone: "violet" as AvatarTone },
+  { name: "Priya Shah", role: "Sales", devices: 1, tone: "blue" as AvatarTone },
+  { name: "Aiko Tanaka", role: "Sales", devices: 1, tone: "green" as AvatarTone },
+  { name: "Sam Okafor", role: "Sales", devices: 1, tone: "amber" as AvatarTone },
 ];

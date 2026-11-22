@@ -49,7 +49,7 @@ function SyncPanel() {
             testID="toggle-online"
           >
             <Icon name={online() ? "zap" : "workflow"} size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">{online() ? "Work offline" : "Go online"}</Text>
+            <Text class="text-[12px] font-medium">{online() ? "Work offline" : "Go online"}</Text>
           </Button>
           <Button
             variant="outline"
@@ -60,16 +60,16 @@ function SyncPanel() {
             }}
           >
             <Icon name="send" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Retry outbox</Text>
+            <Text class="text-[12px] font-medium">Retry outbox</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={closeSync}>
-            <Text class="text-[10px] font-semibold text-primary-foreground">Done</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Done</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-4">
-        <View class="flex-row items-center gap-3 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="flex-row items-center gap-3 rounded-xl border border-border bg-card shadow-md p-3">
           <View
             class="h-9 w-9 items-center justify-center rounded-lg"
             style={{
@@ -83,10 +83,10 @@ function SyncPanel() {
             />
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[11px] font-semibold text-foreground">
+            <Text class="text-[12px] font-semibold text-foreground">
               {online() ? "Cloud synced" : "Offline mode"}
             </Text>
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[11px] text-muted-foreground">
               {online()
                 ? "Cursor 18,442 · last event 2s ago"
                 : "Reads and drafts remain local; sends queue in the outbox."}
@@ -94,7 +94,7 @@ function SyncPanel() {
           </View>
           <Badge variant={online() ? "success" : "warning"}>
             <Text
-              class="text-[8px] font-medium"
+              class="text-[11px] font-medium"
               style={{ color: token(online() ? "success" : "warning") }}
             >
               {online() ? "Live" : "Queued"}
@@ -107,7 +107,7 @@ function SyncPanel() {
           <Stat label="Last sync" value="2s ago" />
           <Stat label="Local cache" value="84 MB" />
         </View>
-        <View class="gap-1 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-1 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Outbox</SectionTitle>
           <Each of={outbox()}>
             {(item: () => OutboxItem) => (
@@ -125,15 +125,13 @@ function SyncPanel() {
                   }}
                 />
                 <Text
-                  class="min-w-0 flex-1 text-[9.5px] text-foreground"
+                  class="min-w-0 flex-1 text-[11px] text-foreground"
                   style={{ numberOfLines: 1 }}
                 >
                   {item().text}
                 </Text>
-                <Text class="text-[8.5px] capitalize text-muted-foreground">{item().status}</Text>
-                <Text class="w-14 text-right text-[8.5px] text-muted-foreground">
-                  {item().time}
-                </Text>
+                <Text class="text-[11px] capitalize text-muted-foreground">{item().status}</Text>
+                <Text class="w-14 text-right text-[11px] text-muted-foreground">{item().time}</Text>
               </View>
             )}
           </Each>
@@ -150,8 +148,8 @@ function SyncPanel() {
 function Stat(props: { label: string; value: string }) {
   return (
     <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2.5">
-      <Text class="text-[8px] uppercase tracking-wide text-muted-foreground">{props.label}</Text>
-      <Text class="text-[13px] font-semibold text-foreground">{props.value}</Text>
+      <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">{props.label}</Text>
+      <Text class="text-[14px] font-semibold text-foreground">{props.value}</Text>
     </View>
   );
 }

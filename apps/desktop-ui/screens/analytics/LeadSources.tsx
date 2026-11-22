@@ -21,16 +21,19 @@ function LeadTooltip(props: { source: LeadSource | null }) {
             }}
           />
           <Text
-            class="text-[10.5px] font-medium"
+            class="text-[12px] font-medium"
             style={{ color: withAlpha(token("background"), "cc") }}
           >
             {props.source?.label ?? ""}
           </Text>
         </View>
-        <Text class="text-[18px] font-semibold leading-none" style={{ color: token("background") }}>
+        <Text
+          class="text-[18px] font-semibold leading-none tabular-nums"
+          style={{ color: token("background") }}
+        >
           {props.source?.count ?? ""}
         </Text>
-        <Text class="text-[10px]" style={{ color: withAlpha(token("background"), "a8") }}>
+        <Text class="text-[12px]" style={{ color: withAlpha(token("background"), "a8") }}>
           {props.source ? `${props.source.value} of conversations` : ""}
         </Text>
       </View>
@@ -58,8 +61,8 @@ export function LeadSources() {
     <If when={ready()} else={<Skeleton class="h-80 rounded-xl" />}>
       <Card class="h-full w-72 shrink-0 gap-3 p-4">
         <View class="gap-1">
-          <Text class="text-[13.5px] font-semibold text-foreground">Lead sources</Text>
-          <Text class="text-[10.5px] text-muted-foreground">
+          <Text class="text-[14px] font-semibold text-foreground">Lead sources</Text>
+          <Text class="text-[12px] text-muted-foreground">
             Where the 3,248 conversations came from
           </Text>
         </View>
@@ -112,13 +115,13 @@ export function LeadSources() {
               accessibilityLabel={centerLabel()}
               style={{ pointerEvents: "none" }}
             >
-              <Text class="text-[22px] font-semibold leading-none tracking-tight text-foreground">
+              <Text class="text-[22px] font-semibold leading-none tabular-nums text-foreground">
                 {activeSource()?.count ?? "3,248"}
               </Text>
-              <Text class="text-[10px] font-medium text-muted-foreground">
+              <Text class="text-[12px] font-medium text-muted-foreground">
                 {activeSource()?.label ?? "Total"}
               </Text>
-              <Text class="text-[8px] text-muted-foreground">
+              <Text class="text-[11px] text-muted-foreground">
                 {activeSource() ? `${activeSource()?.value} of conversations` : "conversations"}
               </Text>
             </View>
@@ -148,9 +151,11 @@ export function LeadSources() {
                   class="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: token(source().tone) }}
                 />
-                <Text class="flex-1 text-[9.5px] text-muted-foreground">{source().label}</Text>
-                <Text class="text-[10.5px] font-semibold text-foreground">{source().value}</Text>
-                <Text class="w-10 text-right text-[10px] text-muted-foreground">
+                <Text class="flex-1 text-[11px] text-muted-foreground">{source().label}</Text>
+                <Text class="text-[12px] font-semibold tabular-nums text-foreground">
+                  {source().value}
+                </Text>
+                <Text class="w-10 text-right text-[12px] tabular-nums text-muted-foreground">
                   {source().count}
                 </Text>
               </View>

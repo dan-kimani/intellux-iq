@@ -44,7 +44,7 @@ export const kpis: {
     label: "Quotes Sent",
     value: "562",
     delta: "+15%",
-    note: "KES 1.9M pipeline",
+    note: "$1.9M pipeline",
     icon: "fileText",
     tone: "series-4",
     spark: [12, 18, 16, 22, 20, 26, 24, 30, 34, 32],
@@ -60,7 +60,7 @@ export const kpis: {
   },
   {
     label: "Revenue",
-    value: "KES 8.4M",
+    value: "$8.4M",
     delta: "+28%",
     note: "This period",
     icon: "package",
@@ -150,7 +150,7 @@ export const pipelineMetrics = [
   },
   {
     label: "Avg. deal value",
-    value: "KES 24,200",
+    value: "$24,200",
     delta: "↑ 8%",
     positive: true,
     icon: "gauge" as const,
@@ -159,7 +159,7 @@ export const pipelineMetrics = [
 
 export const team = [
   {
-    name: "Sarah Wanjiku",
+    name: "Maya Lin",
     initials: "SW",
     tone: "violet" as const,
     conversations: "742",
@@ -168,7 +168,7 @@ export const team = [
     bar: "series-1" as const,
   },
   {
-    name: "David Ochieng",
+    name: "Jonah Reyes",
     initials: "DO",
     tone: "blue" as const,
     conversations: "685",
@@ -177,7 +177,7 @@ export const team = [
     bar: "series-2" as const,
   },
   {
-    name: "Mary Atieno",
+    name: "Nora Vance",
     initials: "MA",
     tone: "rose" as const,
     conversations: "623",
@@ -186,7 +186,7 @@ export const team = [
     bar: "series-4" as const,
   },
   {
-    name: "James Kamau",
+    name: "James Carter",
     initials: "JK",
     tone: "amber" as const,
     conversations: "598",
@@ -195,7 +195,7 @@ export const team = [
     bar: "series-5" as const,
   },
   {
-    name: "Peter Mwangi",
+    name: "Theo Marsh",
     initials: "PM",
     tone: "green" as const,
     conversations: "540",
@@ -207,13 +207,13 @@ export const team = [
 
 export const recentActivity = [
   {
-    title: "New deal won: 50 units — KSh 1.2M",
+    title: "New deal won: 50 units — $1.2M",
     meta: "2m ago",
     icon: "briefcase" as const,
     tone: "series-3" as const,
   },
   {
-    title: "Quotation QTN-2026-0117 viewed by ABC Enterprises",
+    title: "Quotation QTN-2026-0117 viewed by Atlas Enterprises",
     meta: "5m ago",
     icon: "fileText" as const,
     tone: "series-1" as const,
@@ -225,7 +225,7 @@ export const recentActivity = [
     tone: "series-4" as const,
   },
   {
-    title: "New contact added: Grace Wanjiku",
+    title: "New contact added: Grace Chen",
     meta: "14m ago",
     icon: "users" as const,
     tone: "series-2" as const,

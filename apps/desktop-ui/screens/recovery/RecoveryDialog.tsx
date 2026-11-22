@@ -31,7 +31,7 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             size="sm"
             onPress={() => resolveSignal(signal, "dismissed with reason")}
           >
-            <Text class="text-[10px] font-medium">Dismiss</Text>
+            <Text class="text-[12px] font-medium">Dismiss</Text>
           </Button>
           <Button
             variant="outline"
@@ -43,7 +43,7 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             }}
           >
             <Icon name="messageCircle" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Reply</Text>
+            <Text class="text-[12px] font-medium">Reply</Text>
           </Button>
           <Button
             variant="primary"
@@ -51,13 +51,13 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             onPress={() => resolveSignal(signal, "follow-up created")}
           >
             <Icon name="calendarClock" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create follow-up</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create follow-up</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-4">
-        <View class="flex-row items-center gap-3 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="flex-row items-center gap-3 rounded-xl border border-border bg-card shadow-md p-3">
           <View
             class="h-9 w-9 items-center justify-center rounded-lg"
             style={{ backgroundColor: withAlpha(token(signal.tone), "20") }}
@@ -65,8 +65,8 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             <Icon name={signal.icon} size={16} tone={signal.tone} />
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[11px] font-semibold text-foreground">{signal.entity}</Text>
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[12px] font-semibold text-foreground">{signal.entity}</Text>
+            <Text class="text-[11px] text-muted-foreground">
               Owner: {signal.owner} · Age: {signal.age} · Value: {signal.value}
             </Text>
           </View>
@@ -80,7 +80,7 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             }
           >
             <Text
-              class="text-[8px] font-semibold capitalize"
+              class="text-[11px] font-semibold capitalize"
               style={{
                 color: token(
                   signal.severity === "urgent"
@@ -95,7 +95,7 @@ function SignalDialog(props: { signal: RecoverySignal }) {
             </Text>
           </Badge>
         </View>
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Evidence</SectionTitle>
           <Each of={signal.evidence}>
             {(item: () => string) => (
@@ -104,17 +104,17 @@ function SignalDialog(props: { signal: RecoverySignal }) {
                   class="mt-1.5 h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: token(signal.tone) }}
                 />
-                <Text class="flex-1 text-[9.5px] leading-3.75 text-muted-foreground">{item()}</Text>
+                <Text class="flex-1 text-[11px] leading-3.75 text-muted-foreground">{item()}</Text>
               </View>
             )}
           </Each>
         </View>
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Recommended next step</SectionTitle>
-          <Text class="text-[10px] leading-4 text-foreground">{signal.recommended}</Text>
+          <Text class="text-[12px] leading-4 text-foreground">{signal.recommended}</Text>
           <View class="flex-row items-center gap-2 rounded-md bg-muted px-2.5 py-1.5">
             <Icon name="sparkles" size={11} tone="highlight" />
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[11px] text-muted-foreground">
               Deterministic rule · no AI dependency
             </Text>
           </View>

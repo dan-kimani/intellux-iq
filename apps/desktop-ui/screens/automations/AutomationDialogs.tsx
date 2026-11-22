@@ -49,11 +49,11 @@ function NewRuleForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeNew}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={save} testID="create-rule">
             <Icon name="plus" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create rule</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create rule</Text>
           </Button>
         </DialogActions>
       }
@@ -140,7 +140,7 @@ function RunLogForm() {
     },
     {
       name: "Follow-up due",
-      detail: "Notified James Njoroge",
+      detail: "Notified Leo Brandt",
       time: "3h ago",
       tone: "chart-3" as const,
       status: "success",
@@ -166,11 +166,11 @@ function RunLogForm() {
       footer={
         <DialogActions>
           <Button variant="outline" size="sm" onPress={closeLog}>
-            <Text class="text-[10px] font-medium">Close</Text>
+            <Text class="text-[12px] font-medium">Close</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={() => showToast("Run log exported.")}>
             <Icon name="download" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Export log</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Export log</Text>
           </Button>
         </DialogActions>
       }
@@ -178,26 +178,26 @@ function RunLogForm() {
       <View class="gap-4">
         <View class="flex-row gap-2">
           <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2.5">
-            <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
               Runs today
             </Text>
-            <Text class="text-[15px] font-semibold text-foreground">42</Text>
+            <Text class="text-[16px] font-semibold tabular-nums text-foreground">42</Text>
           </View>
           <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2.5">
-            <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
               Success rate
             </Text>
-            <Text class="text-[15px] font-semibold text-success">98.6%</Text>
+            <Text class="text-[16px] font-semibold tabular-nums text-success">98.6%</Text>
           </View>
           <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2.5">
-            <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
               Time saved
             </Text>
-            <Text class="text-[15px] font-semibold text-foreground">3.4h</Text>
+            <Text class="text-[16px] font-semibold tabular-nums text-foreground">3.4h</Text>
           </View>
         </View>
-        <View class="gap-0.5 rounded-3xl border border-border bg-card shadow-md p-3">
-          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[8.5px] uppercase tracking-wide text-muted-foreground">
+        <View class="gap-0.5 rounded-xl border border-border bg-card shadow-md p-3">
+          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
             <Text class="flex-1">Rule / run</Text>
             <Text class="w-16 text-right">Status</Text>
             <Text class="w-14 text-right">Duration</Text>
@@ -212,8 +212,8 @@ function RunLogForm() {
                     style={{ backgroundColor: token(run().tone) }}
                   />
                   <View class="min-w-0 gap-0.5">
-                    <Text class="text-[9.5px] font-medium text-foreground">{run().name}</Text>
-                    <Text class="text-[8.5px] text-muted-foreground" style={{ numberOfLines: 1 }}>
+                    <Text class="text-[11px] font-medium text-foreground">{run().name}</Text>
+                    <Text class="text-[11px] text-muted-foreground" style={{ numberOfLines: 1 }}>
                       {run().detail}
                     </Text>
                   </View>
@@ -221,7 +221,7 @@ function RunLogForm() {
                 <View class="w-16 items-end">
                   <Badge variant={run().status === "success" ? "success" : "outline"}>
                     <Text
-                      class="text-[8px] font-medium"
+                      class="text-[11px] font-medium"
                       style={{
                         color: token(run().status === "success" ? "success" : "muted-foreground"),
                       }}
@@ -230,10 +230,10 @@ function RunLogForm() {
                     </Text>
                   </Badge>
                 </View>
-                <Text class="w-14 text-right text-[8.5px] text-muted-foreground">
+                <Text class="w-14 text-right text-[11px] text-muted-foreground">
                   {run().duration}
                 </Text>
-                <Text class="w-16 text-right text-[8.5px] text-muted-foreground">{run().time}</Text>
+                <Text class="w-16 text-right text-[11px] text-muted-foreground">{run().time}</Text>
               </View>
             )}
           </Each>

@@ -70,7 +70,7 @@ export const automationRules: AutomationRule[] = [
 export const recentRuns = [
   {
     name: "Unanswered lead recovery",
-    detail: "Reassigned Grace Wanjiku to Yasir Noori",
+    detail: "Reassigned Grace Chen to Priya Shah",
     time: "4m ago",
     tone: "chart-1" as const,
     status: "success",
@@ -86,7 +86,7 @@ export const recentRuns = [
   },
   {
     name: "Follow-up due",
-    detail: "Notified Moses Otieno",
+    detail: "Notified Sam Okafor",
     time: "42m ago",
     tone: "chart-3" as const,
     status: "success",
@@ -94,7 +94,7 @@ export const recentRuns = [
   },
   {
     name: "Opportunity inactivity",
-    detail: "Flagged Kijani Foods",
+    detail: "Flagged Verdant Foods",
     time: "1h ago",
     tone: "chart-4" as const,
     status: "skipped",

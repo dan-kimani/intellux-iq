@@ -1,3 +1,4 @@
+import { moneyText } from "../../lib/money";
 import { Text, token, View } from "nsh";
 import { Card, Icon, withAlpha } from "../../components/ui";
 import { useAfter } from "../../components/motion";
@@ -11,8 +12,8 @@ export function PipelineOverview() {
       <Card class="h-full min-w-0 flex-1 gap-3 p-3">
         <View class="flex-row items-center justify-between">
           <View class="gap-1">
-            <Text class="text-[13.5px] font-semibold text-foreground">Pipeline overview</Text>
-            <Text class="text-[10.5px] text-muted-foreground">
+            <Text class="text-[14px] font-semibold text-foreground">Pipeline overview</Text>
+            <Text class="text-[12px] text-muted-foreground">
               Opportunity flow for the selected period
             </Text>
           </View>
@@ -37,11 +38,13 @@ export function PipelineOverview() {
                       index() === 0 ? "skewX(6deg)" : index() === 4 ? "skewX(-6deg)" : "none",
                   }}
                 >
-                  <Text class="text-[10.5px] font-medium text-muted-foreground">
-                    {stage().label}
+                  <Text class="text-[12px] font-medium text-muted-foreground">{stage().label}</Text>
+                  <Text class="text-[16px] font-semibold tabular-nums text-foreground">
+                    {moneyText(stage().value)}
                   </Text>
-                  <Text class="text-[16px] font-semibold text-foreground">{stage().value}</Text>
-                  <Text class="text-[9.5px] text-muted-foreground">{stage().share}</Text>
+                  <Text class="text-[11px] tabular-nums text-muted-foreground">
+                    {stage().share}
+                  </Text>
                 </View>
               </View>
             )}
@@ -54,11 +57,15 @@ export function PipelineOverview() {
               <View class="flex-1 gap-0.5 border-l border-border pl-2.5 first:border-l-0 first:pl-0">
                 <View class="flex-row items-center gap-1">
                   <Icon name={metric().icon} size={10} tone="muted-foreground" />
-                  <Text class="text-[9.5px] text-muted-foreground">{metric().label}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{metric().label}</Text>
                 </View>
                 <View class="flex-row items-baseline gap-1.5">
-                  <Text class="text-[15px] font-semibold text-foreground">{metric().value}</Text>
-                  <Text class="text-[9.5px] font-medium text-success">{metric().delta}</Text>
+                  <Text class="text-[16px] font-semibold tabular-nums text-foreground">
+                    {moneyText(metric().value)}
+                  </Text>
+                  <Text class="text-[11px] font-medium tabular-nums text-success">
+                    {metric().delta}
+                  </Text>
                 </View>
               </View>
             )}

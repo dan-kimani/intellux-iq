@@ -1,9 +1,10 @@
 import { signal, Text, token, View } from "nsh";
 import { Avatar, Badge, Button, Card, Icon, SectionTitle, withAlpha } from "../components/ui";
-import { useAfter } from "../components/motion";
+import { AnimatedSwap, useAfter } from "../components/motion";
 import { SkeletonPanel } from "../components/skeletons";
 import { showToast } from "../state";
 import { PageActions, PageShell } from "./PageShell";
+import { currencySymbol } from "../lib/money";
 import { accessRows, devices, settingsTabs, type SettingsTab } from "./settings/data";
 import { DeviceLinkDialog } from "./settings/DeviceLinkDialog";
 import { SettingsDialogs } from "./settings/SettingsDialogs";
@@ -31,8 +32,13 @@ function WorkspacePanel() {
       <Card class="gap-3 p-4">
         <SectionTitle
           action={
-            <Button variant="ghost" size="sm" onPress={() => workspaceEditOpen.set(true)}>
-              <Text class="text-[9px] font-medium">Edit</Text>
+            <Button
+              variant="ghost"
+              size="sm"
+              testID="workspace-edit"
+              onPress={() => workspaceEditOpen.set(true)}
+            >
+              <Text class="text-[11px] font-medium">Edit</Text>
               <Icon name="chevronRight" size={10} tone="muted-foreground" />
             </Button>
           }
@@ -40,13 +46,15 @@ function WorkspacePanel() {
           Workspace
         </SectionTitle>
         <SettingRow title="Workspace name" detail="Shown on quotes and reports">
-          <Text class="text-[10.5px] text-foreground">{workspace().name}</Text>
+          <Text class="text-[12px] text-foreground">{workspace().name}</Text>
         </SettingRow>
-        <SettingRow title="Base currency" detail="Used for quotes and reports">
-          <Text class="text-[10.5px] text-foreground">{workspace().currency}</Text>
+        <SettingRow title="Base currency" detail="Drives every money value · cloud policy later">
+          <Text class="text-[12px] text-foreground">
+            {workspace().currency} · {currencySymbol()}
+          </Text>
         </SettingRow>
         <SettingRow title="Default timezone" detail="Business hours and follow-ups">
-          <Text class="text-[10.5px] text-foreground">{workspace().timezone}</Text>
+          <Text class="text-[12px] text-foreground">{workspace().timezone}</Text>
         </SettingRow>
         <SettingRow title="Weekly outcome digest" detail="Sent Monday at 08:00">
           <Toggle
@@ -69,7 +77,7 @@ function DevicesPanel() {
           action={
             <Button variant="outline" size="sm" onPress={() => deviceLinkOpen.set(true)}>
               <Icon name="plus" size={11} tone="muted-foreground" />
-              <Text class="text-[9px] font-medium">Link device</Text>
+              <Text class="text-[11px] font-medium">Link device</Text>
             </Button>
           }
         >
@@ -85,12 +93,12 @@ function DevicesPanel() {
                 <Icon name="panelRight" size={14} tone={device().tone} />
               </View>
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[10.5px] font-medium text-foreground">{device().name}</Text>
-                <Text class="text-[9px] text-muted-foreground">{device().platform}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{device().name}</Text>
+                <Text class="text-[11px] text-muted-foreground">{device().platform}</Text>
               </View>
               <Badge variant={device().status === "This device" ? "success" : "outline"}>
                 <Text
-                  class="text-[8px] font-medium"
+                  class="text-[11px] font-medium"
                   style={{
                     color:
                       device().status === "This device"
@@ -117,7 +125,7 @@ function AccessPanel() {
         <SectionTitle
           action={
             <Button variant="ghost" size="sm" onPress={() => accessSettingsOpen.set(true)}>
-              <Text class="text-[9px] font-medium">Manage access</Text>
+              <Text class="text-[11px] font-medium">Manage access</Text>
               <Icon name="chevronRight" size={10} tone="muted-foreground" />
             </Button>
           }
@@ -127,19 +135,12 @@ function AccessPanel() {
         <Each of={accessRows}>
           {(member: () => (typeof accessRows)[number]) => (
             <View class="flex-row items-center gap-2.5 border-t border-border pt-2.5 first:border-t-0 first:pt-0">
-              <Avatar
-                initials={member()
-                  .name.split(" ")
-                  .map((part) => part[0])
-                  .join("")}
-                tone={member().tone}
-                size={28}
-              />
+              <Avatar name={member().name} size={28} />
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[10.5px] font-medium text-foreground">{member().name}</Text>
-                <Text class="text-[9px] text-muted-foreground">{member().role}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{member().name}</Text>
+                <Text class="text-[11px] text-muted-foreground">{member().role}</Text>
               </View>
-              <Text class="text-[9px] text-muted-foreground">
+              <Text class="text-[11px] text-muted-foreground">
                 {member().devices} {member().devices === 1 ? "device" : "devices"}
               </Text>
             </View>
@@ -160,7 +161,7 @@ function IntelligencePanel() {
         <SectionTitle
           action={
             <Button variant="ghost" size="sm" onPress={() => thresholdsEditOpen.set(true)}>
-              <Text class="text-[9px] font-medium">Edit</Text>
+              <Text class="text-[11px] font-medium">Edit</Text>
               <Icon name="chevronRight" size={10} tone="muted-foreground" />
             </Button>
           }
@@ -168,13 +169,13 @@ function IntelligencePanel() {
           Intelligence thresholds
         </SectionTitle>
         <SettingRow title="Unanswered lead" detail="Escalate after the response SLA">
-          <Text class="text-[10.5px] text-foreground">{thresholds().responseSla}</Text>
+          <Text class="text-[12px] text-foreground">{thresholds().responseSla}</Text>
         </SettingRow>
         <SettingRow title="Silent customer" detail="Flag when there is no reply">
-          <Text class="text-[10.5px] text-foreground">{thresholds().silentCustomer}</Text>
+          <Text class="text-[12px] text-foreground">{thresholds().silentCustomer}</Text>
         </SettingRow>
         <SettingRow title="Opportunity inactivity" detail="Add a pipeline signal">
-          <Text class="text-[10.5px] text-foreground">{thresholds().opportunityInactivity}</Text>
+          <Text class="text-[12px] text-foreground">{thresholds().opportunityInactivity}</Text>
         </SettingRow>
         <SettingRow title="Automatic lead recovery" detail="Reassign to the next available rep">
           <Toggle
@@ -212,32 +213,38 @@ export function SettingsScreen() {
           <PageActions>
             <Button variant="outline" size="sm" onPress={() => showToast("Changes saved locally.")}>
               <Icon name="check" size={12} tone="success" />
-              <Text class="text-[10px] font-medium">Save changes</Text>
+              <Text class="text-[12px] font-medium">Save changes</Text>
             </Button>
           </PageActions>
         }
       >
         <View class="max-w-5xl gap-3">
-          <If when={tab() === "Workspace"}>
-            <WorkspacePanel />
-          </If>
-          <If when={tab() === "Devices"}>
-            <DevicesPanel />
-          </If>
-          <If when={tab() === "Access"}>
-            <AccessPanel />
-          </If>
-          <If when={tab() === "Intelligence"}>
-            <IntelligencePanel />
-          </If>
-          <If when={tab() === "Shortcuts"}>
-            <ShortcutsPanel />
-          </If>
-          <If when={tab() === "Security"}>
-            <SecurityPanel />
-          </If>
+          <AnimatedSwap swapKey={tab()} layout="stack">
+            {(key) => (
+              <>
+                <If when={key === "Workspace"}>
+                  <WorkspacePanel />
+                </If>
+                <If when={key === "Devices"}>
+                  <DevicesPanel />
+                </If>
+                <If when={key === "Access"}>
+                  <AccessPanel />
+                </If>
+                <If when={key === "Intelligence"}>
+                  <IntelligencePanel />
+                </If>
+                <If when={key === "Shortcuts"}>
+                  <ShortcutsPanel />
+                </If>
+                <If when={key === "Security"}>
+                  <SecurityPanel />
+                </If>
+              </>
+            )}
+          </AnimatedSwap>
           <Card class="gap-2 p-3.5">
-            <Text class="text-[9.5px] leading-3.5 text-muted-foreground">
+            <Text class="text-[11px] leading-3.5 text-muted-foreground">
               Workspace settings sync through the cloud. Keyboard shortcuts stay on this device.
             </Text>
           </Card>

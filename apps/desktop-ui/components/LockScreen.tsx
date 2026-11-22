@@ -11,17 +11,17 @@ export function LockScreen() {
         <View class="w-96 gap-4 rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <View class="items-center gap-2">
             <Logo size={42} />
-            <Text class="text-[19px] font-semibold tracking-tight text-foreground">IntelluxIQ</Text>
-            <Text class="text-[9px] font-medium tracking-widest text-muted-foreground">
+            <Text class="text-[20px] font-semibold text-foreground">IntelluxIQ</Text>
+            <Text class="text-[11px] font-medium tracking-wider text-muted-foreground">
               SALES INTELLIGENCE
             </Text>
           </View>
           <View class="items-center gap-1 border-y border-border py-3">
-            <Text class="text-[12px] font-medium text-foreground">Desktop locked</Text>
-            <Text class="text-[9px] text-muted-foreground">Acme Trading Ltd · David Mwangi</Text>
+            <Text class="text-[13px] font-medium text-foreground">Desktop locked</Text>
+            <Text class="text-[11px] text-muted-foreground">Acme Trading Inc. · Alex Morgan</Text>
           </View>
           <View class="gap-1.5">
-            <Text class="text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Unlock password
             </Text>
             <NativeInput
@@ -38,7 +38,7 @@ export function LockScreen() {
                 backgroundColor: token("panel"),
                 paddingLeft: 10,
                 paddingRight: 10,
-                fontSize: 12,
+                fontSize: 13,
                 color: token("foreground"),
                 placeholderColor: token("muted-foreground"),
               }}
@@ -56,9 +56,9 @@ export function LockScreen() {
             testID="unlock-desktop"
           >
             <Icon name="shieldCheck" size={13} tone="primary-foreground" />
-            <Text class="text-[11px] font-semibold text-primary-foreground">Unlock desktop</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Unlock desktop</Text>
           </Button>
-          <Text class="text-center text-[8.5px] leading-3.5 text-muted-foreground">
+          <Text class="text-center text-[11px] leading-3.5 text-muted-foreground">
             Local cache stays encrypted while locked. Unlock works offline inside the refresh lease.
           </Text>
         </View>

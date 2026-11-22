@@ -18,7 +18,7 @@ export function PeriodTabs() {
             hoverStyle={{ backgroundColor: token("accent") }}
           >
             <Text
-              class="text-[9.5px] font-medium"
+              class="text-[11px] font-medium"
               style={{
                 color:
                   analyticsPeriod() === item()
