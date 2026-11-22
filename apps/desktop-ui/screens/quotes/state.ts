@@ -14,6 +14,7 @@ export interface QuotePrefill {
 
 export const quoteCustomerPrefill = signal<QuotePrefill | null>(null);
 export const quotePdf = signal<QuoteRow | null>(null);
+export const quotePreview = signal<QuoteRow | null>(null);
 
 export const quoteAcceptance = signal<Record<string, QuoteAcceptance>>({});
 
@@ -50,6 +51,7 @@ function patchQuote(id: string, patch: Partial<QuoteRow>): QuoteRow | null {
   quoteRows.set(quoteRows().map((row) => (row.id === id ? updated : row)));
   if (quoteDetail()?.id === id) quoteDetail.set(updated);
   if (quotePdf()?.id === id) quotePdf.set(updated);
+  if (quotePreview()?.id === id) quotePreview.set(updated);
   return updated;
 }
 
@@ -61,6 +63,10 @@ export function openQuote(quote: QuoteRow): void {
 export function previewQuotePdf(quote: QuoteRow): void {
   quoteDetail.set(quote);
   quotePdf.set(quote);
+}
+
+export function previewQuote(quote: QuoteRow): void {
+  quotePreview.set(quote);
 }
 
 export function markQuoteSent(id: string): void {
@@ -108,6 +114,6 @@ export function recordAcceptance(quote: QuoteRow, reference: string, note: strin
   );
   quoteAcceptance.set({
     ...quoteAcceptance(),
-    [quote.id]: { reference, note, by: "David Mwangi", at: "Just now" },
+    [quote.id]: { reference, note, by: "Alex Morgan", at: "Just now" },
   });
 }

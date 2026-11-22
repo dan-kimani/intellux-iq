@@ -1,3 +1,4 @@
+import { currencySymbol } from "../../lib/money";
 import { signal, Text, View } from "nsh";
 import { AppDialog, DialogActions, FormGrid, ModalNotice } from "../../components/overlay";
 import { ChoiceCards, SelectField, TextField } from "../../components/forms";
@@ -26,13 +27,13 @@ function NewProductForm() {
       sku: sku().trim(),
       name: name().trim(),
       category: category(),
-      price: price().trim() || "KES 0",
+      price: price().trim() || `${currencySymbol()}0`,
       stock: Number.parseInt(stock(), 10) || 0,
       status:
         visibility() === "Draft" ? "draft" : Number.parseInt(stock(), 10) > 0 ? "active" : "draft",
       tone: "chart-2",
       description: "Created from the desktop catalog.",
-      cost: "KES 0",
+      cost: `${currencySymbol()}0`,
       margin: "—",
       reorderAt: 10,
       variants: ["Standard"],
@@ -56,11 +57,11 @@ function NewProductForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeNew}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={save} testID="create-product">
             <Icon name="plus" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create product</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create product</Text>
           </Button>
         </DialogActions>
       }
@@ -91,7 +92,7 @@ function NewProductForm() {
             label="Price"
             value={price}
             onChange={price.set}
-            placeholder="KES 12,500"
+            placeholder={`${currencySymbol()}12,500`}
             testID="product-price"
           />
           <TextField label="Opening stock" value={stock} onChange={stock.set} placeholder="0" />
@@ -129,7 +130,7 @@ function ImportForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeImport}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -141,7 +142,7 @@ function ImportForm() {
             testID="confirm-catalog-import"
           >
             <Icon name="download" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Import catalog</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Import catalog</Text>
           </Button>
         </DialogActions>
       }
@@ -163,14 +164,14 @@ function ImportForm() {
           ]}
           onChange={source.set}
         />
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Preview</SectionTitle>
           <View class="flex-row items-center gap-2">
             <Icon name="package" size={12} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium text-foreground">12 products · 3 categories</Text>
-            <Text class="text-[9px] text-muted-foreground">from supplier-nov.csv</Text>
+            <Text class="text-[12px] font-medium text-foreground">12 products · 3 categories</Text>
+            <Text class="text-[11px] text-muted-foreground">from supplier-nov.csv</Text>
           </View>
-          <Text class="text-[9px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             Duplicate SKUs update existing records; new SKUs are added as drafts.
           </Text>
         </View>

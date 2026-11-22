@@ -1,9 +1,9 @@
 import { effect, Text, token, View } from "nsh";
 import { ActionMenu } from "../components/ActionMenu";
+import { AnimatedSwap, ScreenFade } from "../components/motion";
 import { SectionTabs, type SectionTabItem } from "../components/SectionTabs";
 import { Button, Icon } from "../components/ui";
 import type { QuoteRow } from "./quotes/data";
-import { QuoteDialogs } from "./quotes/QuoteDialogs";
 import {
   quoteBuilderOpen,
   quoteCustomerPrefill,
@@ -48,7 +48,7 @@ function QuoteHeaderActions() {
             focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
           >
             <Icon name="fileText" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium text-foreground">Templates</Text>
+            <Text class="text-[12px] font-medium text-foreground">Templates</Text>
             <Icon name="chevronDown" size={9} tone="muted-foreground" />
           </View>
         }
@@ -97,7 +97,7 @@ function QuoteHeaderActions() {
         }}
       >
         <Icon name="plus" size={11} tone="primary-foreground" />
-        <Text class="text-[10px] font-semibold text-primary-foreground">New quote</Text>
+        <Text class="text-[12px] font-semibold text-primary-foreground">New quote</Text>
       </Button>
     </PageActions>
   );
@@ -113,47 +113,52 @@ export function QuotesScreen() {
 
   return (
     <View class="min-h-0 flex-1 flex-col bg-background">
-      <PageHeader
-        title="Quotes & Proposals"
-        description="Draft, approve, send, and track customer quotations."
-        actions={<QuoteHeaderActions />}
-      />
-      <View class="shrink-0 border-b border-border px-6 py-2.5">
-        <SectionTabs
-          items={quoteTabs()}
-          value={quoteTab()}
-          onChange={(id) => {
-            quotePdf.set(null);
-            quoteTab.set(id as QuoteTab);
-          }}
-          accessibilityLabel="Quote views"
-          testPrefix="tab-quotes"
+      <ScreenFade class="min-h-0 flex-1 flex-col">
+        <PageHeader
+          title="Quotes & Proposals"
+          description="Draft, approve, send, and track customer quotations."
+          actions={<QuoteHeaderActions />}
         />
-      </View>
-      <View class="min-h-0 flex-1 flex-row overflow-hidden">
-        <QuoteMiniList />
-        <View class="min-w-0 flex-1">
-          <If when={quotePdf()}>
-            <Each of={visibleQuoteRows()}>
-              {(quote: () => QuoteRow) => (
-                <If when={quotePdf()?.id === quote().id}>
-                  <QuotePdfPage quote={quote()} />
-                </If>
-              )}
-            </Each>
-          </If>
-          <If when={!quotePdf()}>
-            <Each of={visibleQuoteRows()}>
-              {(quote: () => QuoteRow) => (
-                <If when={quoteDetail()?.id === quote().id}>
-                  <QuoteDetailPage quote={quote()} />
-                </If>
-              )}
-            </Each>
-          </If>
+        <View class="shrink-0 border-b border-border px-6 py-2.5">
+          <SectionTabs
+            items={quoteTabs()}
+            value={quoteTab()}
+            onChange={(id) => {
+              quotePdf.set(null);
+              quoteTab.set(id as QuoteTab);
+            }}
+            accessibilityLabel="Quote views"
+            testPrefix="tab-quotes"
+          />
         </View>
-      </View>
-      <QuoteDialogs />
+        <AnimatedSwap swapKey={quoteTab()} class="relative min-h-0 flex-1 flex-row">
+          {() => (
+            <View class="h-full w-full min-h-0 flex-row overflow-hidden">
+              <QuoteMiniList />
+              <View class="min-w-0 flex-1">
+                <If when={quotePdf()}>
+                  <Each of={visibleQuoteRows()}>
+                    {(quote: () => QuoteRow) => (
+                      <If when={quotePdf()?.id === quote().id}>
+                        <QuotePdfPage quote={quote()} />
+                      </If>
+                    )}
+                  </Each>
+                </If>
+                <If when={!quotePdf()}>
+                  <Each of={visibleQuoteRows()}>
+                    {(quote: () => QuoteRow) => (
+                      <If when={quoteDetail()?.id === quote().id}>
+                        <QuoteDetailPage quote={quote()} />
+                      </If>
+                    )}
+                  </Each>
+                </If>
+              </View>
+            </View>
+          )}
+        </AnimatedSwap>
+      </ScreenFade>
     </View>
   );
 }

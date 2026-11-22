@@ -1,3 +1,4 @@
+import { moneyText } from "../../lib/money";
 import { signal, Text, token, View } from "nsh";
 import { AppDialog, DialogActions, FormRow, ModalNotice } from "../../components/overlay";
 import { TextField } from "../../components/forms";
@@ -19,7 +20,7 @@ const closeDispatch = () => productDispatch.set(null);
 function DispatchForm(props: { product: Product }) {
   const selected = signal(allConversations()[0]?.id ?? "");
   const caption = signal(
-    `Sharing ${props.product.name} (${props.product.sku}) — ${props.product.price}.`,
+    `Sharing ${props.product.name} (${props.product.sku}) — ${moneyText(props.product.price)}.`,
   );
   return (
     <AppDialog
@@ -32,7 +33,7 @@ function DispatchForm(props: { product: Product }) {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeDispatch}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -47,7 +48,7 @@ function DispatchForm(props: { product: Product }) {
             testID="confirm-dispatch"
           >
             <Icon name="send" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Send media</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Send media</Text>
           </Button>
         </DialogActions>
       }
@@ -58,15 +59,16 @@ function DispatchForm(props: { product: Product }) {
             <Icon name="package" size={14} tone="highlight" />
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[10px] font-medium text-foreground">{props.product.name}</Text>
-            <Text class="text-[9px] text-muted-foreground">
-              {props.product.sku} · {props.product.price} · {props.product.media} cached images
+            <Text class="text-[12px] font-medium text-foreground">{props.product.name}</Text>
+            <Text class="text-[11px] text-muted-foreground">
+              {props.product.sku} · {moneyText(props.product.price)} · {props.product.media} cached
+              images
             </Text>
           </View>
           <Icon name="check" size={11} tone="success" />
         </View>
         <View class="gap-1.5">
-          <Text class="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+          <Text class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             Conversation
           </Text>
           <View class="gap-1">
@@ -85,17 +87,15 @@ function DispatchForm(props: { product: Product }) {
                   hoverStyle={{ backgroundColor: token("accent") }}
                 >
                   <Avatar
-                    photo={conversation().photo}
-                    initials={conversation().initials}
-                    tone={conversation().tone}
+                    name={conversation().name}
                     size={24}
                     online={conversation().presence !== "offline"}
                   />
                   <View class="min-w-0 flex-1 gap-0.5">
-                    <Text class="text-[9.5px] font-medium text-foreground">
+                    <Text class="text-[11px] font-medium text-foreground">
                       {conversation().name}
                     </Text>
-                    <Text class="text-[8px] text-muted-foreground">
+                    <Text class="text-[11px] text-muted-foreground">
                       {conversation().company} ·{" "}
                       {conversation().channel === "whatsapp" ? "WhatsApp" : "Email"}
                     </Text>
@@ -118,7 +118,7 @@ function DispatchForm(props: { product: Product }) {
         </View>
         <TextField label="Caption" value={caption} onChange={caption.set} />
         <FormRow>
-          <Text class="text-[8.5px] leading-3 text-muted-foreground">
+          <Text class="text-[11px] leading-3 text-muted-foreground">
             The cached preview is sent as catalog media. WhatsApp limits and variants are
             revalidated in the cloud.
           </Text>

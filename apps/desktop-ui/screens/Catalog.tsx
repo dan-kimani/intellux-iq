@@ -1,21 +1,22 @@
 import { signal, Text, token, View } from "nsh";
 import { Input as NativeInput } from "nsh/base";
-import { Badge, Button, Card, Icon, SectionTitle, withAlpha } from "../components/ui";
-import { useAfter } from "../components/motion";
+import { Button, Card, Icon, SectionTitle } from "../components/ui";
+import { AnimatedSwap, useAfter } from "../components/motion";
 import { Skeleton, SkeletonMetric } from "../components/skeletons";
 import { ProductDialog } from "./catalog/ProductDetail";
+import { ProductCard } from "./catalog/ProductCard";
 import { ProductDialogs } from "./catalog/ProductDialogs";
 import {
   catalogImportOpen,
   catalogLowStock,
   catalogTabItems,
   newProductOpen,
-  productDetail,
   productRows,
 } from "./catalog/state";
 import { SectionTabs } from "../components/SectionTabs";
 import { PageActions, PageShell } from "./PageShell";
 import { categories, catalogMetrics, products } from "./catalog/data";
+import { moneyText } from "../lib/money";
 
 function CatalogMetrics() {
   const ready = useAfter(150);
@@ -35,73 +36,21 @@ function CatalogMetrics() {
           {(item: () => (typeof catalogMetrics)[number]) => (
             <Card class="gap-2 p-3.5">
               <View class="flex-row items-center justify-between">
-                <Text class="text-[10.5px] text-muted-foreground">{item().label}</Text>
+                <Text class="text-[12px] text-muted-foreground">{item().label}</Text>
                 <View
                   class="h-2 w-2 rounded-full"
                   style={{ backgroundColor: token(item().tone) }}
                 />
               </View>
-              <Text class="text-[22px] font-semibold tracking-tight text-foreground">
-                {item().value}
+              <Text class="text-[22px] font-semibold tabular-nums text-foreground">
+                {moneyText(item().value)}
               </Text>
-              <Text class="text-[10.5px] text-muted-foreground">{item().note}</Text>
+              <Text class="text-[12px] text-muted-foreground">{item().note}</Text>
             </Card>
           )}
         </Each>
       </View>
     </If>
-  );
-}
-
-function ProductCard(props: { product: (typeof products)[number] }) {
-  return (
-    <View
-      role="button"
-      accessibilityLabel={`Open ${props.product.name}`}
-      onPress={() => productDetail.set(props.product)}
-      class="flex-1 gap-2.5 rounded-3xl border border-border bg-card shadow-md p-3.5 transition-colors"
-      hoverStyle={{ backgroundColor: token("accent"), borderColor: token("ring") }}
-      focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 2 }}
-    >
-      <View
-        class="h-16 items-center justify-center rounded-lg"
-        style={{ backgroundColor: withAlpha(token(props.product.tone), "20") }}
-      >
-        <Icon name="package" size={22} tone={props.product.tone} />
-      </View>
-      <View class="flex-row items-center justify-between gap-2">
-        <Text class="text-[12px] font-medium text-foreground">{props.product.name}</Text>
-        <Badge
-          variant={
-            props.product.status === "active"
-              ? "success"
-              : props.product.status === "low"
-                ? "warning"
-                : "outline"
-          }
-        >
-          <Text
-            class="text-[9px] font-medium capitalize"
-            style={{
-              color: token(
-                props.product.status === "active"
-                  ? "success"
-                  : props.product.status === "low"
-                    ? "warning"
-                    : "muted-foreground",
-              ),
-            }}
-          >
-            {props.product.status}
-          </Text>
-        </Badge>
-      </View>
-      <Text class="font-mono text-[9.5px] text-muted-foreground">{props.product.sku}</Text>
-      <View class="flex-row items-center justify-between border-t border-border pt-2">
-        <Text class="text-[12px] font-semibold text-foreground">{props.product.price}</Text>
-        <Text class="text-[10.5px] text-muted-foreground">{props.product.stock} in stock</Text>
-      </View>
-    </View>
   );
 }
 
@@ -135,7 +84,7 @@ function CatalogGrid() {
               }}
             >
               <Text
-                class="text-[10.5px] font-medium"
+                class="text-[12px] font-medium"
                 style={{
                   color:
                     category() === item() ? token("accent-foreground") : token("muted-foreground"),
@@ -158,7 +107,7 @@ function CatalogGrid() {
               height: 24,
               paddingLeft: 0,
               paddingRight: 0,
-              fontSize: 9.5,
+              fontSize: 12,
               color: token("foreground"),
               placeholderColor: token("muted-foreground"),
               backgroundColor: "transparent",
@@ -166,7 +115,7 @@ function CatalogGrid() {
             }}
           />
         </View>
-        <Text class="text-[10.5px] text-muted-foreground">{filtered().length} products</Text>
+        <Text class="text-[12px] text-muted-foreground">{filtered().length} products</Text>
       </View>
       <If
         when={ready()}
@@ -217,26 +166,26 @@ function CatalogSide() {
                   <Icon name="package" size={12} tone="muted-foreground" />
                 </View>
                 <View class="min-w-0 flex-1 gap-0.5">
-                  <Text class="text-[10px] font-medium text-foreground">{product().name}</Text>
-                  <Text class="text-[8.5px] text-muted-foreground">
+                  <Text class="text-[12px] font-medium text-foreground">{product().name}</Text>
+                  <Text class="text-[11px] text-muted-foreground">
                     {product().stock} units left
                   </Text>
                 </View>
-                <Text class="text-[8.5px] font-medium text-warning">Restock</Text>
+                <Text class="text-[11px] font-medium text-warning">Restock</Text>
               </View>
             )}
           </Each>
         </Card>
         <Card class="gap-2.5 p-4">
           <SectionTitle>Media sync</SectionTitle>
-          <Text class="text-[12px] font-medium text-foreground">All product media is cached</Text>
-          <Text class="text-[9.5px] leading-3.5 text-muted-foreground">
+          <Text class="text-[13px] font-medium text-foreground">All product media is cached</Text>
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             Images are downloaded on demand; thumbnails are local.
           </Text>
           <View class="h-1.5 overflow-hidden rounded-full bg-muted">
             <View class="h-full rounded-full bg-success" style={{ width: "96%" }} />
           </View>
-          <Text class="text-[8.5px] text-muted-foreground">96% of 86 products ready</Text>
+          <Text class="text-[11px] text-muted-foreground">96% of 86 products ready</Text>
         </Card>
       </If>
     </View>
@@ -263,20 +212,26 @@ export function CatalogScreen() {
           <PageActions>
             <Button variant="outline" size="sm" onPress={() => catalogImportOpen.set(true)}>
               <Icon name="download" size={12} tone="muted-foreground" />
-              <Text class="text-[10px] font-medium">Import</Text>
+              <Text class="text-[12px] font-medium">Import</Text>
             </Button>
             <Button variant="primary" size="sm" onPress={() => newProductOpen.set(true)}>
               <Icon name="plus" size={12} tone="primary-foreground" />
-              <Text class="text-[10px] font-semibold text-primary-foreground">New product</Text>
+              <Text class="text-[12px] font-semibold text-primary-foreground">New product</Text>
             </Button>
           </PageActions>
         }
       >
-        <CatalogMetrics />
-        <View class="flex-row gap-3">
-          <CatalogGrid />
-          <CatalogSide />
-        </View>
+        <AnimatedSwap swapKey={catalogLowStock() ? "low" : "all"} layout="stack">
+          {() => (
+            <View class="gap-5">
+              <CatalogMetrics />
+              <View class="flex-row gap-3">
+                <CatalogGrid />
+                <CatalogSide />
+              </View>
+            </View>
+          )}
+        </AnimatedSwap>
       </PageShell>
       <ProductDialog />
       <ProductDialogs />

@@ -23,7 +23,7 @@ export function QuoteAcceptanceDialog(props: { quote: QuoteRow; onClose: () => v
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={props.onClose}>
-            <Text class="text-[12px] font-medium">Cancel</Text>
+            <Text class="text-[13px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -36,7 +36,7 @@ export function QuoteAcceptanceDialog(props: { quote: QuoteRow; onClose: () => v
             }}
           >
             <Icon name="check" size={12} tone="primary-foreground" />
-            <Text class="text-[12px] font-semibold text-primary-foreground">Record acceptance</Text>
+            <Text class="text-[13px] font-semibold text-primary-foreground">Record acceptance</Text>
           </Button>
         </DialogActions>
       }
@@ -79,17 +79,17 @@ export function QuoteAcceptanceDialog(props: { quote: QuoteRow; onClose: () => v
             </If>
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[12px] font-medium text-foreground">
+            <Text class="text-[13px] font-medium text-foreground">
               I confirm the customer accepted this quotation
             </Text>
-            <Text class="text-[11px] leading-4 text-muted-foreground">
+            <Text class="text-[12px] leading-4 text-muted-foreground">
               This records a deliberate internal acceptance with an audit trail. It does not mark
               the opportunity won automatically.
             </Text>
           </View>
         </View>
         <FormRow>
-          <Text class="text-[11px] text-muted-foreground">
+          <Text class="text-[12px] text-muted-foreground">
             Accepted totals remain locked. The opportunity owner or manager can still update the
             deal stage separately.
           </Text>

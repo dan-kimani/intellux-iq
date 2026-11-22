@@ -1,3 +1,4 @@
+import { moneyText } from "../../lib/money";
 import { Text, token, View } from "nsh";
 import { AppDialog, DialogActions, ModalNotice } from "../../components/overlay";
 import { Badge, Button, Icon, SectionTitle, withAlpha } from "../../components/ui";
@@ -6,6 +7,8 @@ import { productDispatch } from "./state";
 import { DispatchDialog } from "./DispatchDialog";
 import type { Product } from "./data";
 import { productDetail, productRows } from "./state";
+import { productLink } from "../work/links";
+import { WorkSection } from "../work/WorkSection";
 
 const closeProduct = () => productDetail.set(null);
 
@@ -22,7 +25,7 @@ function changeStock(product: Product) {
 function Metric(props: { label: string; value: string }) {
   return (
     <View class="flex-1 gap-0.5 rounded-lg border border-border bg-panel p-2.5">
-      <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">{props.label}</Text>
+      <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">{props.label}</Text>
       <Text class="text-[14px] font-semibold text-foreground">{props.value}</Text>
     </View>
   );
@@ -42,7 +45,7 @@ function ProductDetailDialog(props: { product: Product }) {
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={() => showToast("Product editor opened.")}>
             <Icon name="settings" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Edit product</Text>
+            <Text class="text-[12px] font-medium">Edit product</Text>
           </Button>
           <Button
             variant="outline"
@@ -53,7 +56,7 @@ function ProductDetailDialog(props: { product: Product }) {
             }}
           >
             <Icon name="send" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Send to conversation</Text>
+            <Text class="text-[12px] font-medium">Send to conversation</Text>
           </Button>
           <Button
             variant="outline"
@@ -64,16 +67,17 @@ function ProductDetailDialog(props: { product: Product }) {
             }}
           >
             <Icon name="fileText" size={11} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Add to quote</Text>
+            <Text class="text-[12px] font-medium">Add to quote</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={() => changeStock(product)}>
             <Icon name="package" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Restock +25</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Restock +25</Text>
           </Button>
         </DialogActions>
       }
     >
       <View class="gap-4">
+        <WorkSection link={productLink(product)} title="Product work" limit={3} />
         <View class="flex-row items-center gap-3">
           <View
             class="h-16 w-16 items-center justify-center rounded-xl"
@@ -82,9 +86,11 @@ function ProductDetailDialog(props: { product: Product }) {
             <Icon name="package" size={24} tone={product.tone} />
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[10px] text-muted-foreground">{product.description}</Text>
-            <Text class="text-[18px] font-semibold text-foreground">{product.price}</Text>
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[12px] text-muted-foreground">{product.description}</Text>
+            <Text class="text-[18px] font-semibold tabular-nums text-foreground">
+              {moneyText(product.price)}
+            </Text>
+            <Text class="text-[11px] text-muted-foreground">
               Supplier: {product.supplier} · Updated {product.updated}
             </Text>
           </View>
@@ -98,7 +104,7 @@ function ProductDetailDialog(props: { product: Product }) {
             }
           >
             <Text
-              class="text-[8.5px] font-medium capitalize"
+              class="text-[11px] font-medium capitalize"
               style={{
                 color: token(
                   product.status === "active"
@@ -127,9 +133,7 @@ function ProductDetailDialog(props: { product: Product }) {
             )}
           </Each>
           <View class="w-20 items-center justify-center rounded-lg border border-border bg-panel">
-            <Text class="text-[8.5px] font-medium text-muted-foreground">
-              {product.media} media
-            </Text>
+            <Text class="text-[11px] font-medium text-muted-foreground">{product.media} media</Text>
           </View>
         </View>
         <View class="flex-row gap-2">
@@ -139,31 +143,31 @@ function ProductDetailDialog(props: { product: Product }) {
           <Metric label="Margin" value={product.margin} />
         </View>
         <View class="grid grid-cols-2 gap-3">
-          <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+          <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
             <SectionTitle>Variants</SectionTitle>
             <View class="flex-row flex-wrap gap-1.5">
               <Each of={product.variants}>
                 {(variant: () => string) => (
                   <View class="h-6 items-center justify-center rounded-md bg-muted px-2">
-                    <Text class="text-[8.5px] font-medium text-foreground">{variant()}</Text>
+                    <Text class="text-[11px] font-medium text-foreground">{variant()}</Text>
                   </View>
                 )}
               </Each>
             </View>
-            <Text class="text-[9px] text-muted-foreground">
+            <Text class="text-[11px] text-muted-foreground">
               Variants generated on demand from the catalog.
             </Text>
           </View>
-          <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+          <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
             <SectionTitle>Media & identity</SectionTitle>
-            <Text class="text-[9.5px] text-muted-foreground">
+            <Text class="text-[11px] text-muted-foreground">
               {product.media} images cached · thumbnails local
             </Text>
-            <Text class="text-[9.5px] text-muted-foreground">Barcode {product.barcode}</Text>
-            <Text class="text-[9.5px] text-muted-foreground">SKU {product.sku}</Text>
+            <Text class="text-[11px] text-muted-foreground">Barcode {product.barcode}</Text>
+            <Text class="text-[11px] text-muted-foreground">SKU {product.sku}</Text>
           </View>
         </View>
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Stock movement</SectionTitle>
           <View class="flex-row items-end gap-1" style={{ height: 42 }}>
             <Each of={[14, 18, 16, 24, 20, 28, 34, 30, 38, 42]}>
@@ -179,7 +183,7 @@ function ProductDetailDialog(props: { product: Product }) {
               )}
             </Each>
           </View>
-          <Text class="text-[9px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             Fulfilment and restock events are synced from the cloud.
           </Text>
         </View>

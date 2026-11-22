@@ -14,10 +14,10 @@ export function QuoteMiniList() {
       testID="quote-mini-list"
     >
       <View class="shrink-0 flex-row items-center justify-between border-b border-border px-3 py-2.5">
-        <Text class="text-[11px] font-medium text-muted-foreground">
+        <Text class="text-[12px] font-medium text-muted-foreground">
           {visibleQuoteRows().length} quotes
         </Text>
-        <Text class="text-[10px] text-muted-foreground">Newest first</Text>
+        <Text class="text-[12px] text-muted-foreground">Newest first</Text>
       </View>
       <Scroll class="min-h-0 flex-1 px-2 py-2" scrollbar={false}>
         <Each of={visibleQuoteRows()}>
@@ -47,7 +47,7 @@ export function QuoteMiniList() {
                   }}
                 >
                   <View class="flex-row items-center justify-between gap-1">
-                    <Text class="text-[11px] font-semibold text-foreground">
+                    <Text class="text-[12px] font-semibold text-foreground">
                       {quote().customer}
                     </Text>
                     <View
@@ -63,10 +63,16 @@ export function QuoteMiniList() {
                       }}
                     />
                   </View>
-                  <Text class="text-[9px] font-mono text-muted-foreground">{quote().id}</Text>
+                  <Text class="text-[11px] font-mono tabular-nums text-muted-foreground">
+                    {quote().id}
+                  </Text>
                   <View class="flex-row items-center justify-between gap-1">
-                    <Text class="text-[11px] font-semibold text-foreground">{quote().value}</Text>
-                    <Text class="text-[9.5px] text-muted-foreground">{quote().validUntil}</Text>
+                    <Text class="text-[12px] font-semibold tabular-nums text-foreground">
+                      {quote().value}
+                    </Text>
+                    <Text class="text-[11px] tabular-nums text-muted-foreground">
+                      {quote().validUntil}
+                    </Text>
                   </View>
                 </View>
               }
@@ -75,7 +81,7 @@ export function QuoteMiniList() {
         </Each>
       </Scroll>
       <View class="border-t border-border px-3 py-2">
-        <Text class="text-[9.5px] text-muted-foreground">Right-click for actions</Text>
+        <Text class="text-[11px] text-muted-foreground">Right-click for actions</Text>
       </View>
     </View>
   );

@@ -5,6 +5,8 @@ import { Badge, Button, Icon, SectionTitle } from "../../components/ui";
 import { showToast } from "../../state";
 import type { QuoteRow } from "./data";
 import { quoteBuilderOpen, quoteCustomerPrefill, quoteDetail, quotePdf, quoteRows } from "./state";
+import { linkQuoteToOpportunity } from "../opportunities/quotes";
+import { currencySymbol } from "../../lib/money";
 import { Row } from "./QuoteTotalsRow";
 
 function closeBuilder() {
@@ -26,7 +28,7 @@ const initialLines: Line[] = [
 ];
 
 function formatMinor(value: number): string {
-  return `KES ${Math.round(value / 100).toLocaleString("en-KE")}`;
+  return `${currencySymbol()}${Math.round(value / 100).toLocaleString("en-US")}`;
 }
 
 function subtotal(lines: Line[]): number {
@@ -66,7 +68,7 @@ export function QuoteBuilderDialog() {
       customer: customer().trim(),
       opportunity: opportunity().trim() || "Unlinked opportunity",
       value: formatMinor(total()),
-      owner: "David Mwangi",
+      owner: "Alex Morgan",
       validUntil:
         validity() === "7 days" ? "24 Nov" : validity() === "30 days" ? "17 Dec" : "22 Nov",
       status: "draft",
@@ -90,6 +92,7 @@ export function QuoteBuilderDialog() {
       approvalStatus: discount() > 10 ? "pending" : "not_required",
     };
     quoteRows.set([row, ...quoteRows()]);
+    linkQuoteToOpportunity(row);
     quotePdf.set(null);
     quoteDetail.set(row);
     closeBuilder();
@@ -106,14 +109,14 @@ export function QuoteBuilderDialog() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={closeBuilder}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="outline" size="sm" onPress={() => showToast("Draft saved locally.")}>
-            <Text class="text-[10px] font-medium">Save draft</Text>
+            <Text class="text-[12px] font-medium">Save draft</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={create} testID="create-quote">
             <Icon name="fileText" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create quote</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create quote</Text>
           </Button>
         </DialogActions>
       }
@@ -124,14 +127,14 @@ export function QuoteBuilderDialog() {
             label="Customer"
             value={customer}
             onChange={customer.set}
-            placeholder="ABC Enterprises"
+            placeholder="Atlas Enterprises"
             testID="quote-customer"
           />
           <TextField
             label="Opportunity"
             value={opportunity}
             onChange={opportunity.set}
-            placeholder="Acme Kenya — Q4 packaging"
+            placeholder="Acme Inc. — Q4 packaging"
             testID="quote-opportunity"
           />
           <SelectField
@@ -147,11 +150,13 @@ export function QuoteBuilderDialog() {
             onChange={template.set}
           />
         </FormGrid>
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
-          <SectionTitle action={<Text class="text-[9px] font-medium text-highlight">Catalog</Text>}>
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
+          <SectionTitle
+            action={<Text class="text-[11px] font-medium text-highlight">Catalog</Text>}
+          >
             Line items
           </SectionTitle>
-          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[8px] uppercase tracking-wide text-muted-foreground">
+          <View class="flex-row items-center gap-2 border-b border-border pb-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
             <Text class="flex-1">Product</Text>
             <Text class="w-20 text-center">Qty</Text>
             <Text class="w-24 text-right">Unit</Text>
@@ -162,8 +167,8 @@ export function QuoteBuilderDialog() {
             {(line: () => Line) => (
               <View class="flex-row items-center gap-2 border-b border-border py-1.5 last:border-b-0">
                 <View class="min-w-0 flex-1 gap-0.5">
-                  <Text class="text-[9.5px] font-medium text-foreground">{line().name}</Text>
-                  <Text class="text-[8px] text-muted-foreground">{line().sku}</Text>
+                  <Text class="text-[11px] font-medium text-foreground">{line().name}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{line().sku}</Text>
                 </View>
                 <View class="w-20 flex-row items-center justify-center gap-1">
                   <View
@@ -172,9 +177,9 @@ export function QuoteBuilderDialog() {
                     onPress={() => updateQty(line().id, -1)}
                     class="h-5 w-5 items-center justify-center rounded border border-border"
                   >
-                    <Text class="text-[10px] text-foreground">−</Text>
+                    <Text class="text-[12px] text-foreground">−</Text>
                   </View>
-                  <Text class="w-6 text-center text-[9px] font-medium text-foreground">
+                  <Text class="w-6 text-center text-[11px] font-medium text-foreground">
                     {line().qty}
                   </Text>
                   <View
@@ -183,13 +188,13 @@ export function QuoteBuilderDialog() {
                     onPress={() => updateQty(line().id, 1)}
                     class="h-5 w-5 items-center justify-center rounded border border-border"
                   >
-                    <Text class="text-[10px] text-foreground">+</Text>
+                    <Text class="text-[12px] text-foreground">+</Text>
                   </View>
                 </View>
-                <Text class="w-24 text-right text-[8.5px] text-muted-foreground">
+                <Text class="w-24 text-right text-[11px] text-muted-foreground">
                   {formatMinor(line().unit)}
                 </Text>
-                <Text class="w-24 text-right text-[9px] font-semibold text-foreground">
+                <Text class="w-24 text-right text-[11px] font-semibold text-foreground">
                   {formatMinor(line().qty * line().unit)}
                 </Text>
                 <View
@@ -210,14 +215,14 @@ export function QuoteBuilderDialog() {
             class="h-7 items-center justify-center rounded-md border border-dashed border-border"
             hoverStyle={{ backgroundColor: token("accent") }}
           >
-            <Text class="text-[9px] font-medium text-muted-foreground">+ Add line item</Text>
+            <Text class="text-[11px] font-medium text-muted-foreground">+ Add line item</Text>
           </View>
         </View>
         <View class="flex-row gap-3">
-          <View class="flex-1 gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+          <View class="flex-1 gap-2 rounded-xl border border-border bg-card shadow-md p-3">
             <SectionTitle>Adjustments</SectionTitle>
             <View class="flex-row items-center justify-between">
-              <Text class="text-[9.5px] text-muted-foreground">Discount</Text>
+              <Text class="text-[11px] text-muted-foreground">Discount</Text>
               <View class="flex-row items-center gap-1">
                 <View
                   role="button"
@@ -226,7 +231,7 @@ export function QuoteBuilderDialog() {
                   class="h-6 flex-row items-center justify-center rounded border border-border px-2"
                   style={{ backgroundColor: discount() === 5 ? token("accent") : "transparent" }}
                 >
-                  <Text class="text-[8.5px] font-medium text-foreground">5%</Text>
+                  <Text class="text-[11px] font-medium text-foreground">5%</Text>
                 </View>
                 <View
                   role="button"
@@ -235,7 +240,7 @@ export function QuoteBuilderDialog() {
                   class="h-6 flex-row items-center justify-center rounded border border-border px-2"
                   style={{ backgroundColor: discount() === 10 ? token("accent") : "transparent" }}
                 >
-                  <Text class="text-[8.5px] font-medium text-foreground">10%</Text>
+                  <Text class="text-[11px] font-medium text-foreground">10%</Text>
                 </View>
                 <View
                   role="button"
@@ -244,15 +249,15 @@ export function QuoteBuilderDialog() {
                   class="h-6 flex-row items-center justify-center rounded border border-border px-2"
                   style={{ backgroundColor: discount() === 0 ? token("accent") : "transparent" }}
                 >
-                  <Text class="text-[8.5px] font-medium text-foreground">0%</Text>
+                  <Text class="text-[11px] font-medium text-foreground">0%</Text>
                 </View>
               </View>
             </View>
             <View class="flex-row items-center justify-between">
-              <Text class="text-[9.5px] text-muted-foreground">Tax</Text>
-              <Text class="text-[9.5px] font-medium text-foreground">{tax()}% VAT</Text>
+              <Text class="text-[11px] text-muted-foreground">Tax</Text>
+              <Text class="text-[11px] font-medium text-foreground">{tax()}% VAT</Text>
             </View>
-            <Text class="text-[8px] leading-3.5 text-muted-foreground">
+            <Text class="text-[11px] leading-3.5 text-muted-foreground">
               Discounts above 10% require manager approval before send.
             </Text>
           </View>
@@ -271,7 +276,7 @@ export function QuoteBuilderDialog() {
             </View>
             <Badge variant={discount() > 10 ? "warning" : "success"}>
               <Text
-                class="text-[8px] font-medium"
+                class="text-[11px] font-medium"
                 style={{ color: token(discount() > 10 ? "warning" : "success") }}
               >
                 {discount() > 10 ? "Approval required" : "Ready to draft"}
@@ -280,7 +285,7 @@ export function QuoteBuilderDialog() {
           </View>
         </View>
         <FormRow>
-          <Text class="text-[9px] leading-3.5 text-muted-foreground">
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             Quote numbers are reserved in cloud blocks. Accepted totals are immutable and linked to
             the opportunity.
           </Text>

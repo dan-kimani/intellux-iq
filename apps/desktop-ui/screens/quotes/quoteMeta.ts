@@ -8,50 +8,50 @@ export interface CustomerMeta {
 }
 
 const customers: Record<string, CustomerMeta> = {
-  "ABC Enterprises": {
-    email: "sarah@abc.co.ke",
-    phone: "+254 712 345 678",
-    address: "ABC Enterprises, Westlands, Nairobi",
-    contact: "Sarah Wanjiku",
+  "Atlas Enterprises": {
+    email: "maya@abc.com",
+    phone: "+1 415 555 0132",
+    address: "Atlas Enterprises, Brooklyn, New York",
+    contact: "Maya Lin",
   },
-  "Ochieng & Sons": {
-    email: "david@ochiengsons.co.ke",
-    phone: "+254 733 201 884",
-    address: "Ochieng & Sons, Kisumu",
-    contact: "David Ochieng",
+  "Harbor & Co.": {
+    email: "jonah@harborco.com",
+    phone: "+44 20 7946 0184",
+    address: "Harbor & Co., London",
+    contact: "Jonah Reyes",
   },
   "TechWorld Ltd": {
-    email: "grace@techworld.co.ke",
-    phone: "+254 701 552 019",
-    address: "TechWorld Ltd, Industrial Area, Nairobi",
-    contact: "Grace Wanjiku",
+    email: "grace@techworld.com",
+    phone: "+1 212 555 0199",
+    address: "TechWorld Ltd, Brooklyn Navy Yard, New York",
+    contact: "Grace Chen",
   },
-  "Global Retail KE": {
-    email: "accounts@globalretail.co.ke",
-    phone: "+254 722 848 110",
-    address: "Global Retail KE, Nakuru",
-    contact: "James Kamau",
+  "Global Retail Co.": {
+    email: "accounts@globalretail.com",
+    phone: "+1 312 555 0110",
+    address: "Global Retail Co., Chicago",
+    contact: "James Carter",
   },
-  "Kamau Retail": {
-    email: "james@kamauretail.co.ke",
-    phone: "+254 710 442 907",
-    address: "Kamau Retail, Thika",
-    contact: "James Kamau",
+  "Northwind Retail": {
+    email: "james@northwindretail.com",
+    phone: "+1 617 555 0907",
+    address: "Northwind Retail, Boston",
+    contact: "James Carter",
   },
-  "Atieno Interiors": {
-    email: "mary@atienointeriors.co.ke",
-    phone: "+254 799 310 224",
-    address: "Atieno Interiors, Nairobi",
-    contact: "Mary Atieno",
+  "Lumen Interiors": {
+    email: "nora@lumeninteriors.com",
+    phone: "+1 646 555 0224",
+    address: "Lumen Interiors, New York",
+    contact: "Nora Vance",
   },
 };
 
 export function customerFor(quote: QuoteRow): CustomerMeta {
   return (
     customers[quote.customer] ?? {
-      email: "accounts@customer.co.ke",
-      phone: "+254 700 000 000",
-      address: `${quote.customer}, Nairobi`,
+      email: "accounts@customer.com",
+      phone: "+1 212 555 0000",
+      address: `${quote.customer}, New York`,
       contact: quote.customer,
     }
   );
@@ -78,7 +78,7 @@ export function quoteSteps(quote: QuoteRow): QuoteStep[] {
     },
     {
       label: "Sent to customer",
-      at: sent ? "Sent from sales@acmetrading.co.ke" : "Not sent yet",
+      at: sent ? "Sent from sales@acmetrading.com" : "Not sent yet",
       done: sent,
       active: sent && !viewed,
     },
@@ -98,7 +98,7 @@ export function quoteSteps(quote: QuoteRow): QuoteStep[] {
 }
 
 export const quoteTemplate = "Classic";
-export const quoteCurrency = "KES";
+export const quoteCurrency = "USD";
 
 export interface QuoteAcceptance {
   reference: string;
