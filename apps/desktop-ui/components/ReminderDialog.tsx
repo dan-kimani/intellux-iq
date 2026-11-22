@@ -2,7 +2,10 @@ import { signal, Text, View } from "nsh";
 import { AppDialog, DialogActions } from "./overlay";
 import { SelectField, TextField } from "./forms";
 import { Button, Icon } from "./ui";
-import { inboxReminders, reminderDialogOpen, selectedConversation, showToast } from "../state";
+import { reminderDialogOpen, selectedConversation, showToast } from "../state";
+import { createWorkReminder } from "../screens/work/state";
+import { conversationLink } from "../screens/work/links";
+import { presetTime } from "../screens/work/time";
 
 export function ReminderDialog() {
   const due = signal("Tomorrow 09:00");
@@ -19,23 +22,26 @@ export function ReminderDialog() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={() => reminderDialogOpen.set(false)}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
             size="sm"
             testID="save-reminder"
             onPress={() => {
-              inboxReminders.set({
-                ...inboxReminders(),
-                [conversation.id]: `${due()}${note().trim() ? ` · ${note().trim()}` : ""}`,
+              createWorkReminder({
+                title: note().trim() || "Follow up with this conversation",
+                notes: note().trim(),
+                triggerAt: due(),
+                triggerAtMs: presetTime(due()),
+                links: [conversationLink(conversation)],
               });
               reminderDialogOpen.set(false);
               showToast("Follow-up reminder created.");
             }}
           >
             <Icon name="calendarClock" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create reminder</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create reminder</Text>
           </Button>
         </DialogActions>
       }
