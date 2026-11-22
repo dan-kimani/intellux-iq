@@ -3,12 +3,12 @@ import { attachmentFile, imageAttachment, pdfAttachment } from "../../files/type
 
 export const quotationPdf = pdfAttachment("Quotation_QT-2025-0045.pdf", "245 KB", {
   title: "Revised quotation",
-  subtitle: "Quotation QT-2025-0045 · Sarah Wanjiku, ABC Enterprises",
+  subtitle: "Quotation QT-2025-0045 · Maya Lin, Atlas Enterprises",
   lines: [
-    "Prepared for Sarah Wanjiku · ABC Enterprises, Nairobi.",
+    "Prepared for Maya Lin · Atlas Enterprises, New York.",
     "50 × ProMax wireless headset, midnight black.",
     "Volume discount: 2% · Unit price held until 22 November 2025.",
-    "Total: KES 248,500 including delivery to Nairobi.",
+    "Total: $248,500 including delivery to New York.",
     "Lead time: 10 working days from purchase order.",
     "Packaging artwork is confirmed separately with the customer.",
   ],
@@ -31,7 +31,7 @@ export const cataloguePdf = pdfAttachment("Catalogue-November.pdf", "2.4 MB", {
 
 export const supplyAgreement = pdfAttachment("Q3-supply-agreement.pdf", "318 KB", {
   title: "Q3 supply agreement",
-  subtitle: "Rift Valley Retail · signed 12 November 2025",
+  subtitle: "Continental Retail · signed 12 November 2025",
   lines: [
     "This agreement covers the Q3 replenishment of audio accessories.",
     "Delivery windows are confirmed by the cloud scheduler each Friday.",
@@ -43,9 +43,9 @@ export const supplyAgreement = pdfAttachment("Q3-supply-agreement.pdf", "318 KB"
 
 export const remittanceAdvice = pdfAttachment("remittance.pdf", "96 KB", {
   title: "Remittance advice",
-  subtitle: "KES 96,750 · ABC Enterprises",
+  subtitle: "$96,750 · Atlas Enterprises",
   lines: [
-    "Payment of KES 96,750 has been released to your account.",
+    "Payment of $96,750 has been released to your account.",
     "Reference: INV-2025-0918 · value date 05 November 2025.",
     "The amount settles the October accessories invoice in full.",
   ],
@@ -57,5 +57,5 @@ export const productShot = imageAttachment("ProMax-headset.jpg", "1.8 MB", headp
 export const volumePricing = attachmentFile("Volume-pricing-Q4.xlsx", "42 KB");
 export const distributorTerms = attachmentFile("Distributor-terms.docx", "184 KB");
 export const launchDeck = attachmentFile("ProMax-launch.pptx", "6.1 MB");
-export const deliveryNotes = attachmentFile("Nairobi-delivery-notes.txt", "12 KB");
+export const deliveryNotes = attachmentFile("New York-delivery-notes.txt", "12 KB");
 export const supplierInvoice = attachmentFile("invoice.zip", "1.2 MB");

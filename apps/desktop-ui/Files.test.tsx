@@ -1,15 +1,18 @@
 import { expect, open, test } from "nsh/test";
 
-function openDesktop() {
-  return open("./App.tsx", {
+async function openDesktop() {
+  const app = await open("./App.tsx", {
     width: 1440,
     height: 900,
     platform: "linux",
     colorScheme: "dark",
   });
+  await app.press("id:nav-inbox");
+  await app.waitFor("id:conversation-sarah");
+  return app;
 }
 
-test("previews a PDF attachment, turns its pages, and saves it", async () => {
+test("previews a PDF attachment as a vertical page stack and saves it", async () => {
   const app = await openDesktop();
   await app.press("id:filter-email");
   await app.waitFor("id:mail-inbox-summit");
@@ -18,9 +21,13 @@ test("previews a PDF attachment, turns its pages, and saves it", async () => {
   await app.press("id:file-catalogue-november");
   await app.waitFor("id:file-viewer");
   await app.waitFor("text:Page 1 of 8");
-  await app.press("id:file-viewer-next");
-  await app.waitFor("text:Page 2 of 8");
-  await app.press("id:file-viewer-download");
+  await app.waitFor("text:Page 8 of 8");
+  expect(app.shows("id:file-viewer-next")).toBe(false);
+  expect(app.shows("id:file-viewer-share")).toBe(true);
+  expect(app.shows("id:file-viewer-print")).toBe(false);
+  expect(app.shows("id:file-viewer-download-header")).toBe(true);
+  expect(app.shows("id:file-viewer-download")).toBe(false);
+  await app.press("id:file-viewer-download-header");
   await app.waitFor("id:save-file-dialog");
   await app.press("id:confirm-save-file");
   await app.waitFor("text:Saved Catalogue-November.pdf to Downloads.");

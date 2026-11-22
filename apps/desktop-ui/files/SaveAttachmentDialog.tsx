@@ -16,13 +16,13 @@ function FileSummary(props: { file: AttachmentFile | null }) {
     <View class="flex-row items-center gap-3 rounded-xl border border-border bg-panel p-3">
       <FileThumb file={props.file} height={46} />
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[11.5px] font-medium text-foreground" style={{ numberOfLines: 1 }}>
+        <Text class="text-[12px] font-medium text-foreground" style={{ numberOfLines: 2 }}>
           {props.file.name}
         </Text>
-        <Text class="text-[9.5px] text-muted-foreground">{fileDescription(props.file)}</Text>
+        <Text class="text-[11px] text-muted-foreground">{fileDescription(props.file)}</Text>
       </View>
       <View class="rounded-md border border-border bg-card px-2 py-1">
-        <Text class="text-[8.5px] font-medium text-muted-foreground">Ready to save</Text>
+        <Text class="text-[11px] font-medium text-muted-foreground">Ready to save</Text>
       </View>
     </View>
   );
@@ -60,11 +60,11 @@ export function SaveAttachmentDialog() {
       footer={
         <View class="flex-row items-center gap-2">
           <Button variant="ghost" size="sm" onPress={() => pendingDownload.set(null)}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="primary" size="sm" testID="confirm-save-file" onPress={save}>
             <Icon name="download" size={10} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Save</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Save</Text>
           </Button>
         </View>
       }
@@ -72,7 +72,7 @@ export function SaveAttachmentDialog() {
       <View class="gap-4">
         <FileSummary file={pendingDownload()} />
         <View class="gap-1.5">
-          <Text class="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <Text class="text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
             Save to
           </Text>
           <View class="gap-0.5 rounded-xl border border-border bg-card p-1">
@@ -95,7 +95,7 @@ export function SaveAttachmentDialog() {
                     tone={destination() === folder() ? "foreground" : "muted-foreground"}
                   />
                   <View class="min-w-0 flex-1">
-                    <Text class="text-[10px] font-medium text-foreground">{folder()}</Text>
+                    <Text class="text-[12px] font-medium text-foreground">{folder()}</Text>
                   </View>
                   <If when={destination() === folder()}>
                     <Icon name="check" size={11} tone="success" />
@@ -104,14 +104,14 @@ export function SaveAttachmentDialog() {
               )}
             </Each>
           </View>
-          <Text class="text-[8.5px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             This device · Home / {destination()}
           </Text>
         </View>
         <TextField label="File name" value={name} onChange={name.set} testID="save-file-name" />
         <View class="flex-row items-start gap-2 rounded-lg border border-border bg-panel p-3">
           <Icon name="shieldCheck" size={11} tone="success" />
-          <Text class="min-w-0 flex-1 text-[8.5px] leading-3.5 text-muted-foreground">
+          <Text class="min-w-0 flex-1 text-[11px] leading-3.5 text-muted-foreground">
             The cloud verifies the attachment before the desktop writes it. Provider credentials and
             SMTP/IMAP never reach this device.
           </Text>

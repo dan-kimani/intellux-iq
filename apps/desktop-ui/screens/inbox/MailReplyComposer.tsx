@@ -4,8 +4,11 @@ import { TextField } from "../../components/forms";
 import { FormLabel } from "../../components/overlay";
 import { mailAccount, mailCompose, mailDraft, showToast } from "../../state";
 import { MailRichEditor } from "./MailRichEditor";
+import { logSystemActivity } from "../work/state";
+import { emailThreadLink } from "../work/links";
 import type { MailItem } from "./mail";
-import { mailAccountEmail, mailRows } from "./mail";
+import { mailRows } from "./mail";
+import { mailAccountEmail } from "./mailMetrics";
 
 function splitBody(body: string): string[] {
   return body
@@ -64,6 +67,12 @@ export function MailReplyComposer(props: { item: MailItem; mode: "reply" | "repl
       read: true,
     };
     mailRows.set([row, ...mailRows()]);
+    logSystemActivity({
+      kind: "email",
+      title: `Reply sent: ${row.subject}`,
+      notes: `To ${row.to}.`,
+      links: [emailThreadLink(row)],
+    });
     mailDraft.set(null);
     mailCompose.set(null);
     showToast("Reply sent through cloud egress.");
@@ -71,17 +80,17 @@ export function MailReplyComposer(props: { item: MailItem; mode: "reply" | "repl
   return (
     <View
       testID="mail-composer"
-      class="gap-3 rounded-2xl border border-border bg-card p-4 shadow-md"
+      class="gap-3 rounded-xl border border-border bg-card p-4 shadow-md"
     >
       <View class="flex-row items-center gap-2.5">
         <View class="h-7 w-7 items-center justify-center rounded-lg bg-muted">
           <Icon name="messageCircle" size={12} tone="foreground" />
         </View>
         <View class="min-w-0 flex-1 gap-0.5">
-          <Text class="text-[11.5px] font-semibold text-foreground">
+          <Text class="text-[12px] font-semibold text-foreground">
             {props.mode === "replyAll" ? "Reply all" : "Reply"}
           </Text>
-          <Text class="text-[9px] text-muted-foreground" style={{ numberOfLines: 1 }}>
+          <Text class="text-[11px] text-muted-foreground" style={{ numberOfLines: 2 }}>
             Replying in thread · {props.item.date}
           </Text>
         </View>
@@ -91,7 +100,7 @@ export function MailReplyComposer(props: { item: MailItem; mode: "reply" | "repl
           testID="mail-reply-close"
           onPress={() => mailCompose.set(null)}
         >
-          <Text class="text-[9.5px] font-medium">Close</Text>
+          <Text class="text-[11px] font-medium">Close</Text>
         </Button>
       </View>
       <View class="grid grid-cols-2 gap-2.5">
@@ -112,13 +121,13 @@ export function MailReplyComposer(props: { item: MailItem; mode: "reply" | "repl
         />
       </View>
       <View class="flex-row items-center gap-2">
-        <Text class="min-w-0 flex-1 text-[8.5px] leading-3.5 text-muted-foreground">
+        <Text class="min-w-0 flex-1 text-[11px] leading-3.5 text-muted-foreground">
           The original thread stays above this reply. The cloud threads it by Message-ID and appends
           the signature.
         </Text>
         <Button variant="primary" size="sm" testID="mail-reply-send" onPress={send}>
           <Icon name="send" size={10} tone="primary-foreground" />
-          <Text class="text-[10px] font-semibold text-primary-foreground">Send reply</Text>
+          <Text class="text-[12px] font-semibold text-primary-foreground">Send reply</Text>
         </Button>
       </View>
     </View>

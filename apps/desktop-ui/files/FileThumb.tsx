@@ -53,7 +53,7 @@ export function FileThumb(props: { file: AttachmentFile; height?: number }) {
         <Icon name={look.icon} size={Math.round(height * 0.36)} tone={look.tone} />
       </View>
       <Text
-        class="w-full pb-0.5 text-center font-semibold tracking-wide"
+        class="w-full pb-0.5 text-center font-semibold tracking-wider"
         style={{
           fontSize: Math.max(6, Math.round(height * 0.14)),
           color: token(look.tone) as string,

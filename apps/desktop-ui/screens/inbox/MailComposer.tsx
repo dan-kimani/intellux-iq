@@ -7,8 +7,11 @@ import { FileThumb } from "../../files/FileThumb";
 import { SelectField, TextField } from "../../components/forms";
 import { FormLabel } from "../../components/overlay";
 import { MailRichEditor } from "./MailRichEditor";
+import { logSystemActivity } from "../work/state";
+import { emailThreadLink } from "../work/links";
 import { cataloguePdf, quotationPdf } from "./mail-files";
-import { MailItem, mailAccountEmail, mailRows, type MailStatus } from "./mail";
+import { MailItem, mailRows, type MailStatus } from "./mail";
+import { mailAccountEmail } from "./mailMetrics";
 import {
   emailFolder,
   mailAccount,
@@ -61,7 +64,7 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
       bodyHtml: bodyHtml(),
     });
   });
-  const signature = "David Mwangi\nAcme Trading Ltd\nsales@acmetrading.co.ke";
+  const signature = "Alex Morgan\nAcme Trading Inc.\nsales@acmetrading.com";
   const draftId = `mail-draft-${key}`;
   const saveAndClose = () => {
     if (body().trim()) {
@@ -112,6 +115,12 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
       read: true,
     };
     mailRows.set([row, ...mailRows().filter((mail) => mail.id !== draftId)]);
+    logSystemActivity({
+      kind: "email",
+      title: `Email sent: ${row.subject}`,
+      notes: `To ${row.to}.`,
+      links: [emailThreadLink(row)],
+    });
     mailDraft.set(null);
     mailCompose.set(null);
     emailFolder.set("Sent");
@@ -136,23 +145,23 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
           <Icon name="mail" size={14} tone="chart-2" />
         </View>
         <View class="min-w-0 flex-1 gap-0.5">
-          <Text class="text-[15px] font-semibold text-foreground">
+          <Text class="text-[16px] font-semibold text-foreground">
             {props.mode === "new"
               ? "New email"
               : `${props.mode === "forward" ? "Forward" : "Reply"} email`}
           </Text>
-          <Text class="text-[9.5px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             Cloud SMTP egress · {mailAccountEmail(mailAccount())}
           </Text>
         </View>
         <Button variant="primary" size="sm" testID="send-email" onPress={send}>
           <Icon name="send" size={11} tone="primary-foreground" />
-          <Text class="text-[10px] font-semibold text-primary-foreground">
+          <Text class="text-[12px] font-semibold text-primary-foreground">
             {schedule() === "Send now" ? "Send email" : "Schedule email"}
           </Text>
         </Button>
         <Button variant="ghost" size="sm" onPress={saveAndClose}>
-          <Text class="text-[10px] font-medium">Close</Text>
+          <Text class="text-[12px] font-medium">Close</Text>
         </Button>
       </View>
       <Scroll class="min-h-0 flex-1" scrollbar={false}>
@@ -180,20 +189,20 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
           </View>
           <If when={props.mode !== "new" && item}>
             <View class="gap-1 rounded-lg border border-border bg-panel p-3">
-              <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+              <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Quoted message
               </Text>
-              <Text class="text-[9.5px] leading-4 text-muted-foreground">
+              <Text class="text-[11px] leading-4 text-muted-foreground">
                 {item?.from} · {item?.date}
               </Text>
               <Each of={item?.body ?? []}>
                 {(line: () => string) => (
-                  <Text class="text-[9.5px] leading-4 text-foreground">{line()}</Text>
+                  <Text class="text-[11px] leading-4 text-foreground">{line()}</Text>
                 )}
               </Each>
             </View>
           </If>
-          <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+          <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
             <View class="flex-row items-center justify-between">
               <SectionTitle>Attachments</SectionTitle>
               <Button
@@ -209,11 +218,11 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
                 }
               >
                 <Icon name="paperclip" size={10} tone="muted-foreground" />
-                <Text class="text-[9.5px] font-medium">Attach from quote</Text>
+                <Text class="text-[11px] font-medium">Attach from quote</Text>
               </Button>
             </View>
             <If when={attachments().length === 0}>
-              <Text class="text-[9px] text-muted-foreground">No attachments.</Text>
+              <Text class="text-[11px] text-muted-foreground">No attachments.</Text>
             </If>
             <Each of={attachments()}>
               {(file: () => AttachmentFile, index: () => number) => (
@@ -221,12 +230,12 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
                   <FileThumb file={file()} height={26} />
                   <View class="min-w-0 flex-1">
                     <Text
-                      class="text-[9px] font-medium text-foreground"
-                      style={{ numberOfLines: 1 }}
+                      class="text-[11px] font-medium text-foreground"
+                      style={{ numberOfLines: 2 }}
                     >
                       {file().name}
                     </Text>
-                    <Text class="text-[8px] text-muted-foreground">
+                    <Text class="text-[11px] text-muted-foreground">
                       {file().size} · {fileExtension(file().name)}
                     </Text>
                   </View>
@@ -250,12 +259,12 @@ export function MailComposer(props: { mode: MailComposeMode; item?: MailItem }) 
             onChange={schedule.set}
           />
           <View class="gap-1 rounded-lg border border-border bg-panel p-3">
-            <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+            <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
               Signature
             </Text>
-            <Text class="text-[9.5px] leading-4 text-foreground">{signature}</Text>
+            <Text class="text-[11px] leading-4 text-foreground">{signature}</Text>
           </View>
-          <Text class="text-[9px] leading-3.5 text-muted-foreground">
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             The desktop never builds or sends MIME. The cloud validates recipients, appends the
             signature, syncs the Sent folder, and reports bounces.
           </Text>
