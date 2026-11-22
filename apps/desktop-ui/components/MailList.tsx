@@ -1,114 +1,73 @@
 import { Text, token, View } from "nsh";
 import { Icon } from "./ui";
-import { emailFolder, mailAccount, mailCompose, mailDetail, searchQuery } from "../state";
-import { mailRows, type MailItem, type MailStatus } from "../screens/inbox/mail";
+import { MailBulkBar } from "./MailBulkBar";
+import { MailRow } from "./MailRow";
+import { emailFolder, mailAccount } from "../state";
+import { mailSelectedIds, mailThreadGroups, selectAllMail } from "../screens/inbox/mailState";
 
-const statusStyle: Record<
-  MailStatus,
-  { label: string; tone: "muted-foreground" | "success" | "warning" | "alert" | "info" }
-> = {
-  queued: { label: "Queued", tone: "muted-foreground" },
-  sending: { label: "Sending", tone: "info" },
-  sent: { label: "Sent", tone: "muted-foreground" },
-  delivered: { label: "Delivered", tone: "success" },
-  failed: { label: "Failed", tone: "alert" },
-  bounced: { label: "Bounced", tone: "warning" },
-  draft: { label: "Draft", tone: "muted-foreground" },
-};
+function selectedAll(ids: string[]): boolean {
+  const selected = mailSelectedIds();
+  return ids.length > 0 && ids.every((id) => selected.includes(id));
+}
 
-function visibleMail(): MailItem[] {
-  const query = searchQuery().trim().toLowerCase();
-  return mailRows().filter((item) => {
-    if (item.folder !== emailFolder()) return false;
-    if (item.account !== mailAccount()) return false;
-    if (!query) return true;
-    return `${item.subject} ${item.from} ${item.to} ${item.preview} ${item.body.join(" ")}`
-      .toLowerCase()
-      .includes(query);
-  });
+function threads() {
+  return mailThreadGroups(emailFolder(), mailAccount());
+}
+
+function visibleMailIds(): string[] {
+  return threads().flatMap((thread) => thread.messages.map((item) => item.id));
 }
 
 export function MailList() {
   return (
     <View class="flex-1">
-      <View class="flex-row items-center gap-3 border-b border-border px-4 py-2 text-[8.5px] font-medium uppercase tracking-wide text-muted-foreground">
-        <Text class="flex-1">{emailFolder()}</Text>
-        <If when={emailFolder() !== "Inbox"}>
-          <Text class="w-24 text-right">Status</Text>
-        </If>
-        <Text class="w-16 text-right">Date</Text>
+      <If when={mailSelectedIds().length > 0}>
+        <MailBulkBar />
+      </If>
+      <View class="flex-row items-center gap-2 border-b border-border px-3 py-1.5">
+        <View
+          role="button"
+          accessibilityLabel={
+            selectedAll(visibleMailIds()) ? "Deselect all mail" : "Select all mail"
+          }
+          testID="mail-select-all"
+          onPress={() => selectAllMail(visibleMailIds())}
+          class="h-4 w-4 items-center justify-center rounded border"
+          style={{
+            borderColor: selectedAll(visibleMailIds()) ? token("primary") : token("border"),
+            backgroundColor: selectedAll(visibleMailIds()) ? token("primary") : "transparent",
+          }}
+        >
+          <If when={selectedAll(visibleMailIds())}>
+            <Icon name="check" size={10} tone="primary-foreground" />
+          </If>
+        </View>
+        <Text class="flex-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          Select all
+        </Text>
+        <Text class="text-[10px] tabular-nums text-muted-foreground">
+          {threads().length} threads
+        </Text>
       </View>
-      <Each of={visibleMail()}>
-        {(item: () => MailItem) => (
-          <View
-            role="button"
-            accessibilityLabel={`Open email ${item().subject}`}
-            testID={`mail-${item().id}`}
-            onPress={() => {
-              mailRows.set(
-                mailRows().map((row) => (row.id === item().id ? { ...row, read: true } : row)),
-              );
-              mailDetail.set({ ...item(), read: true });
-              mailCompose.set(null);
-            }}
-            class="flex-row items-start gap-3 border-b border-border px-4 py-3 transition-colors"
-            hoverStyle={{ backgroundColor: token("accent") }}
-          >
-            <View class="mt-0.5 h-7 w-7 items-center justify-center rounded-md bg-muted">
-              <Icon
-                name={item().attachments.length > 0 ? "paperclip" : "mail"}
-                size={12}
-                tone="muted-foreground"
-              />
-            </View>
-            <View class="min-w-0 flex-1 gap-0.5">
-              <View class="flex-row items-center gap-2">
-                <If when={!item().read}>
-                  <View
-                    class="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: token("unread") }}
-                  />
-                </If>
-                <Text
-                  class="min-w-0 flex-1 text-[10.5px] font-medium text-foreground"
-                  style={{ numberOfLines: 1 }}
-                >
-                  {item().subject}
-                </Text>
-                <Text class="text-[8px] text-muted-foreground">{item().date}</Text>
-              </View>
-              <Text class="text-[8.5px] text-muted-foreground" style={{ numberOfLines: 1 }}>
-                {item().folder === "Sent" || item().folder === "Drafts"
-                  ? `To: ${item().to}`
-                  : `From: ${item().from}`}
-              </Text>
-              <Text
-                class="text-[9px] leading-3.5 text-muted-foreground"
-                style={{ numberOfLines: 1 }}
-              >
-                {item().preview}
-              </Text>
-            </View>
-            <If when={item().status && emailFolder() !== "Inbox"}>
-              <View class="w-24 items-end">
-                <Text
-                  class="text-[8px] font-medium"
-                  style={{ color: token(statusStyle[item().status!].tone) }}
-                >
-                  {statusStyle[item().status!].label}
-                </Text>
-              </View>
-            </If>
-          </View>
+      <Each of={threads()}>
+        {(thread: () => ReturnType<typeof threads>[number]) => (
+          <MailRow
+            item={thread().latest}
+            count={thread().messages.length}
+            unread={thread().unread}
+            threadIds={thread().messages.map((item) => item.id)}
+          />
         )}
       </Each>
-      <If when={visibleMail().length === 0}>
-        <View class="items-center gap-1 py-12">
-          <Text class="text-[11px] font-medium text-foreground">
-            No {emailFolder().toLowerCase()} mail for this account
+      <If when={threads().length === 0}>
+        <View class="items-center gap-1 px-6 py-12">
+          <Text class="text-[12px] font-medium tabular-nums text-foreground">
+            {emailFolder() === "Sent"
+              ? "No sent mail for this account"
+              : `No ${emailFolder().toLowerCase()} mail for this account`}
           </Text>
-          <Text class="text-[9px] text-muted-foreground">
-            The cloud syncs this folder when the device reconnects.
+          <Text class="text-center text-[11px] leading-4 text-muted-foreground">
+            Try another folder, clear the filters, or refresh the cloud mailbox.
           </Text>
         </View>
       </If>
