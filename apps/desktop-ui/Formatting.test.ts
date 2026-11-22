@@ -16,8 +16,8 @@ test("prefixes selected WhatsApp lines", () => {
 });
 
 test("converts WhatsApp markup to transcript HTML", () => {
-  const html = whatsappToHtml("Hello *Sarah*\n- one\n- _two_\n> quoted");
-  expect(html).toContain("<strong>Sarah</strong>");
+  const html = whatsappToHtml("Hello *Maya*\n- one\n- _two_\n> quoted");
+  expect(html).toContain("<strong>Maya</strong>");
   expect(html).toContain("<ul><li>one</li><li><em>two</em></li></ul>");
   expect(html).toContain("<blockquote><p>quoted</p></blockquote>");
 });
