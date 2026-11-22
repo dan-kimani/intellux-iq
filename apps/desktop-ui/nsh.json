@@ -18,5 +18,11 @@
     },
     "frame": "none",
     "transparent": true
+  },
+  "capabilities": {
+    "notifications": true,
+    "application": true,
+    "statusBar": true,
+    "clipboard": true
   }
 }
