@@ -1,46 +1,65 @@
-import type { ImageAsset, JSX, Tokens } from "nsh";
-import { Image, Text, token, View } from "nsh";
+import type { JSX, Tokens } from "nsh";
+import { Text, token, View } from "nsh";
+import { Tooltip as TooltipSurface, type Placement } from "nsh/base";
 import type { AvatarTone } from "../data";
 import { Icon, icons, type IconName, Lockup, Logo } from "./icon";
 import { withAlpha } from "./theme";
+import { initialsOf, toneForName } from "../lib/avatar";
 
 export { Icon, icons, type IconName, Lockup, Logo, withAlpha };
 
 const toneToken: Record<AvatarTone, keyof Tokens> = {
-  violet: "chart-1",
-  blue: "chart-2",
-  green: "chart-3",
-  amber: "chart-4",
-  rose: "chart-5",
+  violet: "avatar-1",
+  blue: "avatar-2",
+  green: "avatar-3",
+  amber: "avatar-4",
+  rose: "avatar-5",
   slate: "muted-foreground",
 };
 
+const toneForegroundToken: Record<AvatarTone, keyof Tokens> = {
+  violet: "avatar-1-foreground",
+  blue: "avatar-2-foreground",
+  green: "avatar-3-foreground",
+  amber: "avatar-4-foreground",
+  rose: "avatar-5-foreground",
+  slate: "background",
+};
+
 export function Avatar(props: {
-  photo?: ImageAsset;
-  initials: string;
+  name?: string;
+  initials?: string;
   tone?: AvatarTone;
   size?: number;
   online?: boolean;
   class?: string;
+  testID?: string;
 }) {
   const size = props.size ?? 42;
-  const accent = token(toneToken[props.tone ?? "slate"]) as string;
+  const label = props.name ?? "";
+  const initials = props.initials ?? initialsOf(label);
+  const tone = props.tone ?? toneForName(label);
+  const accent = token(toneToken[tone]) as string;
+  const onAccent = token(toneForegroundToken[tone]) as string;
   return (
-    <View class={`relative shrink-0 ${props.class ?? ""}`} style={{ width: size, height: size }}>
+    <View
+      testID={props.testID}
+      class={`relative shrink-0 ${props.class ?? ""}`}
+      style={{ width: size, height: size }}
+    >
       <View
         class="h-full w-full items-center justify-center overflow-hidden rounded-full border border-border"
-        style={{ backgroundColor: withAlpha(accent, "20") }}
+        style={{ backgroundColor: accent, borderColor: accent }}
       >
-        <If
-          when={props.photo}
-          else={
-            <Text style={{ fontSize: size * 0.3, fontWeight: "600", color: accent }}>
-              {props.initials}
-            </Text>
-          }
+        <Text
+          style={{
+            fontSize: Math.max(8, size * 0.34),
+            fontWeight: "700",
+            color: onAccent,
+          }}
         >
-          <Image src={props.photo} style={{ width: size, height: size }} />
-        </If>
+          {initials}
+        </Text>
       </View>
       <If when={props.online}>
         <View
@@ -101,7 +120,7 @@ export function Badge(props: {
 export function Button(props: {
   children?: JSX.Element;
   onPress?: () => void;
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive";
   size?: "sm" | "md";
   class?: string;
   disabled?: boolean;
@@ -111,12 +130,13 @@ export function Button(props: {
   const variant = props.variant ?? "secondary";
   const classes = {
     primary: "bg-primary text-primary-foreground border-primary hover:bg-primary/90",
+    destructive: "bg-destructive text-alert-foreground border-destructive hover:opacity-90",
     secondary: "bg-secondary text-secondary-foreground border-transparent hover:bg-secondary/80",
     outline: "bg-transparent text-foreground border-border hover:bg-accent",
     ghost:
       "bg-transparent text-muted-foreground border-transparent hover:bg-accent hover:text-accent-foreground",
   }[variant];
-  const size = props.size === "sm" ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-[13px]";
+  const size = props.size === "sm" ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-[14px]";
   return (
     <View
       role="button"
@@ -135,6 +155,24 @@ export function Button(props: {
   );
 }
 
+export function Tooltip(props: { label?: string; children?: JSX.Element; placement?: Placement }) {
+  return (
+    <TooltipSurface
+      placement={props.placement ?? "right"}
+      align="center"
+      offset={6}
+      delay={320}
+      class="rounded-md border border-border bg-popover px-2 py-1 shadow-lg"
+      startingClass="opacity-0"
+      endingClass="opacity-0"
+    >
+      {props.children ?? (
+        <Text class="text-[11px] font-medium text-popover-foreground">{props.label}</Text>
+      )}
+    </TooltipSurface>
+  );
+}
+
 export function IconButton(props: {
   icon: IconName;
   label: string;
@@ -142,6 +180,7 @@ export function IconButton(props: {
   size?: number;
   active?: boolean;
   tone?: keyof Tokens;
+  tooltipPlacement?: Placement;
   class?: string;
   disabled?: boolean;
   testID?: string;
@@ -152,10 +191,10 @@ export function IconButton(props: {
       role="button"
       accessibilityLabel={props.label}
       testID={props.testID}
-      tooltip={<Text class="text-xs text-foreground">{props.label}</Text>}
+      tooltip={<Tooltip label={props.label} placement={props.tooltipPlacement} />}
       onPress={props.onPress}
       disabled={props.disabled}
-      class={`items-center justify-center rounded-lg border border-transparent ${props.active ? "bg-accent" : ""} ${props.class ?? ""}`}
+      class={`cursor-pointer items-center justify-center rounded-lg border border-transparent ${props.active ? "bg-accent" : ""} ${props.class ?? ""}`}
       style={{ width: size, height: size }}
       hoverStyle={{ backgroundColor: token("accent") }}
       activeStyle={{ opacity: 0.65 }}
@@ -174,7 +213,7 @@ export function IconButton(props: {
 export function Kbd(props: { children?: JSX.Element }) {
   return (
     <View class="h-5.5 min-w-5.5 items-center justify-center rounded-md border border-border bg-panel-strong px-1.5">
-      <Text class="text-[10px] font-medium text-muted-foreground">{props.children}</Text>
+      <Text class="text-[12px] font-medium text-muted-foreground">{props.children}</Text>
     </View>
   );
 }
@@ -186,10 +225,7 @@ export function Separator(props: { class?: string }) {
 export function SectionTitle(props: { children?: JSX.Element; action?: JSX.Element }) {
   return (
     <View class="flex-row items-center justify-between">
-      <Text
-        class="text-[11px] font-semibold uppercase text-muted-foreground"
-        style={{ letterSpacing: 0.8 }}
-      >
+      <Text class="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
         {props.children}
       </Text>
       {props.action}
@@ -216,7 +252,7 @@ export function Card(props: {
   return (
     <View
       testID={props.testID}
-      class={`rounded-3xl border border-border bg-card shadow-md ${props.class ?? ""}`}
+      class={`min-w-0 rounded-xl border border-border bg-card shadow-md ${props.class ?? ""}`}
       style={props.style}
     >
       {props.children}

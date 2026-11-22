@@ -1,7 +1,7 @@
 {
   "cssVars": {
     "theme": {
-      "font-sans": "ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "font-sans": "Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       "font-mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
       "radius": "0.625rem"
     },
@@ -72,7 +72,17 @@
       "series-3": "#10B981",
       "series-4": "#F59E0B",
       "series-5": "#F43F5E",
-      "series-6": "#06B6D4"
+      "series-6": "#06B6D4",
+      "avatar-1": "#6D4AFF",
+      "avatar-2": "#1A73E8",
+      "avatar-3": "#00875A",
+      "avatar-4": "#D9480F",
+      "avatar-5": "#C2255C",
+      "avatar-1-foreground": "#FFFFFF",
+      "avatar-2-foreground": "#FFFFFF",
+      "avatar-3-foreground": "#FFFFFF",
+      "avatar-4-foreground": "#FFFFFF",
+      "avatar-5-foreground": "#FFFFFF"
     },
     "dark": {
       "background": "#2B2B30",
@@ -141,7 +151,17 @@
       "series-3": "#34D399",
       "series-4": "#FBBF24",
       "series-5": "#FB7185",
-      "series-6": "#22D3EE"
+      "series-6": "#22D3EE",
+      "avatar-1": "#6D4AFF",
+      "avatar-2": "#1A73E8",
+      "avatar-3": "#00875A",
+      "avatar-4": "#D9480F",
+      "avatar-5": "#C2255C",
+      "avatar-1-foreground": "#FFFFFF",
+      "avatar-2-foreground": "#FFFFFF",
+      "avatar-3-foreground": "#FFFFFF",
+      "avatar-4-foreground": "#FFFFFF",
+      "avatar-5-foreground": "#FFFFFF"
     }
   }
 }

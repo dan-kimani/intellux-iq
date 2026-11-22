@@ -9,6 +9,7 @@ import checkCheck from "../assets/icons/check-check.svg";
 import chevronDown from "../assets/icons/chevron-down.svg";
 import chevronLeft from "../assets/icons/chevron-left.svg";
 import chevronRight from "../assets/icons/chevron-right.svg";
+import chevronUp from "../assets/icons/chevron-up.svg";
 import command from "../assets/icons/command.svg";
 import copy from "../assets/icons/copy.svg";
 import download from "../assets/icons/download.svg";
@@ -26,8 +27,10 @@ import inbox from "../assets/icons/inbox.svg";
 import info from "../assets/icons/info.svg";
 import mail from "../assets/icons/mail.svg";
 import messageCircle from "../assets/icons/message-circle.svg";
+import whatsapp from "../assets/icons/whatsapp.svg";
 import mic from "../assets/icons/mic.svg";
 import moon from "../assets/icons/moon.svg";
+import move from "../assets/icons/move.svg";
 import packageIcon from "../assets/icons/package.svg";
 import panelRight from "../assets/icons/panel-right.svg";
 import paperclip from "../assets/icons/paperclip.svg";
@@ -37,8 +40,10 @@ import pin from "../assets/icons/pin.svg";
 import presentation from "../assets/icons/presentation.svg";
 import plus from "../assets/icons/plus.svg";
 import printer from "../assets/icons/printer.svg";
+import refresh from "../assets/icons/refresh-cw.svg";
 import reply from "../assets/icons/reply.svg";
 import search from "../assets/icons/search.svg";
+import share from "../assets/icons/share-2.svg";
 import send from "../assets/icons/send.svg";
 import star from "../assets/icons/star.svg";
 import settings from "../assets/icons/settings.svg";
@@ -66,6 +71,7 @@ export {
   chevronDown,
   chevronLeft,
   chevronRight,
+  chevronUp,
   close,
   command,
   copy,
@@ -83,9 +89,11 @@ export {
   info,
   mail,
   messageCircle,
+  whatsapp,
   mic,
   moon,
   more,
+  move,
   packageIcon,
   panelRight,
   paperclip,
@@ -95,9 +103,11 @@ export {
   presentation,
   plus,
   printer,
+  refresh,
   reply,
   search,
   send,
+  share,
   settings,
   star,
   shieldCheck,

@@ -71,6 +71,15 @@
       "rules": {
         "import/no-unassigned-import": "off"
       }
+    },
+    {
+      "files": [
+        "apps/desktop-ui/App.tsx",
+        "apps/desktop-ui/fonts.ts"
+      ],
+      "rules": {
+        "import/no-unassigned-import": "off"
+      }
     }
   ],
   "rules": {

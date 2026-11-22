@@ -1,4 +1,4 @@
-import type { JSX } from "nsh";
+import type { JSX, Tokens } from "nsh";
 import { Text, token, View } from "nsh";
 import { Menu, MenuItem, MenuSeparator } from "nsh/base";
 import { Icon, type IconName } from "./ui";
@@ -56,13 +56,13 @@ export function ActionMenu(props: {
                     tone={item().danger ? "destructive" : "muted-foreground"}
                   />
                   <Text
-                    class="flex-1 text-[12px]"
+                    class="flex-1 text-[13px]"
                     style={{ color: token(item().danger ? "destructive" : "foreground") }}
                   >
                     {item().label}
                   </Text>
                   <If when={item().shortcut !== undefined}>
-                    <Text class="text-[10px] text-muted-foreground">{shortcutText(item())}</Text>
+                    <Text class="text-[12px] text-muted-foreground">{shortcutText(item())}</Text>
                   </If>
                 </MenuItem>
               )}
@@ -74,7 +74,12 @@ export function ActionMenu(props: {
   );
 }
 
-export function MenuTrigger(props: { label: string; icon?: IconName; testID: string }) {
+export function MenuTrigger(props: {
+  label: string;
+  icon?: IconName;
+  testID: string;
+  tone?: keyof Tokens;
+}) {
   return (
     <View
       role="button"
@@ -85,11 +90,9 @@ export function MenuTrigger(props: { label: string; icon?: IconName; testID: str
       focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
     >
       <If when={props.icon}>
-        <Icon name={props.icon ?? "ellipsis"} size={13} tone="muted-foreground" />
+        <Icon name={props.icon ?? "ellipsis"} size={14} tone={props.tone ?? "muted-foreground"} />
       </If>
-      <Text class="text-[11.5px] font-medium text-foreground max-[1359px]:hidden">
-        {props.label}
-      </Text>
+      <Text class="text-[12px] font-medium text-foreground max-[1359px]:hidden">{props.label}</Text>
       <Icon name="chevronDown" size={10} tone="muted-foreground" />
     </View>
   );

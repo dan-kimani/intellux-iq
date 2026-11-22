@@ -39,12 +39,12 @@ export function SectionTabs(props: {
                   "text-foreground": props.value === item().id,
                   "text-muted-foreground": props.value !== item().id,
                 }}
-                class="text-[11px] font-medium"
+                class="text-[12px] font-medium"
               >
                 {item().label}
               </Text>
               <If when={item().count !== undefined}>
-                <Text class="text-[9.5px] font-medium text-muted-foreground">{item().count}</Text>
+                <Text class="text-[11px] font-medium text-muted-foreground">{item().count}</Text>
               </If>
             </Tab>
           )}

@@ -11,6 +11,7 @@ export function TextField(props: {
   hint?: string;
   testID?: string;
   type?: "text" | "email" | "tel" | "number";
+  multiline?: boolean;
 }) {
   return (
     <View class="gap-1.5">
@@ -20,15 +21,17 @@ export function TextField(props: {
         onChange={({ value }) => props.onChange(value)}
         placeholder={props.placeholder}
         testID={props.testID}
+        multiline={props.multiline}
         style={{
-          height: 38,
+          height: props.multiline ? 68 : 38,
           borderRadius: 8,
           borderWidth: 1,
           borderColor: token("border"),
           backgroundColor: token("card"),
           paddingLeft: 10,
           paddingRight: 10,
-          fontSize: 13,
+          fontSize: 14,
+          paddingTop: props.multiline ? 8 : 0,
           color: token("foreground"),
           placeholderColor: token("muted-foreground"),
         }}
@@ -68,7 +71,7 @@ export function SelectField(props: {
               focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
             >
               <Text
-                class="text-[10.5px] font-medium"
+                class="text-[12px] font-medium"
                 style={{
                   color:
                     props.value() === option()
@@ -118,8 +121,8 @@ export function ChoiceCards(props: {
               </If>
             </View>
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[11.5px] font-medium text-foreground">{option().title}</Text>
-              <Text class="text-[10px] leading-4 text-muted-foreground">{option().detail}</Text>
+              <Text class="text-[12px] font-medium text-foreground">{option().title}</Text>
+              <Text class="text-[12px] leading-4 text-muted-foreground">{option().detail}</Text>
             </View>
           </View>
         )}
