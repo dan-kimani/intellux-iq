@@ -1,7 +1,22 @@
 import { expect, test } from "nsh/test";
-import { nextStage, openStages, stageIndex, stageLabel, stageProbability } from "./domain/stages";
+import {
+  allowedTransitions,
+  canTransition,
+  nextStage,
+  openStages,
+  stageIndex,
+  stageLabel,
+  stageProbability,
+} from "./domain/stages";
 import type { OpportunityLink } from "./data";
-import { moveOpportunityToStage, opportunityLinks, updateOpportunityLink } from "./state/inbox";
+import {
+  moveOpportunityToStage,
+  opportunityIdsFor,
+  opportunityLinks,
+  unlinkOpportunity,
+  updateOpportunityLink,
+} from "./state/inbox";
+import { conversations } from "./data";
 import { dealRows } from "./screens/deals/state";
 import { setOpportunityStage } from "./screens/opportunities/actions";
 
@@ -55,7 +70,7 @@ test("refuses a sales user who does not own the opportunity", () => {
   const original = opportunity();
   try {
     const denied = moveOpportunityToStage(opportunityId, "won", {
-      name: "Amina Kimani",
+      name: "Aiko Tanaka",
       role: "sales",
     });
     expect(denied).toBeNull();
@@ -93,4 +108,29 @@ test("mirrors a stage move onto the linked deal", () => {
       dealRows.set(dealRows().map((row) => (row.id === opportunityId ? originalDeal : row)));
     }
   }
+});
+
+test("maps the valid stage transitions", () => {
+  expect(allowedTransitions("enquiry")).toEqual(["qualified", "lost"]);
+  expect(canTransition("enquiry", "negotiation")).toBe(false);
+  expect(canTransition("quotation", "won")).toBe(true);
+  expect(canTransition("won", "qualified")).toBe(true);
+});
+
+test("refuses an invalid stage jump", () => {
+  const original = opportunity();
+  try {
+    expect(moveOpportunityToStage(opportunityId, "enquiry")).toBeNull();
+    expect(opportunity().stage).toBe(original.stage);
+  } finally {
+    restoreOpportunity(original);
+  }
+});
+
+test("never detaches the last conversation from an opportunity", () => {
+  const conversation = conversations.find((row) => row.id === "david");
+  if (!conversation) throw new Error("Missing Alex fixture");
+  const onlyId = opportunityIdsFor(conversation)[0];
+  expect(unlinkOpportunity(conversation, onlyId)).toBe(false);
+  expect(opportunityIdsFor(conversation)).toContain(onlyId);
 });

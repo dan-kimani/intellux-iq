@@ -13,11 +13,11 @@ import {
 
 const ownerOptions = [
   "All owners",
-  "David Mwangi",
-  "Yasir Noori",
-  "Amina Kimani",
-  "Moses Otieno",
-  "James Njoroge",
+  "Alex Morgan",
+  "Priya Shah",
+  "Aiko Tanaka",
+  "Sam Okafor",
+  "Leo Brandt",
 ];
 
 export function DealFilterMenu() {
@@ -51,7 +51,7 @@ export function DealFilterMenu() {
           focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
         >
           <Icon name="funnel" size={12} tone="muted-foreground" />
-          <Text class="text-[10px] font-medium text-foreground">
+          <Text class="text-[12px] font-medium text-foreground">
             {activeDealFilterCount() > 0 ? `Filter (${activeDealFilterCount()})` : "Filter"}
           </Text>
         </View>
@@ -59,7 +59,7 @@ export function DealFilterMenu() {
     >
       <View class="gap-3" testID="deal-filter-popover">
         <View class="flex-row items-center justify-between">
-          <Text class="text-[12.5px] font-semibold text-foreground">Filter pipeline</Text>
+          <Text class="text-[13px] font-semibold text-foreground">Filter pipeline</Text>
           <View
             role="button"
             accessibilityLabel="Reset pipeline filters"
@@ -71,11 +71,11 @@ export function DealFilterMenu() {
             class="rounded px-1.5 py-0.5"
             hoverStyle={{ backgroundColor: token("accent") }}
           >
-            <Text class="text-[10px] text-muted-foreground">Reset</Text>
+            <Text class="text-[12px] text-muted-foreground">Reset</Text>
           </View>
         </View>
         <View class="gap-1.5">
-          <Text class="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Stage
           </Text>
           <View class="flex-row flex-wrap gap-1.5">
@@ -89,7 +89,7 @@ export function DealFilterMenu() {
                 borderColor: stage() === "all" ? token("ring") : token("border"),
               }}
             >
-              <Text class="text-[9.5px] font-medium text-foreground">All stages</Text>
+              <Text class="text-[11px] font-medium text-foreground">All stages</Text>
             </View>
             <Each of={dealStages}>
               {(item: () => (typeof dealStages)[number]) => (
@@ -103,7 +103,7 @@ export function DealFilterMenu() {
                     borderColor: stage() === item().id ? token("ring") : token("border"),
                   }}
                 >
-                  <Text class="text-[9.5px] font-medium text-foreground">{item().label}</Text>
+                  <Text class="text-[11px] font-medium text-foreground">{item().label}</Text>
                 </View>
               )}
             </Each>
@@ -117,9 +117,9 @@ export function DealFilterMenu() {
           placeholder="Company or product…"
         />
         <View class="flex-row items-center justify-between border-t border-border pt-2">
-          <Text class="text-[9.5px] text-muted-foreground">{dealRows().length} visible</Text>
+          <Text class="text-[11px] text-muted-foreground">{dealRows().length} visible</Text>
           <Button variant="primary" size="sm" testID="apply-deal-filter" onPress={apply}>
-            <Text class="text-[10px] font-semibold text-primary-foreground">Apply</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Apply</Text>
           </Button>
         </View>
       </View>

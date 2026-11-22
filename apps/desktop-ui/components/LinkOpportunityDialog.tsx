@@ -2,6 +2,7 @@ import { Text, token, View } from "nsh";
 import { AppDialog, DialogActions } from "./overlay";
 import { Badge, Button, Icon } from "./ui";
 import { linkOpportunityOpen, selectedConversation, showToast } from "../state";
+import { openNewOpportunity } from "../screens/opportunities/state";
 import { linkDeal, unlinkedDeals } from "../screens/opportunities/actions";
 
 export function LinkOpportunityDialog() {
@@ -17,8 +18,20 @@ export function LinkOpportunityDialog() {
       testID="link-opportunity-dialog"
       footer={
         <DialogActions>
-          <Button variant="outline" size="sm" onPress={() => linkOpportunityOpen.set(false)}>
-            <Text class="text-[10px] font-medium">Done</Text>
+          <Button
+            variant="outline"
+            size="sm"
+            testID="link-opportunity-new"
+            onPress={() => {
+              linkOpportunityOpen.set(false);
+              openNewOpportunity(conversation.id);
+            }}
+          >
+            <Icon name="plus" size={10} tone="muted-foreground" />
+            <Text class="text-[12px] font-medium">New opportunity</Text>
+          </Button>
+          <Button variant="primary" size="sm" onPress={() => linkOpportunityOpen.set(false)}>
+            <Text class="text-[12px] font-medium">Done</Text>
           </Button>
         </DialogActions>
       }
@@ -26,9 +39,9 @@ export function LinkOpportunityDialog() {
       <View class="gap-2">
         <If when={available.length === 0}>
           <View class="items-center gap-1 py-6">
-            <Text class="text-[11px] font-medium text-foreground">All opportunities linked</Text>
-            <Text class="text-[9.5px] text-muted-foreground">
-              Create a new opportunity from the Pipeline to add another.
+            <Text class="text-[12px] font-medium text-foreground">All opportunities linked</Text>
+            <Text class="text-[11px] text-muted-foreground">
+              Create a new opportunity from the side panel to add another.
             </Text>
           </View>
         </If>
@@ -48,15 +61,15 @@ export function LinkOpportunityDialog() {
             >
               <Icon name="briefcase" size={13} tone="muted-foreground" />
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11px] font-medium text-foreground">{deal().name}</Text>
-                <Text class="text-[9px] text-muted-foreground">
+                <Text class="text-[12px] font-medium text-foreground">{deal().name}</Text>
+                <Text class="text-[11px] text-muted-foreground">
                   {deal().company} · {deal().owner} · {deal().expectedClose}
                 </Text>
               </View>
               <Badge variant="outline">
-                <Text class="text-[8px] capitalize text-muted-foreground">{deal().stage}</Text>
+                <Text class="text-[11px] capitalize text-muted-foreground">{deal().stage}</Text>
               </Badge>
-              <Text class="text-[10.5px] font-semibold text-foreground">{deal().value}</Text>
+              <Text class="text-[12px] font-semibold text-foreground">{deal().value}</Text>
             </View>
           )}
         </Each>

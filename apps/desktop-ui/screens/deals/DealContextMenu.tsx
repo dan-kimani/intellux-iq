@@ -1,10 +1,11 @@
 import type { JSX } from "nsh";
 import { ContextActions, type ContextAction } from "../../components/ContextActions";
 import { showToast } from "../../state";
+import { canTransition } from "../../domain/stages";
 import type { Deal } from "./data";
 import { advanceDealRow, dealDetail, moveDealToStage, stageLabel } from "./state";
 
-function dealGroups(deal: Deal): ContextAction[][] {
+export function dealActionGroups(deal: Deal, open?: () => void): ContextAction[][] {
   const won = deal.stage === "won";
   return [
     [
@@ -13,7 +14,10 @@ function dealGroups(deal: Deal): ContextAction[][] {
         label: "Open opportunity",
         icon: "arrowUpRight",
         description: "Show the opportunity record",
-        onSelect: () => dealDetail.set(deal),
+        onSelect: () => {
+          if (open) open();
+          else dealDetail.set(deal);
+        },
       },
       {
         id: "advance",
@@ -30,7 +34,7 @@ function dealGroups(deal: Deal): ContextAction[][] {
         id: "won",
         label: "Mark as won",
         icon: "checkCheck",
-        disabled: won,
+        disabled: !canTransition(deal.stage, "won"),
         description: "Record a closed-won outcome",
         onSelect: () => {
           const moved = moveDealToStage(deal.id, "won");
@@ -47,7 +51,7 @@ export function DealContextMenu(props: { deal: Deal; trigger: JSX.Element }) {
       testID={`deal-context-${props.deal.id}`}
       width={236}
       trigger={props.trigger}
-      groups={dealGroups(props.deal)}
+      groups={dealActionGroups(props.deal)}
     />
   );
 }

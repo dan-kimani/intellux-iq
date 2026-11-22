@@ -1,5 +1,4 @@
-import { signal, Text, token, View } from "nsh";
-import { ActivityDialog } from "../../components/ActivityDialog";
+import { Text, token, View } from "nsh";
 import {
   Avatar,
   Badge,
@@ -13,17 +12,11 @@ import {
   withAlpha,
 } from "../../components/ui";
 import type { Conversation, OpportunityLink } from "../../data";
-import {
-  activeNav,
-  activeNavChild,
-  inboxReminders,
-  opportunitiesFor,
-  reminderDialogOpen,
-  showToast,
-} from "../../state";
+import { activeNav, activeNavChild, opportunitiesFor, showToast } from "../../state";
 import { contactDetail, contactRows } from "../contacts/state";
-import { addContactActivity } from "../activity";
-import { openPipelineForOpportunity } from "../opportunities/actions";
+import { activeReminderForConversation, openWorkDialog } from "../work/state";
+import type { WorkLink } from "../work/types";
+import { openOpportunityPanel, openOpportunitiesTab } from "./panelState";
 
 function InfoRow(props: {
   icon: IconName;
@@ -37,8 +30,8 @@ function InfoRow(props: {
         <Icon name={props.icon} size={13} tone={props.tone ?? "muted-foreground"} />
       </View>
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[9.5px] text-muted-foreground">{props.label}</Text>
-        <Text class="text-[12px] font-medium text-foreground" style={{ numberOfLines: 1 }}>
+        <Text class="text-[11px] text-muted-foreground">{props.label}</Text>
+        <Text class="text-[13px] font-medium text-foreground" style={{ numberOfLines: 2 }}>
           {props.value}
         </Text>
       </View>
@@ -54,32 +47,31 @@ function slaCopy(minutes: number): string {
 
 export function ContactPanel(props: { conversation: Conversation }) {
   const c = props.conversation;
-  const noteOpen = signal(false);
+  const workLink = (): WorkLink => ({
+    type: "contact",
+    id: c.contactId ?? c.id,
+    label: c.name,
+    detail: `${c.company} · ${c.email}`,
+  });
   const opportunities = () => opportunitiesFor(c);
-  const reminder = () => inboxReminders()[c.id];
+  const reminder = () => activeReminderForConversation(c.id)?.triggerAt;
   return (
     <View class="gap-3">
-      <View class="items-center gap-1.5 rounded-3xl border border-border bg-card shadow-md px-4 pb-3.5 pt-4">
-        <Avatar
-          photo={c.photo}
-          initials={c.initials}
-          tone={c.tone}
-          size={76}
-          online={c.presence !== "offline"}
-        />
+      <View class="items-center gap-1.5 rounded-xl border border-border bg-card shadow-md px-4 pb-3.5 pt-4">
+        <Avatar name={c.name} size={76} online={c.presence !== "offline"} />
         <View class="mt-1 items-center gap-1">
           <View class="flex-row items-center gap-1.5">
-            <Text class="text-[18px] font-semibold tracking-tight text-foreground">{c.name}</Text>
+            <Text class="text-[18px] font-semibold text-foreground">{c.name}</Text>
             <If when={c.verified}>
               <Verified size={13} />
             </If>
           </View>
-          <Text class="text-[11px] text-muted-foreground">{c.company}</Text>
+          <Text class="text-[12px] text-muted-foreground">{c.company}</Text>
         </View>
         <If when={c.vip}>
           <Badge variant="primary">
             <Icon name="sparkles" size={10} tone="accent-foreground" />
-            <Text class="text-[9.5px] font-semibold text-accent-foreground">VIP Customer</Text>
+            <Text class="text-[11px] font-semibold text-accent-foreground">VIP Customer</Text>
           </Badge>
         </If>
         <Button
@@ -97,7 +89,7 @@ export function ContactPanel(props: { conversation: Conversation }) {
             } else showToast("No directory record linked.");
           }}
         >
-          <Text class="text-[11px] font-medium">View full profile</Text>
+          <Text class="text-[12px] font-medium">View full profile</Text>
           <Icon name="arrowUpRight" size={11} tone="muted-foreground" />
         </Button>
 
@@ -109,7 +101,7 @@ export function ContactPanel(props: { conversation: Conversation }) {
         </View>
       </View>
 
-      <View class="gap-2.5 rounded-3xl border border-border bg-card shadow-md p-3">
+      <View class="gap-2.5 rounded-xl border border-border bg-card shadow-md p-3">
         <View class="flex-row items-center justify-between">
           <View class="flex-row items-center gap-1.5">
             <View
@@ -118,11 +110,11 @@ export function ContactPanel(props: { conversation: Conversation }) {
             >
               <Icon name="sparkles" size={13} tone="highlight" />
             </View>
-            <Text class="text-[12.5px] font-semibold text-foreground">Sales Intelligence</Text>
+            <Text class="text-[13px] font-semibold text-foreground">Sales Intelligence</Text>
           </View>
           <Badge variant="success">
             <View class="rounded-full bg-success" style={{ width: 4, height: 4 }} />
-            <Text class="text-[9px] font-semibold text-success">{c.interest}</Text>
+            <Text class="text-[11px] font-semibold text-success">{c.interest}</Text>
           </Badge>
         </View>
 
@@ -135,13 +127,13 @@ export function ContactPanel(props: { conversation: Conversation }) {
               <Icon name="zap" size={12} tone="warning" />
             </View>
             <View class="flex-1">
-              <Text class="text-[9.5px] text-muted-foreground">Response time</Text>
-              <Text class="text-[12px] font-medium text-foreground">
+              <Text class="text-[11px] text-muted-foreground">Response time</Text>
+              <Text class="text-[13px] font-medium text-foreground">
                 {c.metrics.firstResponseMinutes} min
               </Text>
             </View>
             <Text
-              class="text-[9.5px] font-medium"
+              class="text-[11px] font-medium"
               style={{ color: c.slaMinutes < 0 ? token("warning") : token("success") }}
             >
               {slaCopy(c.slaMinutes)}
@@ -157,8 +149,8 @@ export function ContactPanel(props: { conversation: Conversation }) {
             </View>
             <View class="flex-1 gap-1">
               <View class="flex-row items-center justify-between">
-                <Text class="text-[9.5px] text-muted-foreground">Unanswered inbound</Text>
-                <Text class="text-[10.5px] font-semibold text-foreground">
+                <Text class="text-[11px] text-muted-foreground">Unanswered inbound</Text>
+                <Text class="text-[12px] font-semibold text-foreground">
                   {c.metrics.unansweredInboundCount}
                 </Text>
               </View>
@@ -179,8 +171,8 @@ export function ContactPanel(props: { conversation: Conversation }) {
               <Icon name="calendarClock" size={12} tone="info" />
             </View>
             <View class="flex-1">
-              <Text class="text-[9.5px] text-muted-foreground">Next follow-up</Text>
-              <Text class="text-[12px] font-medium text-foreground">
+              <Text class="text-[11px] text-muted-foreground">Next follow-up</Text>
+              <Text class="text-[13px] font-medium text-foreground">
                 {reminder() ?? "No reminder scheduled"}
               </Text>
             </View>
@@ -188,7 +180,7 @@ export function ContactPanel(props: { conversation: Conversation }) {
           </View>
         </View>
         <View class="rounded-md bg-muted px-2.5 py-1.5">
-          <Text class="text-[9px] leading-3.5 text-muted-foreground">
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             Deterministic signal ·{" "}
             {c.metrics.followUpOverdue
               ? "follow-up overdue; act before the next quiet period"
@@ -197,11 +189,11 @@ export function ContactPanel(props: { conversation: Conversation }) {
         </View>
       </View>
 
-      <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+      <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
         <SectionTitle
           action={
-            <View class="flex-row items-center gap-1" onPress={() => activeNav.set("Deals")}>
-              <Text class="text-[10px] font-medium text-highlight">View all</Text>
+            <View class="flex-row items-center gap-1" onPress={openOpportunitiesTab}>
+              <Text class="text-[12px] font-medium text-highlight">View all</Text>
               <Icon name="chevronRight" size={10} tone="highlight" />
             </View>
           }
@@ -209,14 +201,14 @@ export function ContactPanel(props: { conversation: Conversation }) {
           Linked opportunities
         </SectionTitle>
         <If when={opportunities().length === 0}>
-          <Text class="text-[10px] text-muted-foreground">No opportunity linked.</Text>
+          <Text class="text-[12px] text-muted-foreground">No opportunity linked.</Text>
         </If>
         <Each of={opportunities()}>
           {(deal: () => OpportunityLink) => (
             <View
               role="button"
-              accessibilityLabel={`Open ${deal().name} in Pipeline`}
-              onPress={() => openPipelineForOpportunity(deal().id)}
+              accessibilityLabel={`Open ${deal().name} details`}
+              onPress={() => openOpportunityPanel(deal().id, c.id)}
               class="flex-row items-center gap-2 rounded-md py-1"
               hoverStyle={{ backgroundColor: token("accent") }}
             >
@@ -226,64 +218,51 @@ export function ContactPanel(props: { conversation: Conversation }) {
                 }
               />
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11px] font-medium text-foreground">{deal().name}</Text>
-                <Text class="text-[9.5px] capitalize text-muted-foreground">{deal().stage}</Text>
+                <Text class="text-[12px] font-medium text-foreground">{deal().name}</Text>
+                <Text class="text-[11px] capitalize text-muted-foreground">{deal().stage}</Text>
               </View>
-              <Text class="text-[12px] font-semibold text-foreground">{deal().value}</Text>
+              <Text class="text-[13px] font-semibold text-foreground">{deal().value}</Text>
               <Icon name="chevronRight" size={10} tone="muted-foreground" />
             </View>
           )}
         </Each>
       </View>
 
-      <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+      <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
         <SectionTitle>Quick actions</SectionTitle>
         <View class="grid grid-cols-2 gap-2">
           <Button variant="primary" size="sm" onPress={() => activeNav.set("Quotes")}>
             <Icon name="send" size={12} tone="primary-foreground" />
-            <Text class="text-[10.5px] font-semibold text-primary-foreground">Send quote</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Send quote</Text>
           </Button>
-          <Button variant="outline" size="sm" onPress={() => reminderDialogOpen.set(true)}>
-            <Icon name="calendarClock" size={12} tone="muted-foreground" />
-            <Text class="text-[10.5px] font-medium">Follow up</Text>
+          <Button
+            variant="outline"
+            size="sm"
+            onPress={() => openWorkDialog({ mode: "task", link: workLink() })}
+          >
+            <Icon name="checkCheck" size={12} tone="muted-foreground" />
+            <Text class="text-[12px] font-medium">Add task</Text>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             class="justify-start"
-            onPress={() => noteOpen.set(true)}
+            onPress={() => openWorkDialog({ mode: "activity", link: workLink() })}
           >
             <Icon name="fileText" size={12} tone="muted-foreground" />
-            <Text class="text-[10.5px] font-medium">Add note</Text>
+            <Text class="text-[12px] font-medium">Log activity</Text>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             class="justify-start"
-            onPress={() => noteOpen.set(true)}
+            onPress={() => openWorkDialog({ mode: "reminder", link: workLink() })}
           >
-            <Icon name="check" size={12} tone="muted-foreground" />
-            <Text class="text-[10.5px] font-medium">Create task</Text>
+            <Icon name="calendarClock" size={12} tone="muted-foreground" />
+            <Text class="text-[12px] font-medium">Set reminder</Text>
           </Button>
         </View>
       </View>
-      <If when={noteOpen()}>
-        <ActivityDialog
-          title="Add to conversation"
-          description={`${c.name} · ${c.company}`}
-          onClose={() => noteOpen.set(false)}
-          onSave={(entry) => {
-            addContactActivity(c.contactId ?? c.id, {
-              id: `activity-${Date.now()}`,
-              kind: entry.kind,
-              text: entry.text,
-              meta: entry.meta,
-              at: "Just now",
-            });
-            showToast(entry.kind === "task" ? "Follow-up task created." : "Internal note added.");
-          }}
-        />
-      </If>
     </View>
   );
 }

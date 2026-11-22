@@ -49,3 +49,25 @@ export function nextStage(stage: Stage): DealStage | null {
   if (index < 0 || index >= openStages.length - 1) return null;
   return openStages[index + 1];
 }
+
+/**
+ * The only moves an opportunity may make. Forward moves follow the pipeline;
+ * `lost` can close an open opportunity, and reopening returns to qualified.
+ * Terminal stages do not silently accept arbitrary jumps.
+ */
+export const stageTransitions: Record<Stage, readonly Stage[]> = {
+  enquiry: ["qualified", "lost"],
+  qualified: ["quotation", "lost"],
+  quotation: ["negotiation", "won", "lost"],
+  negotiation: ["won", "lost"],
+  won: ["qualified"],
+  lost: ["qualified"],
+};
+
+export function allowedTransitions(stage: Stage): Stage[] {
+  return [...stageTransitions[stage]];
+}
+
+export function canTransition(from: Stage, to: Stage): boolean {
+  return stageTransitions[from].includes(to);
+}

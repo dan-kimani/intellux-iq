@@ -1,21 +1,25 @@
+import { currencySymbol } from "../../lib/money";
 import { signal, Text, View } from "nsh";
 import { AppDialog, DialogActions, FormGrid, ModalNotice } from "../../components/overlay";
 import { SelectField, TextField } from "../../components/forms";
 import { Button, Icon } from "../../components/ui";
 import { showToast } from "../../state";
 import { dealStages, type Deal, type DealStage } from "./data";
+import { stageProbability } from "../../domain/stages";
 import { dealRows, newDealOpen } from "./state";
 
 const closeNew = () => newDealOpen.set(false);
 
-const stageLabels = dealStages.map((stage) => stage.label);
+const stageLabels = dealStages
+  .filter((stage) => stage.id === "enquiry" || stage.id === "qualified")
+  .map((stage) => stage.label);
 const ownerOptions = [
   "All owners",
-  "David Mwangi",
-  "Yasir Noori",
-  "Amina Kimani",
-  "Moses Otieno",
-  "James Njoroge",
+  "Alex Morgan",
+  "Priya Shah",
+  "Aiko Tanaka",
+  "Sam Okafor",
+  "Leo Brandt",
 ];
 
 function labelForStage(stage: DealStage): string {
@@ -27,8 +31,8 @@ function NewDealForm() {
   const company = signal("");
   const value = signal("");
   const product = signal("");
-  const owner = signal("David Mwangi");
-  const stage = signal<DealStage>("qualified");
+  const owner = signal("Alex Morgan");
+  const stage = signal<DealStage>("enquiry");
   const close = closeNew;
   const save = () => {
     if (!name().trim() || !company().trim()) {
@@ -39,7 +43,7 @@ function NewDealForm() {
       id: `OPP-2025-${Math.floor(1000 + Math.random() * 8999)}`,
       name: name().trim(),
       company: company().trim(),
-      value: value().trim() || "KES 0",
+      value: value().trim() || `${currencySymbol()}0`,
       owner: owner(),
       age: "Just now",
       stage: stage(),
@@ -47,7 +51,7 @@ function NewDealForm() {
       contact: "New contact",
       email: "not-set@example.com",
       phone: "—",
-      probability: stage() === "won" ? 100 : stage() === "negotiation" ? 55 : 40,
+      probability: stageProbability(stage()),
       expectedClose: "This month",
       quoteId: "—",
       lastActivity: "Just now",
@@ -69,11 +73,11 @@ function NewDealForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={close}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={save} testID="create-deal">
             <Icon name="plus" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">
+            <Text class="text-[12px] font-semibold text-primary-foreground">
               Create opportunity
             </Text>
           </Button>
@@ -93,10 +97,15 @@ function NewDealForm() {
             label="Company"
             value={company}
             onChange={company.set}
-            placeholder="Acme Kenya"
+            placeholder="Acme Inc."
             hint="Required"
           />
-          <TextField label="Value" value={value} onChange={value.set} placeholder="KES 248,500" />
+          <TextField
+            label="Value"
+            value={value}
+            onChange={value.set}
+            placeholder={`${currencySymbol()}248,500`}
+          />
           <TextField
             label="Product / quantity"
             value={product}
