@@ -15,8 +15,10 @@ function InfoRow(props: {
         <Icon name={props.icon} size={12} tone="muted-foreground" />
       </View>
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[9px] uppercase tracking-wide text-muted-foreground">{props.label}</Text>
-        <Text class="text-[10.5px] font-medium text-foreground" style={{ numberOfLines: 1 }}>
+        <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
+          {props.label}
+        </Text>
+        <Text class="text-[12px] font-medium text-foreground" style={{ numberOfLines: 2 }}>
           {props.value}
         </Text>
       </View>
@@ -44,21 +46,21 @@ export function ContactSide(props: { contact: ContactRow }) {
         <If
           when={deal()}
           else={
-            <Text class="text-[10.5px] text-muted-foreground">
+            <Text class="text-[12px] text-muted-foreground">
               No open opportunity for this company.
             </Text>
           }
         >
           <View class="gap-1">
-            <Text class="text-[12px] font-medium text-foreground">{deal()?.name}</Text>
-            <Text class="text-[9.5px] text-muted-foreground">
+            <Text class="text-[13px] font-medium text-foreground">{deal()?.name}</Text>
+            <Text class="text-[11px] text-muted-foreground">
               {deal() ? stageLabel(deal()!.stage) : ""} · {deal()?.value}
             </Text>
           </View>
           <View class="gap-1.5">
             <View class="flex-row items-center justify-between">
-              <Text class="text-[9.5px] text-muted-foreground">Probability</Text>
-              <Text class="text-[9.5px] font-medium text-foreground">{deal()?.probability}%</Text>
+              <Text class="text-[11px] text-muted-foreground">Probability</Text>
+              <Text class="text-[11px] font-medium text-foreground">{deal()?.probability}%</Text>
             </View>
             <View class="h-1.5 overflow-hidden rounded-full bg-muted">
               <View
@@ -67,7 +69,7 @@ export function ContactSide(props: { contact: ContactRow }) {
               />
             </View>
           </View>
-          <Text class="text-[10px] leading-4 text-muted-foreground">Next: {deal()?.nextStep}</Text>
+          <Text class="text-[12px] leading-4 text-muted-foreground">Next: {deal()?.nextStep}</Text>
           <Button
             variant="outline"
             size="sm"
@@ -76,7 +78,7 @@ export function ContactSide(props: { contact: ContactRow }) {
               activeNav.set("Deals");
             }}
           >
-            <Text class="text-[10px] font-medium">Open pipeline</Text>
+            <Text class="text-[12px] font-medium">Open pipeline</Text>
             <Icon name="chevronRight" size={10} tone="muted-foreground" />
           </Button>
         </If>
@@ -88,12 +90,12 @@ export function ContactSide(props: { contact: ContactRow }) {
           <Each of={contact.tags}>
             {(tag: () => string) => (
               <Badge variant="default">
-                <Text class="text-[9px] text-muted-foreground">{tag()}</Text>
+                <Text class="text-[11px] text-muted-foreground">{tag()}</Text>
               </Badge>
             )}
           </Each>
         </View>
-        <Text class="text-[9.5px] leading-4 text-muted-foreground">
+        <Text class="text-[11px] leading-4 text-muted-foreground">
           Segment membership is rule-based and refreshed by the cloud.
         </Text>
       </Card>

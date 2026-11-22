@@ -1,3 +1,4 @@
+import { currencySymbol } from "../../lib/money";
 import { signal, Text, View } from "nsh";
 import { AppDialog, DialogActions, FormGrid, ModalNotice } from "../../components/overlay";
 import { SelectField, TextField } from "../../components/forms";
@@ -13,7 +14,7 @@ export function NewContactForm() {
   const company = signal("");
   const email = signal("");
   const phone = signal("");
-  const owner = signal("David Mwangi");
+  const owner = signal("Alex Morgan");
   const channel = signal("WhatsApp");
   const close = closeNewContact;
   const save = () => {
@@ -37,8 +38,8 @@ export function NewContactForm() {
       role: "New contact",
       email: email().trim() || "not-set@example.com",
       phone: phone().trim() || "—",
-      location: "Nairobi, Kenya",
-      value: "KES 0",
+      location: "New York, US",
+      value: `${currencySymbol()}0`,
       deals: 0,
       conversations: 0,
       since: "Nov 2025",
@@ -65,11 +66,11 @@ export function NewContactForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={close}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={save} testID="create-contact">
             <Icon name="plus" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Create contact</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Create contact</Text>
           </Button>
         </DialogActions>
       }
@@ -80,35 +81,35 @@ export function NewContactForm() {
             label="Full name"
             value={name}
             onChange={name.set}
-            placeholder="Sarah Wanjiku"
+            placeholder="Maya Lin"
             testID="contact-name"
           />
           <TextField
             label="Company"
             value={company}
             onChange={company.set}
-            placeholder="ABC Enterprises"
+            placeholder="Atlas Enterprises"
             testID="contact-company"
           />
           <TextField
             label="Email"
             value={email}
             onChange={email.set}
-            placeholder="sarah@abc.co.ke"
+            placeholder="maya@abc.com"
             testID="contact-email"
           />
           <TextField
             label="Phone"
             value={phone}
             onChange={phone.set}
-            placeholder="+254 712 345 678"
+            placeholder="+1 415 555 0132"
           />
         </FormGrid>
         <FormGrid>
           <SelectField
             label="Owner"
             value={owner}
-            options={["David Mwangi", "Yasir Noori", "Amina Kimani"]}
+            options={["Alex Morgan", "Priya Shah", "Aiko Tanaka"]}
             onChange={owner.set}
           />
           <SelectField

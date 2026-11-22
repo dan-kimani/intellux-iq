@@ -40,13 +40,13 @@ export function ContactMedia(props: { contact: ContactRow }) {
       <Card class="overflow-hidden">
         <View class="flex-row items-center justify-between border-b border-border px-5 py-3.5">
           <SectionTitle>Products sent</SectionTitle>
-          <Text class="text-[9.5px] text-muted-foreground">
+          <Text class="text-[11px] text-muted-foreground">
             {items().length} {items().length === 1 ? "line" : "lines"} from quotations
           </Text>
         </View>
         <If when={items().length === 0}>
           <View class="px-5 py-6">
-            <Text class="text-[10.5px] text-muted-foreground">
+            <Text class="text-[12px] text-muted-foreground">
               No products have been sent to this customer yet.
             </Text>
           </View>
@@ -58,12 +58,12 @@ export function ContactMedia(props: { contact: ContactRow }) {
                 <Icon name="package" size={14} tone="muted-foreground" />
               </View>
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11.5px] font-medium text-foreground">{item().name}</Text>
-                <Text class="text-[9.5px] text-muted-foreground">
+                <Text class="text-[12px] font-medium text-foreground">{item().name}</Text>
+                <Text class="text-[11px] text-muted-foreground">
                   {item().qty} × {item().price}
                 </Text>
               </View>
-              <Text class="text-[11.5px] font-semibold text-foreground">{item().total}</Text>
+              <Text class="text-[12px] font-semibold text-foreground">{item().total}</Text>
             </View>
           )}
         </Each>
@@ -72,14 +72,14 @@ export function ContactMedia(props: { contact: ContactRow }) {
       <Card class="gap-3 p-5">
         <View class="flex-row items-center justify-between">
           <SectionTitle>Photos & documents</SectionTitle>
-          <Text class="text-[9.5px] text-muted-foreground">{quotes.length + 2} files</Text>
+          <Text class="text-[11px] text-muted-foreground">{quotes.length + 2} files</Text>
         </View>
         <View class="grid grid-cols-3 gap-3">
           <View class="overflow-hidden rounded-lg border border-border bg-panel">
             <Image src={headphones} style={{ width: "100%", height: 88, objectFit: "cover" }} />
             <View class="gap-0.5 px-2.5 py-2">
-              <Text class="text-[10.5px] font-medium text-foreground">Product photo</Text>
-              <Text class="text-[9px] text-muted-foreground">ProMax headset</Text>
+              <Text class="text-[12px] font-medium text-foreground">Product photo</Text>
+              <Text class="text-[11px] text-muted-foreground">ProMax headset</Text>
             </View>
           </View>
           <If when={latest}>
@@ -94,10 +94,8 @@ export function ContactMedia(props: { contact: ContactRow }) {
                 <Icon name="fileText" size={14} tone="muted-foreground" />
               </View>
               <View class="gap-0.5">
-                <Text class="text-[10.5px] font-medium text-foreground">
-                  Quotation {latest?.id}
-                </Text>
-                <Text class="text-[9px] text-muted-foreground">PDF · 245 KB</Text>
+                <Text class="text-[12px] font-medium text-foreground">Quotation {latest?.id}</Text>
+                <Text class="text-[11px] text-muted-foreground">PDF · 245 KB</Text>
               </View>
             </View>
           </If>
@@ -106,8 +104,8 @@ export function ContactMedia(props: { contact: ContactRow }) {
               <Icon name="printer" size={14} tone="muted-foreground" />
             </View>
             <View class="gap-0.5">
-              <Text class="text-[10.5px] font-medium text-foreground">Delivery note</Text>
-              <Text class="text-[9px] text-muted-foreground">PDF · 88 KB</Text>
+              <Text class="text-[12px] font-medium text-foreground">Delivery note</Text>
+              <Text class="text-[11px] text-muted-foreground">PDF · 88 KB</Text>
             </View>
           </View>
         </View>

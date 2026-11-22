@@ -64,12 +64,12 @@ function ContactMetrics() {
                 >
                   <Icon name={metric().icon} size={13} tone={metric().tone} />
                 </View>
-                <Text class="text-[9.5px] text-muted-foreground">{metric().note}</Text>
+                <Text class="text-[11px] text-muted-foreground">{metric().note}</Text>
               </View>
-              <Text class="text-[22px] font-semibold tracking-tight text-foreground">
+              <Text class="text-[22px] font-semibold tabular-nums text-foreground">
                 {metric().value}
               </Text>
-              <Text class="text-[10px] text-muted-foreground">{metric().label}</Text>
+              <Text class="text-[12px] text-muted-foreground">{metric().label}</Text>
             </Card>
           )}
         </Each>
@@ -84,11 +84,11 @@ function ContactTable() {
     <If when={ready()} else={<SkeletonTable rows={6} columns={5} />}>
       <Card class="overflow-hidden">
         <View class="flex-row items-center gap-3 border-b border-border px-4 py-3">
-          <Text class="flex-1 text-[12.5px] font-semibold text-foreground">Directory</Text>
-          <Text class="text-[10px] text-muted-foreground">{contactRows().length} of 248</Text>
+          <Text class="flex-1 text-[13px] font-semibold text-foreground">Directory</Text>
+          <Text class="text-[12px] text-muted-foreground">{contactRows().length} of 248</Text>
           <Icon name="funnel" size={12} tone="muted-foreground" />
         </View>
-        <View class="flex-row items-center gap-3 border-b border-border bg-panel-strong px-4 py-2 text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
+        <View class="flex-row items-center gap-3 border-b border-border bg-panel-strong px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           <Text class="flex-1">Contact</Text>
           <Text class="w-28">Owner</Text>
           <Text class="w-20">Channel</Text>
@@ -110,27 +110,24 @@ function ContactTable() {
               }}
             >
               <View class="min-w-0 flex-1 flex-row items-center gap-2.5">
-                <Avatar
-                  initials={contact().initials}
-                  tone={contact().tone}
-                  size={30}
-                  online={contact().status === "active"}
-                />
+                <Avatar name={contact().name} size={30} online={contact().status === "active"} />
                 <View class="min-w-0 gap-0.5">
-                  <Text class="text-[11.5px] font-medium text-foreground">{contact().name}</Text>
-                  <Text class="text-[9.5px] text-muted-foreground">{contact().company}</Text>
+                  <Text class="text-[12px] font-medium text-foreground">{contact().name}</Text>
+                  <Text class="text-[11px] text-muted-foreground">{contact().company}</Text>
                 </View>
               </View>
-              <Text class="w-28 text-[10px] text-muted-foreground">{contact().owner}</Text>
+              <Text class="w-28 text-[12px] text-muted-foreground">{contact().owner}</Text>
               <View class="w-20 flex-row items-center gap-1">
                 <Icon
                   name={contact().channel === "WhatsApp" ? "messageCircle" : "mail"}
                   size={10}
                   tone="muted-foreground"
                 />
-                <Text class="text-[9.5px] text-muted-foreground">{contact().channel}</Text>
+                <Text class="text-[11px] text-muted-foreground">{contact().channel}</Text>
               </View>
-              <Text class="w-20 text-[9.5px] text-muted-foreground">{contact().lastTouch}</Text>
+              <Text class="w-20 text-[11px] tabular-nums text-muted-foreground">
+                {contact().lastTouch}
+              </Text>
               <View class="w-14 items-start">
                 <Badge
                   variant={
@@ -142,7 +139,7 @@ function ContactTable() {
                   }
                 >
                   <Text
-                    class="text-[8.5px] font-medium capitalize"
+                    class="text-[11px] font-medium capitalize"
                     style={{
                       color: token(
                         contact().status === "active"
@@ -184,8 +181,8 @@ function ContactSide() {
             {(segment: () => (typeof segments)[number]) => (
               <View class="gap-1.5">
                 <View class="flex-row items-center justify-between">
-                  <Text class="text-[10.5px] text-foreground">{segment().label}</Text>
-                  <Text class="text-[10px] font-semibold text-foreground">{segment().value}</Text>
+                  <Text class="text-[12px] text-foreground">{segment().label}</Text>
+                  <Text class="text-[12px] font-semibold text-foreground">{segment().value}</Text>
                 </View>
                 <View class="h-1 overflow-hidden rounded-full bg-muted">
                   <View
@@ -207,7 +204,7 @@ function ContactSide() {
               activeNav.set("Segments");
             }}
           >
-            <Text class="text-[10px] font-medium">Manage segments</Text>
+            <Text class="text-[12px] font-medium">Manage segments</Text>
             <Icon name="chevronRight" size={11} tone="muted-foreground" />
           </Button>
         </Card>
@@ -216,16 +213,16 @@ function ContactSide() {
           <View class="flex-row items-center gap-2.5">
             <Logo size={30} />
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[10.5px] font-medium text-foreground">Acme Kenya</Text>
-              <Text class="text-[9px] text-muted-foreground">via imported CSV · 14m ago</Text>
+              <Text class="text-[12px] font-medium text-foreground">Acme Inc.</Text>
+              <Text class="text-[11px] text-muted-foreground">via imported CSV · 14m ago</Text>
             </View>
             <Icon name="arrowUpRight" size={11} tone="muted-foreground" />
           </View>
           <View class="flex-row items-center gap-2.5">
-            <Avatar initials="GW" tone="amber" size={30} />
+            <Avatar name="Grace Chen" size={30} />
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[10.5px] font-medium text-foreground">Grace Wanjiku</Text>
-              <Text class="text-[9px] text-muted-foreground">New lead · 42m ago</Text>
+              <Text class="text-[12px] font-medium text-foreground">Grace Chen</Text>
+              <Text class="text-[11px] text-muted-foreground">New lead · 42m ago</Text>
             </View>
             <Icon name="arrowUpRight" size={11} tone="muted-foreground" />
           </View>
@@ -245,11 +242,11 @@ function Directory() {
         <PageActions>
           <Button variant="outline" size="sm" onPress={() => importContactsOpen.set(true)}>
             <Icon name="download" size={12} tone="muted-foreground" />
-            <Text class="text-[10px] font-medium">Import</Text>
+            <Text class="text-[12px] font-medium">Import</Text>
           </Button>
           <Button variant="primary" size="sm" onPress={() => newContactOpen.set(true)}>
             <Icon name="plus" size={12} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">New contact</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">New contact</Text>
           </Button>
         </PageActions>
       }

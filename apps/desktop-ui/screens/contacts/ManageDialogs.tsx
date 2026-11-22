@@ -1,3 +1,4 @@
+import { currencySymbol } from "../../lib/money";
 import { signal, Text, View } from "nsh";
 import { AppDialog, DialogActions, ModalNotice } from "../../components/overlay";
 import { ChoiceCards, TextField } from "../../components/forms";
@@ -24,7 +25,7 @@ function ImportForm() {
       footer={
         <DialogActions>
           <Button variant="ghost" size="sm" onPress={close}>
-            <Text class="text-[10px] font-medium">Cancel</Text>
+            <Text class="text-[12px] font-medium">Cancel</Text>
           </Button>
           <Button
             variant="primary"
@@ -32,22 +33,22 @@ function ImportForm() {
             onPress={() => {
               const row: ContactRow = {
                 id: `c${Date.now()}`,
-                name: "Grace Kimani",
+                name: "Grace Tanaka",
                 initials: "GK",
                 tone: "amber",
                 company: "Imported CSV",
                 role: "Customer contact",
-                email: "grace@imported.co.ke",
-                phone: "+254 711 000 111",
-                location: "Nairobi, Kenya",
-                value: "KES 0",
+                email: "grace@imported.com",
+                phone: "+44 20 7946 0111",
+                location: "New York, US",
+                value: `${currencySymbol()}0`,
                 deals: 0,
                 conversations: 0,
                 since: "Nov 2025",
                 score: 48,
                 outcome: "Imported from CSV",
                 tags: ["Imported"],
-                owner: "David Mwangi",
+                owner: "Alex Morgan",
                 channel: "Email",
                 lastTouch: "Just now",
                 status: "new",
@@ -59,7 +60,7 @@ function ImportForm() {
             testID="confirm-import"
           >
             <Icon name="download" size={11} tone="primary-foreground" />
-            <Text class="text-[10px] font-semibold text-primary-foreground">Import 1 contact</Text>
+            <Text class="text-[12px] font-semibold text-primary-foreground">Import 1 contact</Text>
           </Button>
         </DialogActions>
       }
@@ -93,32 +94,32 @@ function ImportForm() {
           placeholder="contacts-november.csv"
           hint="Prototype only"
         />
-        <View class="gap-2 rounded-3xl border border-border bg-card shadow-md p-3">
+        <View class="gap-2 rounded-xl border border-border bg-card shadow-md p-3">
           <SectionTitle>Column mapping</SectionTitle>
           <View class="grid grid-cols-3 gap-2">
             <View class="gap-0.5">
-              <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">CSV</Text>
-              <Text class="text-[10px] font-medium text-foreground">full_name</Text>
+              <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">CSV</Text>
+              <Text class="text-[12px] font-medium text-foreground">full_name</Text>
             </View>
             <View class="gap-0.5">
-              <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+              <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Maps to
               </Text>
-              <Text class="text-[10px] font-medium text-foreground">Name</Text>
+              <Text class="text-[12px] font-medium text-foreground">Name</Text>
             </View>
             <View class="gap-0.5">
-              <Text class="text-[8.5px] uppercase tracking-wide text-muted-foreground">
+              <Text class="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Example
               </Text>
-              <Text class="text-[10px] font-medium text-foreground">Grace Kimani</Text>
+              <Text class="text-[12px] font-medium text-foreground">Grace Tanaka</Text>
             </View>
           </View>
           <View class="grid grid-cols-3 gap-2">
-            <Text class="text-[10px] text-muted-foreground">company · email · phone</Text>
-            <Text class="text-[10px] text-muted-foreground">Company · Email · Phone</Text>
-            <Text class="text-[10px] text-muted-foreground">Imported CSV · grace@…</Text>
+            <Text class="text-[12px] text-muted-foreground">company · email · phone</Text>
+            <Text class="text-[12px] text-muted-foreground">Company · Email · Phone</Text>
+            <Text class="text-[12px] text-muted-foreground">Imported CSV · grace@…</Text>
           </View>
-          <Text class="text-[9px] leading-3.5 text-muted-foreground">
+          <Text class="text-[11px] leading-3.5 text-muted-foreground">
             Duplicates are matched by email. Rows with errors stay in the import report.
           </Text>
         </View>

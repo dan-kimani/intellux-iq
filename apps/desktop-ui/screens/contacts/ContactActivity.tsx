@@ -30,8 +30,8 @@ export function ContactActivity(props: { contact: ContactRow }) {
                 />
               </View>
               <View class="min-w-0 flex-1 gap-0.5">
-                <Text class="text-[11px] font-medium text-foreground">{entry().text}</Text>
-                <Text class="text-[9.5px] text-muted-foreground">
+                <Text class="text-[12px] font-medium text-foreground">{entry().text}</Text>
+                <Text class="text-[11px] text-muted-foreground">
                   {entry().meta} · {entry().at}
                 </Text>
               </View>
@@ -44,10 +44,10 @@ export function ContactActivity(props: { contact: ContactRow }) {
               <Icon name="fileText" size={12} tone="muted-foreground" />
             </View>
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[11px] font-medium text-foreground">
+              <Text class="text-[12px] font-medium text-foreground">
                 Quotation {latest?.id} issued
               </Text>
-              <Text class="text-[9.5px] text-muted-foreground">
+              <Text class="text-[11px] text-muted-foreground">
                 {latest?.issued} · {latest?.value}
               </Text>
             </View>
@@ -57,8 +57,8 @@ export function ContactActivity(props: { contact: ContactRow }) {
               <Icon name="checkCheck" size={12} tone="muted-foreground" />
             </View>
             <View class="min-w-0 flex-1 gap-0.5">
-              <Text class="text-[11px] font-medium text-foreground">Customer engagement</Text>
-              <Text class="text-[9.5px] text-muted-foreground">
+              <Text class="text-[12px] font-medium text-foreground">Customer engagement</Text>
+              <Text class="text-[11px] text-muted-foreground">
                 {latest?.viewed} · last touch {props.contact.lastTouch}
               </Text>
             </View>
@@ -69,8 +69,8 @@ export function ContactActivity(props: { contact: ContactRow }) {
             <Icon name="users" size={12} tone="muted-foreground" />
           </View>
           <View class="min-w-0 flex-1 gap-0.5">
-            <Text class="text-[11px] font-medium text-foreground">Added to the directory</Text>
-            <Text class="text-[9.5px] text-muted-foreground">
+            <Text class="text-[12px] font-medium text-foreground">Added to the directory</Text>
+            <Text class="text-[11px] text-muted-foreground">
               {props.contact.since} · {props.contact.owner}
             </Text>
           </View>
@@ -78,7 +78,7 @@ export function ContactActivity(props: { contact: ContactRow }) {
       </View>
       <View class="flex-row items-center gap-1.5 border-t border-border pt-2">
         <View class="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: token("success") }} />
-        <Text class="text-[9px] text-muted-foreground">
+        <Text class="text-[11px] text-muted-foreground">
           Deterministic events; notes are team-visible
         </Text>
       </View>

@@ -63,15 +63,15 @@ export function ContactQuotes(props: { contact: ContactRow }) {
     <Card class="overflow-hidden">
       <View class="flex-row items-center gap-3 border-b border-border px-5 py-3.5">
         <View class="flex-row items-center gap-2">
-          <Text class="text-[13.5px] font-semibold text-foreground">Quotations</Text>
+          <Text class="text-[14px] font-semibold text-foreground">Quotations</Text>
           <Badge variant="outline">
-            <Text class="text-[9px] text-muted-foreground">{quotes.length}</Text>
+            <Text class="text-[11px] text-muted-foreground">{quotes.length}</Text>
           </Badge>
         </View>
         <View class="flex-1" />
         <Button variant="outline" size="sm" onPress={() => newQuoteFor(props.contact)}>
           <Icon name="plus" size={11} tone="muted-foreground" />
-          <Text class="text-[10.5px] font-medium">New quote</Text>
+          <Text class="text-[12px] font-medium">New quote</Text>
         </Button>
       </View>
 
@@ -80,8 +80,8 @@ export function ContactQuotes(props: { contact: ContactRow }) {
           <View class="h-9 w-9 items-center justify-center rounded-lg bg-muted">
             <Icon name="fileText" size={15} tone="muted-foreground" />
           </View>
-          <Text class="text-[11.5px] font-medium text-foreground">No quotations yet</Text>
-          <Text class="text-[10px] text-muted-foreground">
+          <Text class="text-[12px] font-medium text-foreground">No quotations yet</Text>
+          <Text class="text-[12px] text-muted-foreground">
             Raise the first quotation for {props.contact.company}.
           </Text>
         </View>
@@ -99,25 +99,25 @@ export function ContactQuotes(props: { contact: ContactRow }) {
           >
             <View class="min-w-0 flex-1 gap-1">
               <View class="flex-row items-center gap-2">
-                <Text class="font-mono text-[10.5px] font-medium text-foreground">
-                  {quote().id}
-                </Text>
+                <Text class="font-mono text-[12px] font-medium text-foreground">{quote().id}</Text>
                 <Badge variant={quoteStatusStyles[quote().status].variant}>
                   <Text
-                    class="text-[9px] font-medium capitalize"
+                    class="text-[11px] font-medium capitalize"
                     style={{ color: statusTone(quote().status) }}
                   >
                     {quoteStatusStyles[quote().status].label}
                   </Text>
                 </Badge>
               </View>
-              <Text class="text-[10.5px] text-muted-foreground" style={{ numberOfLines: 1 }}>
+              <Text class="text-[12px] text-muted-foreground" style={{ numberOfLines: 2 }}>
                 {quote().opportunity}
               </Text>
             </View>
             <View class="w-28 items-end gap-0.5">
-              <Text class="text-[12px] font-semibold text-foreground">{quote().value}</Text>
-              <Text class="text-[9.5px] text-muted-foreground">Valid to {quote().validUntil}</Text>
+              <Text class="text-[13px] font-semibold tabular-nums text-foreground">
+                {quote().value}
+              </Text>
+              <Text class="text-[11px] text-muted-foreground">Valid to {quote().validUntil}</Text>
             </View>
             <View class="flex-row items-center gap-1">
               <Button

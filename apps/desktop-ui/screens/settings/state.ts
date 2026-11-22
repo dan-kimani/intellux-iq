@@ -1,4 +1,5 @@
-import { signal } from "nsh";
+import { signal, Storage } from "nsh";
+import type { CurrencyCode } from "../../lib/money";
 
 export const deviceLinkOpen = signal(false);
 export const onboardingOpen = signal(false);
@@ -6,9 +7,9 @@ export const accessSettingsOpen = signal(false);
 export const workspaceEditOpen = signal(false);
 export const thresholdsEditOpen = signal(false);
 export const workspace = signal({
-  name: "Acme Trading Ltd",
-  currency: "KES",
-  timezone: "Africa/Nairobi",
+  name: "Acme Trading Inc.",
+  currency: "USD" as CurrencyCode,
+  timezone: "America/New_York",
   digest: true,
 });
 export const thresholds = signal({
@@ -16,3 +17,8 @@ export const thresholds = signal({
   silentCustomer: "3 business days",
   opportunityInactivity: "7 days",
 });
+
+export function setCurrency(currency: CurrencyCode): void {
+  workspace.set({ ...workspace(), currency });
+  void Storage.setItem("intellux.currency", currency);
+}
