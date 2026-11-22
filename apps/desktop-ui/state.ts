@@ -4,6 +4,8 @@ import { assignmentFor, currentMember, inboxScope } from "./state/inbox";
 export * from "./state/inbox";
 
 export type NavItem =
+  | "Home"
+  | "Tasks"
   | "Inbox"
   | "Recovery"
   | "Contacts"
@@ -15,8 +17,8 @@ export type NavItem =
   | "Segments"
   | "Settings";
 
-export const activeNav = signal<NavItem>("Inbox");
-export const activeNavChild = signal<string | null>("inbox");
+export const activeNav = signal<NavItem>("Home");
+export const activeNavChild = signal<string | null>(null);
 export const sidebarCollapsed = signal(false);
 export const selectedId = signal("sarah");
 export const extraConversations = signal<Conversation[]>([]);
@@ -47,7 +49,7 @@ export function createConversation(input: {
     tone: input.tone,
     channel: input.channel,
     channelAccount:
-      input.channel === "whatsapp" ? "WhatsApp · +254 700 100 200" : "sales@acmetrading.co.ke",
+      input.channel === "whatsapp" ? "WhatsApp · +1 212 555 0200" : "sales@acmetrading.com",
     subject: input.channel === "email" ? "New email conversation" : undefined,
     preview: input.text,
     time: "Now",
@@ -202,7 +204,7 @@ export const composerAttachment = signal<string | null>(null);
 
 export const locked = signal(false);
 
-export const currentUser = "David Mwangi";
+export const currentUser = "Alex Morgan";
 export const online = signal(true);
 export type OutboxStatus = "queued" | "sending" | "sent" | "failed";
 export interface OutboxItem {

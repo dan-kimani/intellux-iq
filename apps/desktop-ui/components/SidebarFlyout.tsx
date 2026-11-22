@@ -1,6 +1,6 @@
 import { signal, Text, token, View } from "nsh";
 import { HoverCard } from "nsh/base";
-import { Icon } from "./ui";
+import { Icon, Tooltip } from "./ui";
 import {
   moduleCount,
   moduleIsActive,
@@ -32,7 +32,7 @@ function SectionFlyout(props: { section: NavSection }) {
         <View
           role="button"
           accessibilityLabel={props.section.label}
-          tooltip={<Text class="text-xs text-foreground">{props.section.label}</Text>}
+          tooltip={<Tooltip label={props.section.label} />}
           testID={`collapsed-nav-${props.section.id}`}
           onPress={() => selectModule(props.section.modules[0])}
           class="h-10 w-10 items-center justify-center rounded-lg"
@@ -52,7 +52,7 @@ function SectionFlyout(props: { section: NavSection }) {
     >
       <View testID={`collapsed-flyout-${props.section.id}`} class="gap-0.5">
         <View class="flex-row items-center justify-between px-2 py-1.5">
-          <Text class="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <Text class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {props.section.label}
           </Text>
         </View>
@@ -89,7 +89,7 @@ function SectionFlyout(props: { section: NavSection }) {
                 }
               />
               <Text
-                class="min-w-0 flex-1 truncate text-[11.5px] font-medium"
+                class="min-w-0 flex-1 truncate text-[12px] font-medium"
                 style={{
                   color: moduleIsActive(props.section, module())
                     ? token("nav-active-foreground")
@@ -99,7 +99,9 @@ function SectionFlyout(props: { section: NavSection }) {
                 {module().label}
               </Text>
               <If when={moduleCount(module()) !== undefined}>
-                <Text class="text-[9.5px] text-muted-foreground">{moduleCount(module())}</Text>
+                <Text class="text-[11px] tabular-nums text-muted-foreground">
+                  {moduleCount(module())}
+                </Text>
               </If>
             </View>
           )}
@@ -115,7 +117,7 @@ function TopItem(props: { module: NavModule }) {
     <View
       role="button"
       accessibilityLabel={props.module.label}
-      tooltip={<Text class="text-xs text-foreground">{props.module.label}</Text>}
+      tooltip={<Tooltip label={props.module.label} />}
       testID={`nav-${props.module.id}`}
       onPress={() => selectModule(props.module)}
       class="h-10 w-10 items-center justify-center rounded-lg"

@@ -1,5 +1,6 @@
 import { newMessageOpen, type NavItem } from "../../state";
 import { newDealOpen } from "../../screens/deals/state";
+import { openWorkDialog } from "../../screens/work/state";
 import { quoteBuilderOpen } from "../../screens/quotes/state";
 import { contactDetail, contactRows } from "../../screens/contacts/state";
 import { dealDetail, dealRows } from "../../screens/deals/state";
@@ -52,6 +53,33 @@ const suggestions: PaletteResult[] = [
     nav: "Quotes",
     action: () => quoteBuilderOpen.set(true),
   },
+  {
+    key: "new-task",
+    label: "New task",
+    detail: "Plan internal follow-up work",
+    group: "Suggestions",
+    kind: "Command",
+    icon: "checkCheck",
+    action: () => openWorkDialog({ mode: "task" }),
+  },
+  {
+    key: "log-activity",
+    label: "Log activity",
+    detail: "Record a call, meeting, email, or note",
+    group: "Suggestions",
+    kind: "Command",
+    icon: "fileText",
+    action: () => openWorkDialog({ mode: "activity" }),
+  },
+  {
+    key: "set-reminder",
+    label: "Set reminder",
+    detail: "Return to a record at a chosen time",
+    group: "Suggestions",
+    kind: "Command",
+    icon: "calendarClock",
+    action: () => openWorkDialog({ mode: "reminder" }),
+  },
 ];
 
 const navResults: PaletteResult[] = [
@@ -63,6 +91,15 @@ const navResults: PaletteResult[] = [
     kind: "Screen",
     icon: "inbox",
     nav: "Inbox",
+  },
+  {
+    key: "go-tasks",
+    label: "Tasks",
+    detail: "Tasks, activity, and reminders",
+    group: "Go to",
+    kind: "Screen",
+    icon: "checkCheck",
+    nav: "Tasks",
   },
   {
     key: "go-contacts",

@@ -20,15 +20,15 @@ const contactIds: Record<string, string | null> = {
 };
 
 const owners: Record<string, { userId: string; name: string; source: AssignmentSource } | null> = {
-  sarah: { userId: "u-david", name: "David Mwangi", source: "manual" },
-  techworld: { userId: "u-david", name: "David Mwangi", source: "manual" },
-  david: { userId: "u-david", name: "David Mwangi", source: "manual" },
-  greenmart: { userId: "u-amina", name: "Amina Kimani", source: "round_robin" },
-  james: { userId: "u-david", name: "David Mwangi", source: "manual" },
+  sarah: { userId: "u-david", name: "Alex Morgan", source: "manual" },
+  techworld: { userId: "u-david", name: "Alex Morgan", source: "manual" },
+  david: { userId: "u-david", name: "Alex Morgan", source: "manual" },
+  greenmart: { userId: "u-amina", name: "Aiko Tanaka", source: "round_robin" },
+  james: { userId: "u-david", name: "Alex Morgan", source: "manual" },
   globalretail: null,
-  mary: { userId: "u-david", name: "David Mwangi", source: "manual" },
-  summit: { userId: "u-yasir", name: "Yasir Noori", source: "vip" },
-  peter: { userId: "u-david", name: "David Mwangi", source: "manual" },
+  mary: { userId: "u-david", name: "Alex Morgan", source: "manual" },
+  summit: { userId: "u-yasir", name: "Priya Shah", source: "vip" },
+  peter: { userId: "u-david", name: "Alex Morgan", source: "manual" },
   kenyafix: null,
 };
 
@@ -130,15 +130,15 @@ const followUps: Record<string, { completed: number; due: number; overdue: boole
 };
 
 const opportunityNames: Record<string, string> = {
-  "OPP-2025-0123": "Acme Kenya — Q4 packaging",
+  "OPP-2025-0123": "Acme Inc. — Q4 packaging",
   "OPP-2025-0118": "TechWorld — retail display",
-  "OPP-2025-0124": "Ochieng & Sons — office audio",
+  "OPP-2025-0124": "Harbor & Co. — office audio",
   "OPP-2025-0126": "GreenMart — annual supply",
-  "OPP-2025-0119": "Kamau Retail — POS rollout",
+  "OPP-2025-0119": "Northwind Retail — POS rollout",
   "OPP-2025-0121": "Global Retail — Q1 assortment",
-  "OPP-2025-0122": "Atieno Interiors — lighting",
+  "OPP-2025-0122": "Lumen Interiors — lighting",
   "OPP-2025-0120": "Summit — distributor terms",
-  "OPP-2025-0125": "Mwangi Hardware — accessory bundle",
+  "OPP-2025-0125": "Morgan Hardware — accessory bundle",
 };
 
 const emailSubjects: Record<string, string> = {
@@ -161,7 +161,7 @@ function responsibilities(seed: ConversationSeed): ConversationAssignment | null
   return {
     ...owner,
     at: "Today 09:12",
-    by: owner.source === "manual" ? "David Mwangi" : "Routing engine",
+    by: owner.source === "manual" ? "Alex Morgan" : "Routing engine",
   };
 }
 
@@ -188,7 +188,7 @@ function linkedOpportunities(seed: ConversationSeed): OpportunityLink[] {
       primary,
       {
         id: "OPP-2025-0131",
-        name: accessory?.name ?? "Acme Kenya — accessory bundle",
+        name: accessory?.name ?? "Acme Inc. — accessory bundle",
         stage: accessory?.stage ?? "enquiry",
         value: accessory?.value ?? "$2,400",
         probability: accessory?.probability ?? stageProbability("enquiry"),
@@ -232,7 +232,7 @@ function normalizedMessages(seed: ConversationSeed): Message[] {
       return {
         ...message,
         replyTo: {
-          from: "Sarah Wanjiku",
+          from: "Maya Lin",
           text: "Can you share the latest pricing for 50 units?",
         },
       };
@@ -268,7 +268,7 @@ export function normalizeConversation(seed: ConversationSeed): Conversation {
     tone: seed.tone,
     channel: seed.channel,
     channelAccount:
-      seed.channel === "whatsapp" ? "WhatsApp · +254 700 100 200" : "sales@acmetrading.co.ke",
+      seed.channel === "whatsapp" ? "WhatsApp · +1 212 555 0200" : "sales@acmetrading.com",
     subject: emailSubjects[seed.id],
     preview: seed.preview,
     time: seed.time,

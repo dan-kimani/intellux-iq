@@ -6,8 +6,8 @@ export function PageHeader(props: { title: string; description: string; actions?
   return (
     <View class="shrink-0 flex-row items-end justify-between gap-4 border-b border-border px-6 py-5">
       <View class="min-w-0 gap-1">
-        <Text class="text-[24px] font-semibold tracking-tight text-foreground">{props.title}</Text>
-        <Text class="max-w-150 text-[12.5px] leading-5 text-muted-foreground">
+        <Text class="text-[24px] font-semibold text-foreground">{props.title}</Text>
+        <Text class="max-w-150 text-[13px] leading-5 text-muted-foreground">
           {props.description}
         </Text>
       </View>

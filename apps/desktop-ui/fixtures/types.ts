@@ -90,6 +90,10 @@ export interface OpportunityLink {
   value: string;
   probability: number;
   owner: string;
+  product?: string;
+  expectedClose?: string;
+  nextStep?: string;
+  quoteId?: string;
 }
 
 export interface ConversationAssignment {

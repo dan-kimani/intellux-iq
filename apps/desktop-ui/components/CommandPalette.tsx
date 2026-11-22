@@ -176,7 +176,7 @@ export function CommandPalette() {
                 height: 32,
                 paddingLeft: 0,
                 paddingRight: 0,
-                fontSize: 14.5,
+                fontSize: 14,
                 color: token("foreground"),
                 placeholderColor: token("muted-foreground"),
                 backgroundColor: "transparent",
@@ -221,10 +221,10 @@ export function CommandPalette() {
                     <View class="h-9 w-9 items-center justify-center rounded-lg bg-muted">
                       <Icon name="search" size={15} tone="muted-foreground" />
                     </View>
-                    <Text class="text-[11.5px] font-medium text-foreground">
+                    <Text class="text-[12px] font-medium text-foreground">
                       No results for “{query().trim()}”
                     </Text>
-                    <Text class="text-[9.5px] text-muted-foreground">
+                    <Text class="text-[11px] text-muted-foreground">
                       Try a contact, quote number, SKU, or command.
                     </Text>
                   </View>
@@ -232,7 +232,7 @@ export function CommandPalette() {
                 <Each of={grouped()}>
                   {(group: () => PaletteGroup) => (
                     <>
-                      <Text class="px-2.5 pb-1 pt-2.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Text class="px-2.5 pb-1 pt-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {group().group}
                       </Text>
                       <Each of={group().items}>
@@ -265,7 +265,7 @@ export function CommandPalette() {
               <Hint keys="↵" label="Open" />
               <Hint keys="ESC" label="Close" />
             </View>
-            <Text class="text-[8.5px] text-muted-foreground">Search IntelluxIQ</Text>
+            <Text class="text-[11px] text-muted-foreground">Search IntelluxIQ</Text>
           </View>
         </View>
       </View>

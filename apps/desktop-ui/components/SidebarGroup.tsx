@@ -30,7 +30,7 @@ export function ModuleRow(props: { module: NavModule; active: boolean; indent?: 
         tone={props.active ? "nav-active-foreground" : "muted-foreground"}
       />
       <Text
-        class="min-w-0 flex-1 truncate text-[11px] font-medium"
+        class="min-w-0 flex-1 truncate text-[12px] font-medium"
         style={{
           color: props.active ? token("nav-active-foreground") : token("sidebar-foreground"),
         }}
@@ -45,7 +45,7 @@ export function ModuleRow(props: { module: NavModule; active: boolean; indent?: 
           }}
         >
           <Text
-            class="text-[8.5px] font-semibold"
+            class="text-[11px] font-semibold tabular-nums"
             style={{
               color: props.active ? token("nav-active-foreground") : token("muted-foreground"),
             }}
@@ -78,10 +78,9 @@ export function Group(props: { group: NavSection }) {
           tone={sectionIsActive(props.group) ? "highlight" : "muted-foreground"}
         />
         <Text
-          class="min-w-0 flex-1 truncate text-[9.5px] font-semibold uppercase tracking-wide"
+          class="min-w-0 flex-1 truncate text-[11px] font-semibold uppercase tracking-wider"
           style={{
             color: sectionIsActive(props.group) ? token("highlight") : token("muted-foreground"),
-            letterSpacing: 0.7,
           }}
         >
           {props.group.label}

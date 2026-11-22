@@ -1,27 +1,31 @@
 import { expect, open, test } from "nsh/test";
 
-function openDesktop() {
-  return open("./App.tsx", {
+async function openDesktop() {
+  const app = await open("./App.tsx", {
     width: 1440,
     height: 900,
     platform: "linux",
     colorScheme: "dark",
   });
+  await app.press("id:nav-inbox");
+  await app.waitFor("id:conversation-sarah");
+  return app;
 }
 
 test("selects a conversation and updates the work area", async () => {
   const app = await openDesktop();
-  expect(app.texts()).toContain("Sarah Wanjiku");
+  expect(app.texts()).toContain("Maya Lin");
   await app.press("id:conversation-david");
-  await app.waitFor("text:Ochieng & Sons");
-  expect(app.texts()).toContain("Kisumu, Kenya");
+  await app.waitFor("text:Harbor & Co.");
+  expect(app.texts()).toContain("London, UK");
   expect(app.texts()).toContain("Negotiation");
 });
 
 test("filters the inbox by channel", async () => {
   const app = await openDesktop();
   await app.press("id:filter-email");
-  await app.waitFor("text:2 messages · inbox");
+  await app.waitFor("text:3 messages · inbox");
+  expect(app.shows("id:mail-folder-rail")).toBe(true);
   expect(app.shows("id:mail-inbox-james")).toBe(true);
   expect(app.shows("id:conversation-sarah")).toBe(false);
 });
@@ -71,10 +75,13 @@ test("switches the contact panel to intelligence", async () => {
 test("keeps drafts per conversation", async () => {
   const app = await openDesktop();
   await app.press("id:conversation-david");
-  await app.type("id:composer-input", "Draft for David");
+  await app.wait(220);
+  await app.type("id:composer-input", "Draft for Alex");
   await app.press("id:conversation-sarah");
+  await app.wait(220);
   await app.press("id:conversation-david");
-  expect(app.value("id:composer-input")).toBe("Draft for David");
+  await app.wait(220);
+  expect(app.value("id:composer-input")).toBe("Draft for Alex");
 });
 
 test("sends on Enter in a WhatsApp conversation", async () => {

@@ -1,7 +1,6 @@
 import { reduceMotion, Scroll, Text, token, View } from "nsh";
-import userPhoto from "../assets/images/user.jpg";
 import { accountOpen, activeNav, activeNavChild, sidebarCollapsed } from "../state";
-import { Avatar, Icon, IconButton, withAlpha } from "./ui";
+import { Avatar, Icon, IconButton, Tooltip, withAlpha } from "./ui";
 import { ProfileMenu } from "./ProfileMenu";
 import { SidebarNav } from "./SidebarNav";
 
@@ -16,7 +15,7 @@ function WorkspaceMark(props: { size?: number }) {
         backgroundImage: `linear-gradient(145deg, ${token("chart-1")}, ${token("primary")})`,
       }}
     >
-      <Text class="text-[15px] font-semibold text-primary-foreground">A</Text>
+      <Text class="text-[16px] font-semibold text-primary-foreground">A</Text>
     </View>
   );
 }
@@ -27,17 +26,17 @@ function ExpandedWorkspace() {
       role="button"
       accessibilityLabel="Open workspace menu"
       onPress={() => accountOpen.set(true)}
-      class="flex-row items-center gap-2.5 rounded-3xl border border-border bg-card shadow-md p-2.5"
+      class="flex-row items-center gap-2.5 rounded-xl border border-border bg-card shadow-md p-2.5"
       hoverStyle={{ borderColor: token("ring") }}
     >
       <WorkspaceMark />
       <View class="min-w-0 flex-1 gap-0.5">
-        <Text class="text-[12.5px] font-semibold text-foreground" style={{ numberOfLines: 1 }}>
-          Acme Trading Ltd
+        <Text class="text-[13px] font-semibold text-foreground" style={{ numberOfLines: 2 }}>
+          Acme Trading Inc.
         </Text>
         <View class="flex-row items-center gap-1.5">
           <View class="rounded-full bg-success" style={{ width: 5, height: 5 }} />
-          <Text class="text-[10.5px] text-muted-foreground">Pro Plan</Text>
+          <Text class="text-[12px] text-muted-foreground">Pro Plan</Text>
         </View>
       </View>
       <Icon name="chevronDown" size={11} tone="muted-foreground" />
@@ -51,7 +50,7 @@ function ConversionCard() {
       role="button"
       accessibilityLabel="View insights"
       testID="insights-compact"
-      tooltip={<Text class="text-xs text-foreground">View insights</Text>}
+      tooltip={<Tooltip label="View insights" placement="top" />}
       onPress={() => activeNav.set("Analytics")}
       class="h-10 w-10 items-center justify-center rounded-xl border border-border"
       style={{
@@ -72,21 +71,21 @@ function ConversionCard() {
       }}
     >
       <View class="gap-1">
-        <Text class="text-[11.5px] font-medium text-muted-foreground">Conversion rate</Text>
+        <Text class="text-[12px] font-medium text-muted-foreground">Conversion rate</Text>
         <View class="flex-row items-end gap-2">
-          <Text class="text-[28px] font-semibold leading-none text-success">+32%</Text>
+          <Text class="text-[28px] font-semibold leading-none tabular-nums text-success">+32%</Text>
           <Icon name="arrowUpRight" size={13} tone="success" />
         </View>
       </View>
       <View class="flex-row items-center justify-between">
-        <Text class="text-[10.5px] text-muted-foreground">vs last month</Text>
+        <Text class="text-[12px] text-muted-foreground">vs last month</Text>
         <View
           role="button"
           accessibilityLabel="View insights"
           onPress={() => activeNav.set("Analytics")}
           class="flex-row items-center gap-1"
         >
-          <Text class="text-[11.5px] font-medium text-highlight">View insights</Text>
+          <Text class="text-[12px] font-medium text-highlight">View insights</Text>
           <Icon name="chevronRight" size={11} tone="highlight" />
         </View>
       </View>
@@ -123,7 +122,7 @@ export function Sidebar() {
             role="button"
             accessibilityLabel="Open workspace menu"
             onPress={() => accountOpen.set(true)}
-            class="items-center justify-center rounded-3xl border border-border bg-card shadow-md p-2"
+            class="items-center justify-center rounded-xl border border-border bg-card shadow-md p-2"
             hoverStyle={{ borderColor: token("ring") }}
           >
             <WorkspaceMark size={30} />
@@ -144,13 +143,13 @@ export function Sidebar() {
           class="flex-row items-center gap-2.5"
           style={{ justifyContent: collapsed() ? "center" : "flex-start" }}
         >
-          <Avatar photo={userPhoto} initials="DM" size={34} online tone="green" />
+          <Avatar name="Alex Morgan" size={34} online />
           <If when={!collapsed()}>
             <View class="flex-1 gap-1">
-              <Text class="text-[12px] font-semibold leading-none text-foreground">
-                David Mwangi
+              <Text class="text-[13px] font-semibold leading-none text-foreground">
+                Alex Morgan
               </Text>
-              <Text class="text-[10px] leading-none text-muted-foreground">Sales Manager</Text>
+              <Text class="text-[12px] leading-none text-muted-foreground">Sales Manager</Text>
             </View>
             <View class="flex-row items-center gap-0.5">
               <IconButton

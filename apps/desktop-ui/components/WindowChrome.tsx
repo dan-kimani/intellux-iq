@@ -1,7 +1,7 @@
 import { colorScheme, setColorScheme, signal, Text, token, View } from "nsh";
+import type { Tokens } from "nsh";
 import { currentWindow, isAvailable, type WindowMode } from "nsh/desktop";
 import { Input as NativeInput } from "nsh/base";
-import userPhoto from "../assets/images/user.jpg";
 import {
   activeNav,
   accountOpen,
@@ -17,7 +17,7 @@ import { newDealOpen } from "../screens/deals/state";
 import { quoteBuilderOpen } from "../screens/quotes/state";
 import { onboardingOpen } from "../screens/settings/state";
 import { shortcutLabel } from "../screens/settings/shortcuts";
-import { Avatar, Icon, IconButton, Kbd, Lockup, type IconName } from "./ui";
+import { Avatar, Icon, IconButton, Kbd, Lockup, Tooltip, type IconName } from "./ui";
 import { WindowMoreMenu } from "./WindowMoreMenu";
 import { NotificationsMenu } from "./NotificationsMenu";
 
@@ -58,7 +58,7 @@ function TrafficButton(props: {
       role="button"
       accessibilityLabel={label()}
       testID={`window-${props.kind}`}
-      tooltip={<Text class="text-xs text-foreground">{tip()}</Text>}
+      tooltip={<Tooltip label={tip()} />}
       onPress={props.onPress}
       class="h-8 w-8 items-center justify-center rounded-md"
       hoverStyle={{ backgroundColor: token(props.kind === "close" ? "destructive" : "accent") }}
@@ -79,22 +79,21 @@ function QuickAction(props: {
   label: string;
   testID: string;
   onPress: () => void;
+  tone?: keyof Tokens;
 }) {
   return (
     <View
       role="button"
       accessibilityLabel={props.label}
       testID={props.testID}
-      tooltip={<Text class="text-xs text-foreground">{props.label}</Text>}
+      tooltip={<Tooltip label={props.label} />}
       onPress={props.onPress}
       class="h-8 flex-row items-center gap-1.5 rounded-md px-2"
       hoverStyle={{ backgroundColor: token("accent") }}
       focusVisibleStyle={{ outlineWidth: 2, outlineColor: token("ring"), outlineOffset: 1 }}
     >
-      <Icon name={props.icon} size={13} tone="muted-foreground" />
-      <Text class="text-[11.5px] font-medium text-foreground max-[1359px]:hidden">
-        {props.label}
-      </Text>
+      <Icon name={props.icon} size={14} tone={props.tone ?? "muted-foreground"} />
+      <Text class="text-[12px] font-medium text-foreground max-[1359px]:hidden">{props.label}</Text>
     </View>
   );
 }
@@ -126,7 +125,7 @@ export function WindowChrome() {
       <View class="flex-row items-center gap-2 pr-1">
         <Lockup height={24} scheme={colorScheme()} />
         <View class="rounded border border-border px-1 py-0.5">
-          <Text class="text-[8px] font-semibold text-muted-foreground">2.0</Text>
+          <Text class="text-[11px] font-semibold text-muted-foreground">2.0</Text>
         </View>
       </View>
       <View class="mx-0.5 h-5 w-px bg-border" />
@@ -134,6 +133,7 @@ export function WindowChrome() {
         icon="inbox"
         label="New message"
         testID="chrome-new-message"
+        tone="avatar-2"
         onPress={() => {
           activeNav.set("Inbox");
           newMessageOpen.set(true);
@@ -143,6 +143,7 @@ export function WindowChrome() {
         icon="briefcase"
         label="New deal"
         testID="chrome-new-deal"
+        tone="avatar-3"
         onPress={() => {
           activeNav.set("Deals");
           newDealOpen.set(true);
@@ -152,6 +153,7 @@ export function WindowChrome() {
         icon="fileText"
         label="New quote"
         testID="chrome-new-quote"
+        tone="avatar-4"
         onPress={() => {
           activeNav.set("Quotes");
           quoteBuilderOpen.set(true);
@@ -171,7 +173,7 @@ export function WindowChrome() {
             height: 28,
             paddingLeft: 0,
             paddingRight: 0,
-            fontSize: 12,
+            fontSize: 13,
             color: token("foreground"),
             placeholderColor: token("muted-foreground"),
             backgroundColor: "transparent",
@@ -201,7 +203,10 @@ export function WindowChrome() {
           class="rounded-full"
           style={{ width: 5, height: 5, backgroundColor: token(online() ? "success" : "warning") }}
         />
-        <Text class="text-[10.5px] font-medium text-muted-foreground">
+        <Text
+          class="text-[12px] font-medium"
+          style={{ color: token(online() ? "success" : "warning") }}
+        >
           {online() ? "Synced" : "Offline"}
         </Text>
       </View>
@@ -209,6 +214,7 @@ export function WindowChrome() {
         icon="panelRight"
         label={sidebarCollapsed() ? "Expand sidebar" : "Collapse sidebar"}
         size={32}
+        tone="avatar-2"
         testID="sidebar-toggle"
         onPress={() => sidebarCollapsed.set(!sidebarCollapsed())}
       />
@@ -217,6 +223,7 @@ export function WindowChrome() {
         icon={colorScheme() === "dark" ? "sun" : "moon"}
         label={colorScheme() === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         size={32}
+        tone={colorScheme() === "dark" ? "avatar-4" : "avatar-2"}
         testID="theme-toggle"
         onPress={() => setColorScheme(colorScheme() === "dark" ? "light" : "dark")}
       />
@@ -224,6 +231,7 @@ export function WindowChrome() {
         icon="gauge"
         label="Help and onboarding"
         size={32}
+        tone="avatar-3"
         testID="help-button"
         onPress={() => onboardingOpen.set(true)}
       />
@@ -235,7 +243,7 @@ export function WindowChrome() {
         class="rounded-full p-0.5"
         hoverStyle={{ backgroundColor: token("accent") }}
       >
-        <Avatar photo={userPhoto} initials="DM" size={26} online tone="green" />
+        <Avatar name="Alex Morgan" size={26} online />
       </View>
       <View class="ml-1 flex-row items-center gap-0.5 border-l border-border pl-1.5">
         <TrafficButton kind="minimize" onPress={() => act("minimize")} />

@@ -9,7 +9,7 @@ export function WindowMoreMenu() {
   return (
     <ActionMenu
       testID="chrome-more-menu"
-      trigger={<MenuTrigger label="More" icon="command" testID="chrome-more" />}
+      trigger={<MenuTrigger label="More" icon="command" testID="chrome-more" tone="avatar-1" />}
       groups={[
         [
           {

@@ -1,6 +1,7 @@
 import type { NavItem } from "../state";
 import { activeNav, activeNavChild, allConversations } from "../state";
 import { quoteRows } from "../screens/quotes/state";
+import { followUpRows } from "../screens/home/state";
 import { recoveryRows } from "../screens/recovery/state";
 import { runLogOpen } from "../screens/automations/state";
 import type { IconName } from "./ui";
@@ -27,6 +28,19 @@ function openRunLog() {
 
 export const navTopItems: NavModule[] = [
   {
+    id: "home",
+    label: "Home",
+    page: "Home",
+    icon: "gauge",
+  },
+  {
+    id: "tasks",
+    label: "Tasks",
+    page: "Tasks",
+    icon: "checkCheck",
+    count: () => followUpRows().filter((task) => !task.done).length,
+  },
+  {
     id: "inbox",
     label: "Inbox",
     page: "Inbox",
@@ -35,7 +49,7 @@ export const navTopItems: NavModule[] = [
   },
   {
     id: "recovery",
-    label: "Follow-ups",
+    label: "Recovery",
     page: "Recovery",
     icon: "bell",
     count: () => recoveryRows().length,
